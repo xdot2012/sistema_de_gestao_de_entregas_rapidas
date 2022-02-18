@@ -1,0 +1,9 @@
+venv/
+.idea
+*/_pycache_/
+*.pyc
+.expo/
+.expo-shared/
+node_modules/
+meu_app
+__pycache__
