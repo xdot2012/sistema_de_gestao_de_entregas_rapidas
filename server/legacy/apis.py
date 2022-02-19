@@ -3,6 +3,7 @@ import json
 import ortools
 from django.db import IntegrityError
 from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from .serializers import LocalSerializer, ClientSerializer
@@ -19,6 +20,18 @@ class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
     permission_classes = [IsAuthenticated]
+
+    @action(methods=['POST'], detail=False)
+    def filter(self, request, *args, **kwargs):
+        filters = request.data
+        client_list = Client.objects.filter(**filters)
+        serializer = self.get_serializer(client_list, many=True)
+        return Response(serializer.data)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class LocalViewSet(viewsets.ModelViewSet):

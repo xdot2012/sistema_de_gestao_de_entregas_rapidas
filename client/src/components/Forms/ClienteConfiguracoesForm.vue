@@ -18,10 +18,13 @@
             <h1>Digite o nome do cliente </h1>
             <v-autocomplete
               class="mt-5"
-              v-model="nomeBusca"
-              :items="clientLista"
+              v-model="selectedClientID"
+              :search-input.sync="nomeBusca"
+              :items="clientLista ? clientLista : getAllClients"
               dense
               label="Cliente"
+              item-text="name"
+              item-value="id"
             ></v-autocomplete>
           </div>
         </v-tab-item>
@@ -51,41 +54,64 @@
           <v-card-title>
               <v-text-field
                 :rules=regraNomeCliente
-                v-model=clientInfo.nome
+                v-model=selectedClientInfo.name
                 :disabled=!editarCliente
               ></v-text-field>
             <v-spacer />
+
             <v-btn
+              v-if="!editarCliente"
+              :disabled="!selectedClientID"
               fab
               depressed
               @click="editarCliente = !editarCliente">
-              <v-icon>mdi-pencil</v-icon>
+              <v-icon>
+                mdi-pencil
+              </v-icon>
             </v-btn>
+
+            <v-btn
+              v-else
+              fab
+              depressed
+              @click="editarCliente = !editarCliente">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+
           </v-card-title>
           <v-card-text>
             Telefone:
             <v-text-field
               :rules=regraTelefone
-              v-model=clientInfo.telefone
+              v-model=selectedClientInfo.phone
               :disabled=!editarCliente
               v-mask="'(##) ##### - ####'"
               >
             </v-text-field>
             Endereço Principal:
-            <v-text-field
-              :rules=regraTexto
+            <v-textarea
               :disabled=!editarCliente
-              v-model=clientInfo.endereco
+              v-model=selectedClientInfo.address
             >
-            </v-text-field>
+            </v-textarea>
             <div class="d-flex justify-end">
-              Último Pedido: {{ clientInfo.ultimo_pedido }} <br />
+              Último Pedido: {{ selectedClientInfo.last_order }} <br />
             </div>
           </v-card-text>
           <v-card-actions >
-            <v-btn v-if="editarCliente" color="warning">Excluir Cliente</v-btn>
+            <v-btn
+              v-if="editarCliente && selectedClientID"
+              color="warning"
+              @click="deleteClient">
+              Excluir Cliente
+            </v-btn>
             <v-spacer />
-            <v-btn color="primary" x-large>Ver Pedidos</v-btn>
+            <v-btn
+              v-if="!editarCliente"
+              color="primary"
+              x-large
+              :disabled="!selectedClientID">Ver Pedidos</v-btn>
+            <v-btn v-else color="primary" x-large>Salvar Alterações</v-btn>
           </v-card-actions>
         </v-card>
       </div>
@@ -121,6 +147,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import {
   regraNomeCliente,
   regraTelefone,
@@ -131,6 +158,7 @@ import NovoClienteForm from './NovoClienteForm.vue';
 export default {
   components: { NovoClienteForm },
   name: 'Configuracoes',
+  computed: mapGetters(['getAllClients']),
   data() {
     return {
       tab: null,
@@ -140,20 +168,70 @@ export default {
       regraTexto,
       telefoneBusca: null,
       enderecoBusca: null,
-      nomeBusca: null,
-      clientLista: [
-        'Carlos',
-        'Geralda',
-        'Maria',
-      ],
-      clientInfo: {
-        nome: 'Geralda Pereira da Silva',
-        telefone: '(99) 99999-9999',
-        endereco: 'Rua x, Bairro y. Cidade XYZ/XX',
-        ultimo_pedido: '02/01/2022',
+      nomeBusca: '',
+      selectedClientID: null,
+      selectedClientInfo: {
+        name: '',
+        id: null,
+        phone: '',
+        address: '',
+        last_order: '',
       },
+      clientLista: [
+      ],
       editarCliente: false,
     };
+  },
+  methods: {
+    clearSelectedClient() {
+      this.selectedClientID = null;
+      this.selectedClientInfo = {
+        name: '',
+        id: null,
+        phone: '',
+        address: '',
+        last_order: '',
+      };
+      this.editarCliente = false;
+      this.nomeBusca = '';
+      this.telefoneBusca = '';
+      this.enderecoBusca = '';
+    },
+    formatAddress(obj) {
+      let address = `Rua/Av ${obj.street} nº${obj.number}, Bairro ${obj.district} - ${obj.city_name}/${obj.state_name}.\nCEP: ${obj.code};\n`;
+      if (obj.reference) {
+        address += `Referência: ${obj.reference}`;
+      }
+      return address;
+    },
+    deleteClient() {
+      this.$store.dispatch('deleteClient', { clientID: this.selectedClientID, callback: this.deleteSuccess });
+    },
+    deleteSuccess() {
+      this.clearSelectedClient();
+    },
+  },
+  watch: {
+    nomeBusca: function onChange(val) {
+      this.clientLista = this.$store.getters.getAutoCompleteClientName.filter(
+        (item) => item.name.includes(val),
+      );
+    },
+    selectedClientID: function onChange(val) {
+      if (!val) {
+        return null;
+      }
+      const obj = this.$store.getters.getAllClients.find(
+        (item) => item.pk === val,
+      );
+      this.selectedClientInfo = {
+        name: obj.name,
+        phone: obj.phone,
+        address: this.formatAddress(obj),
+        last_order: 'Nunca',
+      };
+      return val;
+    },
   },
 };
 </script>

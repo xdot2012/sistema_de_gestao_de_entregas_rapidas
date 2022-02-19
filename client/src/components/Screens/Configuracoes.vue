@@ -12,6 +12,9 @@ import EntregadorConfiguracoesForm from '../Forms/EntregadorConfiguracoesForm.vu
 export default {
   components: { ClienteConfiguracoesForm, EntregadorConfiguracoesForm },
   name: 'Configuracoes',
+  beforeCreate() {
+    this.$store.dispatch('getClients');
+  },
   data() {
     return {
       tab: null,

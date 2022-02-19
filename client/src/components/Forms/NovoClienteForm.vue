@@ -178,7 +178,7 @@ export default {
         number: this.enderecoEntregaNumero,
         street: this.enderecoEntregaRua,
         district: this.enderecoEntregaBairro,
-        code: this.enderecoEntregaBairro,
+        code: this.enderecoEntregaCEP,
         country_name: this.enderecoEntregaCidadeEstado,
         state_name: this.enderecoEntregaCidadeEstado,
         city_name: this.enderecoEntregaCidadeEstado,
