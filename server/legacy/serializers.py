@@ -1,8 +1,13 @@
 from rest_framework import serializers
-from .models import Local, Client
+from .models import Local, Client, DeliveryMan
 from accounts.models import User
 
 
+class DeliveryManSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeliveryMan
+        fields = ['name', 'status', 'vehicle_type', 'phone', 'capacity'
+                  ]
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client

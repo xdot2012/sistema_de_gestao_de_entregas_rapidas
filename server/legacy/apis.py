@@ -6,15 +6,18 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import LocalSerializer, ClientSerializer
-from .models import Local, Client
-from accounts.models import User
+from .serializers import LocalSerializer, ClientSerializer, DeliveryManSerializer
+from .models import Local, Client, DeliveryMan
 from rest_framework.response import Response
 from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
 
 api_key = '&key=AIzaSyD3iW-BDcjxvxPpQIr-YxZLu7TrcJ7I5hc'
 
+class DeliveryManViewSet(viewsets.ModelViewSet):
+    queryset = DeliveryMan.objects.all()
+    serializer_class = DeliveryManSerializer
+    permission_classes = [IsAuthenticated]
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
@@ -223,8 +226,6 @@ class GenerateRouteAPI(APIView):
                 "route": route,
                 "distance": int(float(res[1][0])/1000),
             }
-
-
             return Response(response, status=status.HTTP_200_OK)
 
         return Response(data="Resultado Não encontrado", status=status.HTTP_424_FAILED_DEPENDENCY)

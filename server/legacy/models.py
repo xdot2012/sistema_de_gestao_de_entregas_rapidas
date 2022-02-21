@@ -6,6 +6,26 @@ DELIVERY_CHOICES = (
     ('PICKUP', 'Retirada no Local'),
 )
 
+VEHICLE_CHOICES = (
+    ('CAR', 'Carro'),
+    ('MOTORCYCLE', 'Moto'),
+    ('BIKE', 'Bicicleta')
+)
+
+STATUS_CHOICES = (
+    ('IDLE', 'Aguardando'),
+    ('UNAVAILABLE', 'Indisponível'),
+    ('IN_ROUTE', 'Em rota')
+)
+
+
+class DeliveryMan(BaseModel):
+    name = models.CharField('Nome', max_length=100)
+    phone = models.CharField('Telefone', max_length=11, unique=True)
+    vehycle_type = models.CharField('Tipo do Veículo', max_length=15, choices=(VEHICLE_CHOICES))
+    status = models.CharField('Situação', max_length=15, choices=STATUS_CHOICES)
+    capacity = models.PositiveIntegerField('Capacidade do Veículo (Nº de pedidos)', default=0)
+
 
 class Client(BaseModel):
     name = models.CharField('Nome', max_length=100)

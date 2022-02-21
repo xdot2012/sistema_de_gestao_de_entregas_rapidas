@@ -1,5 +1,13 @@
 import authRequest from '../../variables';
 
+function formatAddress(obj) {
+  let address = `Rua/Av ${obj.street} nº${obj.number}, Bairro ${obj.district} - ${obj.city_name}/${obj.state_name}.\nCEP: ${obj.code};\n`;
+  if (obj.reference) {
+    address += `Referência: ${obj.reference}`;
+  }
+  return address;
+}
+
 const client = {
   state: () => ({
     client: null,
@@ -9,7 +17,12 @@ const client = {
   getters: {
     getAllClients: (state) => state.clientList,
     getAutoCompleteClientName: (state) => state.clientList.map(
-      (item) => ({ name: item.name, id: item.pk }),
+      (item) => ({
+        name: item.name,
+        pk: item.pk,
+        phone: item.phone,
+        address: formatAddress(item),
+      }),
     ),
   },
 
@@ -26,6 +39,20 @@ const client = {
         .then((response) => {
           commit('ADD_CLIENT', [response.data]);
           dispatch('alertSuccess', { non_field_errors: ['Cliente Adicionado com Sucesso.'] });
+          formData.callback();
+        })
+        .catch((err) => {
+          if (err.response?.data) {
+            dispatch('alertError', err.response.data);
+          } else (dispatch('alertError', [err]));
+        });
+    },
+    updateClient({ commit, dispatch }, formData) {
+      console.log(formData);
+      authRequest.put(`/api/clients/${formData.clientID}/`, formData.client)
+        .then((response) => {
+          commit('UPDATE_CLIENT', [response.data]);
+          dispatch('alertSuccess', { non_field_errors: ['Cliente Alterado com Sucesso.'] });
           formData.callback();
         })
         .catch((err) => {
@@ -63,6 +90,10 @@ const client = {
       } else {
         console.log('ERRO, CLIENTE NÃO ENCONTRADO!');
       }
+    },
+    UPDATE_CLIENT(state, payload) {
+      this.REMOVE_CLIENT(state, payload);
+      this.ADD_CLIENTS(state, [payload]);
     },
   },
 };

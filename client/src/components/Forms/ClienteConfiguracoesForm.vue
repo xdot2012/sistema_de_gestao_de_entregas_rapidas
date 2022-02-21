@@ -20,11 +20,11 @@
               class="mt-5"
               v-model="selectedClientID"
               :search-input.sync="nomeBusca"
-              :items="clientLista ? clientLista : getAllClients"
+              :items="clientLista"
               dense
               label="Cliente"
               item-text="name"
-              item-value="id"
+              item-value="pk"
             ></v-autocomplete>
           </div>
         </v-tab-item>
@@ -32,9 +32,14 @@
             <div>
             <h1>Digite o número de Telefone</h1>
             <v-autocomplete
-              v-model="telefoneBusca"
+              class="mt-5"
+              v-model="selectedClientID"
+              :search-input.sync="telefoneBusca"
               :items="clientLista"
-              label="Digite o Número"
+              dense
+              label="Telefone do Cliente"
+              item-text="phone"
+              item-value="pk"
             ></v-autocomplete>
           </div>
         </v-tab-item>
@@ -42,9 +47,14 @@
           <div>
             <h1>Digite o Endereço</h1>
             <v-autocomplete
-              v-model="enderecoBusca"
+              class="mt-5"
+              v-model="selectedClientID"
+              :search-input.sync="enderecoBusca"
               :items="clientLista"
-              label="Digite o Número"
+              dense
+              label="Endereço do Cliente"
+              item-text="address"
+              item-value="pk"
             ></v-autocomplete>
           </div>
         </v-tab-item>
@@ -111,7 +121,7 @@
               color="primary"
               x-large
               :disabled="!selectedClientID">Ver Pedidos</v-btn>
-            <v-btn v-else color="primary" x-large>Salvar Alterações</v-btn>
+            <v-btn v-else color="primary" x-large @click="updateClient">Salvar Alterações</v-btn>
           </v-card-actions>
         </v-card>
       </div>
@@ -166,13 +176,13 @@ export default {
       regraNomeCliente,
       regraTelefone,
       regraTexto,
-      telefoneBusca: null,
-      enderecoBusca: null,
+      telefoneBusca: '',
+      enderecoBusca: '',
       nomeBusca: '',
       selectedClientID: null,
       selectedClientInfo: {
         name: '',
-        id: null,
+        pk: null,
         phone: '',
         address: '',
         last_order: '',
@@ -187,7 +197,7 @@ export default {
       this.selectedClientID = null;
       this.selectedClientInfo = {
         name: '',
-        id: null,
+        pk: null,
         phone: '',
         address: '',
         last_order: '',
@@ -204,17 +214,33 @@ export default {
       }
       return address;
     },
-    deleteClient() {
-      this.$store.dispatch('deleteClient', { clientID: this.selectedClientID, callback: this.deleteSuccess });
+    updateClient() {
+      this.$store.dispatch('updateClient', { client: this.selectedClientInfo, clientID: this.selectedClientID, callback: this.onEdit });
     },
-    deleteSuccess() {
+    deleteClient() {
+      this.$store.dispatch('deleteClient', { clientID: this.selectedClientID, callback: this.onDelete });
+    },
+    onDelete() {
       this.clearSelectedClient();
+    },
+    onEdit() {
+
     },
   },
   watch: {
     nomeBusca: function onChange(val) {
       this.clientLista = this.$store.getters.getAutoCompleteClientName.filter(
         (item) => item.name.includes(val),
+      );
+    },
+    telefoneBusca: function onChange(val) {
+      this.clientLista = this.$store.getters.getAutoCompleteClientName.filter(
+        (item) => item.phone.includes(val),
+      );
+    },
+    enderecoBusca: function onChange(val) {
+      this.clientLista = this.$store.getters.getAutoCompleteClientName.filter(
+        (item) => item.address.includes(val),
       );
     },
     selectedClientID: function onChange(val) {
