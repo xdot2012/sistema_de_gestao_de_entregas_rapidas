@@ -6,11 +6,11 @@ const deliveryman = {
   }),
 
   getters: {
-    getAll: (state) => state.all,
+    getAllDeliveryman: (state) => state.all,
   },
 
   actions: {
-    getAllDeliveryman({ commit }) {
+    getDeliveryman({ commit }) {
       authRequest.get('/api/deliveryman/')
         .then((response) => {
           commit('RESET_DELIVERYMANS');

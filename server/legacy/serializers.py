@@ -7,7 +7,7 @@ class DeliveryManSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DeliveryMan
-        fields = ['name', 'status', 'vehicle_type', 'phone', 'phone_format', 'capacity']
+        fields = ['pk', 'name', 'status', 'vehicle_type', 'phone', 'phone_format', 'capacity']
 
     def get_phone_format(self, obj):
         return f'({obj.phone[0:2]}){obj.phone[2:7]}-{obj.phone[7:]}'

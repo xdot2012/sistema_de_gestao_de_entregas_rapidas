@@ -60,7 +60,7 @@ export default {
   components: { Message },
   name: 'Container',
   beforeCreate() {
-    this.$store.dispatch('getAllDeliveryman');
+    this.$store.dispatch('getDeliveryman');
   },
   data() {
     return {

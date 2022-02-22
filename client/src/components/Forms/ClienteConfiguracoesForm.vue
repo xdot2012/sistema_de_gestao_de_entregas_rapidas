@@ -20,7 +20,7 @@
               class="mt-5"
               v-model="selectedClientID"
               :search-input.sync="nomeBusca"
-              :items="clientLista"
+              :items="getAllClients"
               dense
               label="Cliente"
               item-text="name"
@@ -35,10 +35,10 @@
               class="mt-5"
               v-model="selectedClientID"
               :search-input.sync="telefoneBusca"
-              :items="clientLista"
+              :items="getAllClients"
               dense
               label="Telefone do Cliente"
-              item-text="phone"
+              item-text="phone_format"
               item-value="pk"
             ></v-autocomplete>
           </div>
@@ -50,7 +50,7 @@
               class="mt-5"
               v-model="selectedClientID"
               :search-input.sync="enderecoBusca"
-              :items="clientLista"
+              :items="getAllClients"
               dense
               label="Endereço do Cliente"
               item-text="address"
@@ -187,8 +187,6 @@ export default {
         address: '',
         last_order: '',
       },
-      clientLista: [
-      ],
       editarCliente: false,
     };
   },
@@ -228,21 +226,6 @@ export default {
     },
   },
   watch: {
-    nomeBusca: function onChange(val) {
-      this.clientLista = this.$store.getters.getAutoCompleteClientName.filter(
-        (item) => item.name.includes(val),
-      );
-    },
-    telefoneBusca: function onChange(val) {
-      this.clientLista = this.$store.getters.getAutoCompleteClientName.filter(
-        (item) => item.phone.includes(val),
-      );
-    },
-    enderecoBusca: function onChange(val) {
-      this.clientLista = this.$store.getters.getAutoCompleteClientName.filter(
-        (item) => item.address.includes(val),
-      );
-    },
     selectedClientID: function onChange(val) {
       if (!val) {
         return null;

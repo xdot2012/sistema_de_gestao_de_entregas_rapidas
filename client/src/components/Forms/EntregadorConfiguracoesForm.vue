@@ -7,17 +7,21 @@
     <v-card-text class="d-flex">
       <div class="col-6">
         <h1>Selecione o Entregador</h1>
-        <v-select
-          :items="entregadoresLista"
+        <v-autocomplete
+          v-model="entregadorID"
+          :items="getAllDeliveryman"
           label="Entregador"
-        ></v-select>
+          item-text="name"
+          item-value="pk"
+          :search-input.sync="entregadorBusca"
+        ></v-autocomplete>
       </div>
       <div class="col-6">
         <v-card>
           <v-card-title>
               <v-text-field
                 :rules=regraNomeCliente
-                v-model=entregadorInfo.nome
+                v-model=entregadorInfo.name
                 :disabled=!editarentregador
               ></v-text-field>
             <v-spacer />
@@ -32,7 +36,7 @@
             Telefone:
             <v-text-field
               :rules=regraTelefone
-              v-model=entregadorInfo.telefone
+              v-model=entregadorInfo.phone
               :disabled=!editarentregador
               v-mask="'(##) ##### - ####'"
               >
@@ -42,18 +46,18 @@
               :items="tiposVeiculo"
               :rules=regraTexto
               :disabled=!editarentregador
-              v-model=entregadorInfo.tipo_veiculo
+              v-model=entregadorInfo.vehicle_type
             >
             </v-select>
             Capacidade do Veículo:
             <v-text-field
               :rules=regraNumero
-              v-model=entregadorInfo.capacidade
+              v-model=entregadorInfo.capacity
               :disabled=!editarentregador
             >
             </v-text-field>
             <div class="d-flex justify-end">
-              Última Entrega: {{ entregadorInfo.ultimo_pedido }} <br />
+              Última Entrega: {{ entregadorInfo.last_order }} <br />
             </div>
           </v-card-text>
           <v-card-actions >
@@ -88,6 +92,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 import {
   regraNomeCliente,
   regraTelefone,
@@ -99,31 +105,61 @@ import NovoEntregadorForm from './NovoEntregadorForm.vue';
 export default {
   components: { NovoEntregadorForm },
   name: 'EntregadorConfiguracaoForm',
+  computed: mapGetters(['getAllDeliveryman']),
   data() {
     return {
       tiposVeiculo: [
-        'Carro',
-        'Moto',
-        'Bicicleta',
+        'CAR',
+        'BYKE',
+        'MOTORCYCLE',
       ],
       regraNumero,
       regraNomeCliente,
       regraTelefone,
       regraTexto,
-      entregadoresLista: [
-        'Carlos',
-        'Geralda',
-        'Maria',
-      ],
+      entregadorBusca: '',
       entregadorInfo: {
-        nome: 'Geralda Pereira da Silva',
-        telefone: '(99) 99999-9999',
-        tipo_veiculo: 'Moto',
-        ultimo_pedido: '02/01/2022',
-        capacidade: 10,
+        name: 'Geralda Pereira da Silva',
+        phone: '(99) 99999-9999',
+        vehicle_type: 'Moto',
+        last_order: '02/01/2022',
+        capacity: 10,
       },
+      entregadorID: null,
       editarentregador: false,
     };
+  },
+  methods: {
+    clearSelectedDeliveryman() {
+      this.entregadorID = null;
+      this.entregadorInfo = {
+        name: 'Geralda Pereira da Silva',
+        phone: '(99) 99999-9999',
+        vehicle_type: 'Moto',
+        last_order: '02/01/2022',
+        capacity: 10,
+      };
+    },
+  },
+  watch: {
+    entregadorID: function onChange(val) {
+      if (!val) {
+        return null;
+      }
+      const obj = this.$store.getters.getAllDeliveryman.find(
+        (item) => item.pk === val,
+      );
+      this.clearSelectedDeliveryman();
+      this.entregadorInfo = {
+        name: obj.name,
+        phone: obj.phone_format,
+        vehicle_type: obj.vehicle_type,
+        capacity: obj.capacity,
+        last_order: 'Nunca',
+      };
+      console.log(this.entregadorInfo);
+      return val;
+    },
   },
 };
 </script>
