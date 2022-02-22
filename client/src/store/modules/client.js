@@ -1,4 +1,4 @@
-import authRequest from '../../variables';
+import authRequest from '../../requests';
 
 function formatAddress(obj) {
   let address = `Rua/Av ${obj.street} nº${obj.number}, Bairro ${obj.district} - ${obj.city_name}/${obj.state_name}.\nCEP: ${obj.code};\n`;
@@ -21,6 +21,7 @@ const client = {
         name: item.name,
         pk: item.pk,
         phone: item.phone,
+        phone_format: item.phone_format,
         address: formatAddress(item),
       }),
     ),
@@ -31,7 +32,7 @@ const client = {
       authRequest.get('/api/clients/')
         .then((response) => {
           commit('RESET_CLIENTS');
-          commit('ADD_CLIENTS', response.data);
+          commit('ADD_CLIENT', response.data);
         });
     },
     createClient({ commit, dispatch }, formData) {
@@ -42,9 +43,12 @@ const client = {
           formData.callback();
         })
         .catch((err) => {
+          console.log(err);
           if (err.response?.data) {
+            console.log('err.response.data');
+            console.log(err.response.data);
             dispatch('alertError', err.response.data);
-          } else (dispatch('alertError', [err]));
+          } else (dispatch('alertError', err));
         });
     },
     updateClient({ commit, dispatch }, formData) {
@@ -56,9 +60,10 @@ const client = {
           formData.callback();
         })
         .catch((err) => {
+          console.log(err);
           if (err.response?.data) {
             dispatch('alertError', err.response.data);
-          } else (dispatch('alertError', [err]));
+          } else (dispatch('alertError', { non_field_errors: [err] }));
         });
     },
     deleteClient({ commit, dispatch }, formData) {
@@ -69,6 +74,7 @@ const client = {
           formData.callback();
         })
         .catch((err) => {
+          console.log(err);
           if (err.response?.data) {
             dispatch('alertError', { non_field_errors: [err.response.data] });
           } else (dispatch('alertError', [err]));
@@ -80,7 +86,7 @@ const client = {
     RESET_CLIENTS(state) {
       state.clientList = [];
     },
-    ADD_CLIENTS(state, payload) {
+    ADD_CLIENT(state, payload) {
       state.clientList = state.clientList.concat(payload);
     },
     REMOVE_CLIENT(state, payload) {

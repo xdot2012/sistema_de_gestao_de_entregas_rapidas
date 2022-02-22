@@ -171,9 +171,10 @@ export default {
       this.$refs.form.resetValidation();
     },
     criarCliente() {
+      const formatPhone = this.telefoneCliente.replace(' ', '').replace('(', '').replace(')', '').replace('-', '');
       const client = {
         name: this.nomeCliente,
-        phone: this.telefoneCliente,
+        phone: formatPhone,
         number: this.enderecoEntregaNumero,
         street: this.enderecoEntregaRua,
         district: this.enderecoEntregaBairro,

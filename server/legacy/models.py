@@ -22,8 +22,8 @@ STATUS_CHOICES = (
 class DeliveryMan(BaseModel):
     name = models.CharField('Nome', max_length=100)
     phone = models.CharField('Telefone', max_length=11, unique=True)
-    vehycle_type = models.CharField('Tipo do Veículo', max_length=15, choices=(VEHICLE_CHOICES))
-    status = models.CharField('Situação', max_length=15, choices=STATUS_CHOICES)
+    vehicle_type = models.CharField('Tipo do Veículo', max_length=15, choices=(VEHICLE_CHOICES))
+    status = models.CharField('Situação', max_length=15, choices=STATUS_CHOICES, default="IDLE")
     capacity = models.PositiveIntegerField('Capacidade do Veículo (Nº de pedidos)', default=0)
 
 

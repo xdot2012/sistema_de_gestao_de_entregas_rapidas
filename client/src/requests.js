@@ -5,6 +5,7 @@ const url = 'http://localhost:8000';
 const authRequest = () => {
   const defaultOptions = {
     baseURL: url,
+    timeout: 1000 * 30,
     headers: {
       'Content-Type': 'application/json',
     },

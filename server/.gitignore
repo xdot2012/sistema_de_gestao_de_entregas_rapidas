@@ -7,3 +7,4 @@ venv/
 node_modules/
 meu_app
 __pycache__
+dbsqlite

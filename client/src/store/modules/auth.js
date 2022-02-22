@@ -22,7 +22,11 @@ const auth = {
           window.location.replace('/');
         })
         .catch((err) => {
-          dispatch('alertError', err.response.data);
+          if (err.response?.data) {
+            dispatch('alertError', err.response.data);
+          } else {
+            dispatch('alertError', { non_field_errors: [err] });
+          }
         });
     },
     logout({ commit }) {

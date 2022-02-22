@@ -5,6 +5,7 @@ import Vuex from 'vuex';
 import message from './modules/messages';
 import auth from './modules/auth';
 import client from './modules/client';
+import deliveryman from './modules/deliveryman';
 
 Vue.use(Vuex);
 
@@ -13,5 +14,6 @@ export default new Vuex.Store({
     message,
     auth,
     client,
+    deliveryman,
   },
 });

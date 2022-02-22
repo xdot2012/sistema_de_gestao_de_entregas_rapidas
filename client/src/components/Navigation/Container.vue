@@ -59,6 +59,9 @@ import Message from './Message.vue';
 export default {
   components: { Message },
   name: 'Container',
+  beforeCreate() {
+    this.$store.dispatch('getAllDeliveryman');
+  },
   data() {
     return {
       drawer: null,

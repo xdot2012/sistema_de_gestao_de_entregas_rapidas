@@ -250,9 +250,10 @@ export default {
       const obj = this.$store.getters.getAllClients.find(
         (item) => item.pk === val,
       );
+      this.clearSelectedClient();
       this.selectedClientInfo = {
         name: obj.name,
-        phone: obj.phone,
+        phone: obj.phone_format,
         address: this.formatAddress(obj),
         last_order: 'Nunca',
       };
