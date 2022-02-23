@@ -55,7 +55,8 @@ const client = {
       console.log(formData);
       authRequest.put(`/api/clients/${formData.clientID}/`, formData.client)
         .then((response) => {
-          commit('UPDATE_CLIENT', [response.data]);
+          commit('REMOVE_CLIENT', formData.clientID);
+          commit('ADD_CLIENT', [response.data]);
           dispatch('alertSuccess', { non_field_errors: ['Cliente Alterado com Sucesso.'] });
           formData.callback();
         })
@@ -96,10 +97,6 @@ const client = {
       } else {
         console.log('ERRO, CLIENTE NÃO ENCONTRADO!');
       }
-    },
-    UPDATE_CLIENT(state, payload) {
-      this.REMOVE_CLIENT(state, payload);
-      this.ADD_CLIENTS(state, [payload]);
     },
   },
 };

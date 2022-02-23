@@ -33,7 +33,8 @@ const deliveryman = {
     updateDeliveryman({ commit, dispatch }, formData) {
       authRequest.put(`/api/deliveryman/${formData.deliverymanID}/`, formData.deliveryman)
         .then((response) => {
-          commit('UPDATE_DELIVERYMAN', [response.data]);
+          commit('REMOVE_DELIVERYMAN', formData.deliverymanID);
+          commit('ADD_DELIVERYMAN', [response.data]);
           dispatch('alertSuccess', { non_field_errors: ['Entregador Alterado com Sucesso.'] });
           formData.callback();
         })
@@ -73,10 +74,6 @@ const deliveryman = {
       } else {
         console.log('ERRO, ENTREGADOR NÃO ENCONTRADO!');
       }
-    },
-    UPDATE_DELIVERYMAN(state, payload) {
-      this.REMOVE_DELIVERYMAN(state, payload);
-      this.ADD_DELIVERYMAN(state, [payload]);
     },
   },
 };

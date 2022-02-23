@@ -28,7 +28,8 @@
             <v-btn
               fab
               depressed
-              @click="editarentregador = !editarentregador">
+              @click="editarentregador = !editarentregador"
+              :disabled="!entregadorID">
               <v-icon>mdi-pencil</v-icon>
             </v-btn>
           </v-card-title>
@@ -38,7 +39,7 @@
               :rules=regraTelefone
               v-model=entregadorInfo.phone
               :disabled=!editarentregador
-              v-mask="'(##) ##### - ####'"
+              v-mask="'(##)#####-####'"
               >
             </v-text-field>
             Tipo de Veículo:
@@ -61,9 +62,17 @@
             </div>
           </v-card-text>
           <v-card-actions >
-            <v-btn v-if="editarentregador" color="warning">Excluir</v-btn>
+            <v-btn
+              v-if="editarentregador"
+              color="warning"
+              @click="deleteDeliveryman">Excluir</v-btn>
             <v-spacer />
-            <v-btn color="primary" x-large>Ver Entregas</v-btn>
+            <v-btn v-if="!editarentregador" color="primary" x-large>Ver Entregas</v-btn>
+            <v-btn
+              v-else
+              color="primary"
+              x-large
+              @click="updateDeliveryman">Salvar Alterações</v-btn>
           </v-card-actions>
         </v-card>
       </div>
@@ -80,10 +89,17 @@
 
         <template v-slot:default="dialog">
           <v-card class=" pa-8">
-            <novo-entregador-form />
-            <v-card-actions class="justify-end">
-              <v-btn text @click="dialog.value = false">Close</v-btn>
-            </v-card-actions>
+              <v-card-title class="justify-end">
+                <h2>Cadastrar Entregador</h2>
+                <v-spacer />
+                <v-btn
+                text
+                fab
+                @click="dialog.value=false">
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+              </v-card-title>
+            <novo-entregador-form :dialog="() => dialog.value = false"/>
           </v-card>
         </template>
       </v-dialog>
@@ -119,11 +135,11 @@ export default {
       regraTexto,
       entregadorBusca: '',
       entregadorInfo: {
-        name: 'Geralda Pereira da Silva',
-        phone: '(99) 99999-9999',
-        vehicle_type: 'Moto',
-        last_order: '02/01/2022',
-        capacity: 10,
+        name: '',
+        phone: '',
+        vehicle_type: '',
+        last_order: '',
+        capacity: '',
       },
       entregadorID: null,
       editarentregador: false,
@@ -133,12 +149,32 @@ export default {
     clearSelectedDeliveryman() {
       this.entregadorID = null;
       this.entregadorInfo = {
-        name: 'Geralda Pereira da Silva',
-        phone: '(99) 99999-9999',
-        vehicle_type: 'Moto',
-        last_order: '02/01/2022',
-        capacity: 10,
+        name: '',
+        phone: '',
+        vehicle_type: '',
+        last_order: '',
+        capacity: '',
       };
+      this.editarentregador = false;
+    },
+    updateDeliveryman() {
+      const formatPhone = this.entregadorInfo.phone.replace(' ', '').replace('(', '').replace(')', '').replace('-', '');
+      const deliveryman = {
+        name: this.entregadorInfo.name,
+        phone: formatPhone,
+        vehicle_type: this.entregadorInfo.vehicle_type,
+        capacity: this.entregadorInfo.capacity,
+      };
+      this.$store.dispatch('updateDeliveryman', { deliveryman, deliverymanID: this.entregadorID, callback: this.onEdit });
+    },
+    deleteDeliveryman() {
+      this.$store.dispatch('deleteDeliveryman', { deliverymanID: this.entregadorID, callback: this.onDelete });
+    },
+    onEdit() {
+      this.editarentregador = false;
+    },
+    onDelete() {
+      this.clearSelectedDeliveryman();
     },
   },
   watch: {
@@ -149,7 +185,6 @@ export default {
       const obj = this.$store.getters.getAllDeliveryman.find(
         (item) => item.pk === val,
       );
-      this.clearSelectedDeliveryman();
       this.entregadorInfo = {
         name: obj.name,
         phone: obj.phone_format,
@@ -157,7 +192,6 @@ export default {
         capacity: obj.capacity,
         last_order: 'Nunca',
       };
-      console.log(this.entregadorInfo);
       return val;
     },
   },
