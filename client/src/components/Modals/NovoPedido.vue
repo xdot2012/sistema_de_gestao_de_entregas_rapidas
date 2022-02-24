@@ -18,9 +18,168 @@
           </v-card-title>
 
           <v-card-text class="flex-fill">
-            <produtos-form v-if="!etapaPedido"/>
-            <cliente-form v-else-if="etapaPedido==1" />
-            <entrega-form v-else-if="etapaPedido==2" />
+            <div class="d-flex" v-if="!etapaPedido">
+              <!-- SELEÇÃO DE PRODUTO -->
+              <div class="d-flex flex-column" style="width: 25%; height: 100%">
+                <v-simple-table light>
+                  <thead>
+                    <tr>
+                      <th colspan="3" class="mb-5 text-center primary white--text">
+                        <h2>Resumo do Pedido</h2>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in pedidoCliente" :key=item.id>
+                      <td>{{item.nome}}</td>
+                      <td>{{item.quantidade}}</td>
+                      <td>
+                        <v-btn
+                          @click="removeItem(item.id)"
+                          color="gray"
+                          icon
+                          small>
+                          <v-icon>mdi-delete</v-icon>
+                        </v-btn>
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-simple-table>
+              </div>
+
+              <div class="ml-auto d-flex justify-end" style="width:70%">
+                <div cl="d-flex flex-column">
+                  <h3>Descrição do Produto:</h3>
+                  <v-text-field
+                    v-on:keyup.enter="onEnter()"
+                    :rules="regraTexto"
+                    v-model="textoItem">
+                  </v-text-field>
+
+                  <div class="d-flex align-center justify-end">
+                    <v-btn
+                      icon
+                      @click="diminuirQuantidade()"
+                      small
+                      color="primary"
+                      :disabled="quantidadeItem<=1">
+                      <v-icon>mdi-minus</v-icon>
+                    </v-btn>
+                    <v-text-field
+                      :rules="regraNumero"
+                      style="max-width: 10%"
+                      class="ml-3 mr-3"
+                      v-model="quantidadeItem">
+                    </v-text-field>
+                    <v-btn
+                      icon
+                      @click="aumentarQuantidade()"
+                      small
+                      color="primary">
+                      <v-icon>mdi-plus</v-icon>
+                    </v-btn>
+                    <v-btn
+                      @click="adicionarItem()"
+                      class="ml-5"
+                      color="primary"
+                      :disabled="!textoItem || !quantidadeItem"
+                      >ADICIONAR AO PEDIDO
+                    </v-btn>
+                  </div>
+                </div>
+              </div>
+              <!-- /SELEÇÃO DE PRODUTOS -->
+            </div>
+
+            <div v-else-if="etapaPedido==1" class="mt-5">
+              <!-- SELEÇÃO CLIENTE -->
+              <v-radio-group v-model="cliente_pedido" row>
+                <v-radio label="Selecionar Cliente" color="primary" value="selecionar_cliente"
+                ></v-radio>
+                <v-radio label="Novo Cliente" color="primary" value="novo_cliente"
+                ></v-radio>
+              </v-radio-group>
+
+              <novo-cliente-form v-if="cliente_pedido == 'novo_cliente'" />
+              <selecao-cliente-form v-else />
+              <!-- /SELEÇÃO CLIENTE -->
+            </div>
+
+            <div v-else-if="etapaPedido==2" class="d-flex">
+              <!-- ENTREGA -->
+              <div class="d-flex flex-column" style="width: 25%; height: 100%">
+                <v-simple-table>
+                  <thead>
+                    <tr>
+                      <th colspan="3" class="mb-5 text-center primary white--text">
+                        <h2>Resumo do Pedido</h2>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in pedidoCliente" :key=item.id>
+                      <td>{{item.nome}}</td>
+                      <td>{{item.quantidade}}</td>
+                      <td>
+                        <v-btn
+                          @click="removeItem(item.id)"
+                          color="gray"
+                          icon
+                          small>
+                          <v-icon>mdi-delete</v-icon>
+                        </v-btn>
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-simple-table>
+              </div>
+
+              <div class="ml-10 d-flex justify-start flex-fill">
+                <div class="d-flex flex-column flex-fill" >
+                  <h2>Resumo do Pedido:</h2>
+                  <v-divider />
+                  <h3>Cliente:</h3>
+                  <div class="d-flex justify-space-between">
+                    <h3>Nome do Cliente</h3>
+                    <h3>Telefone do Cliente</h3>
+                  </div>
+                  <v-divider />
+                  <div class="d-flex flex-column">
+                    <h3>Endereço de Entrega:</h3>
+                    <div class="d-flex justify-space-between">
+                      <h3>Rua</h3>
+                      <h3>Número</h3>
+                    </div>
+                    <div class="d-flex justify-space-between">
+                      <h3>Bairro</h3>
+                      <h3>Cidade</h3>
+                    </div>
+                  </div>
+                  <v-divider />
+                  <div class="d-flex justify-start">
+                    <div class="d-flex flex-column">
+                      <h3>Método de Pagamento:</h3>
+                        <v-radio-group v-model="metodoPagamento">
+                          <v-radio label="Já pago" value="pago"></v-radio>
+                          <v-radio label="Cartão Crédito" value="cartao_credito"></v-radio>
+                          <v-radio label="Cartão Débito" value="cartao_debito"></v-radio>
+                          <v-radio label="Dinheiro" value="dinheiro"></v-radio>
+                          <v-radio label="Pix" value="pix"></v-radio>
+                        </v-radio-group>
+                    </div>
+                    <div class="d-flex flex-column ml-10">
+                      <h3>Método de Entrega:</h3>
+                      <v-radio-group v-model="tipoEntrega">
+                        <v-radio label="Delivery" value="delivery"></v-radio>
+                        <v-radio label="Agendar Horário" value="agendar_horario"></v-radio>
+                        <v-radio label="Retirada no Local" value="retirada_local"></v-radio>
+                      </v-radio-group>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /ENTREGA -->
+            </div>
           </v-card-text>
 
           <v-card-actions class="justify-end mt-auto">
@@ -45,21 +204,33 @@
 </template>
 
 <script>
-import ClienteForm from '../Forms/ClienteForm.vue';
-import ProdutosForm from '../Forms/ProdutosForm.vue';
-import EntregaForm from '../Forms/EntregaForm.vue';
+import NovoClienteForm from '../Forms/NovoClienteForm.vue';
+import SelecaoClienteForm from '../SelecaoClienteForm.vue';
+
+import {
+  regraTexto,
+  regraNumero,
+} from '../../regras_input';
 
 export default {
   components: {
-    ClienteForm,
-    ProdutosForm,
-    EntregaForm,
+    NovoClienteForm,
+    SelecaoClienteForm,
   },
   name: 'NovoPedido',
   data: () => ({
+    cliente_pedido: 'selecionar_cliente',
     etapaPedido: 0,
     value: null,
     confirmaPedido: null,
+    itemsPedido: [],
+    regraTexto,
+    regraNumero,
+    pedidoCliente: [],
+    textoItem: null,
+    quantidadeItem: 1,
+    metodoPagamento: null,
+    tipoEntrega: null,
   }),
   methods: {
     finalizarPedido() {
@@ -72,6 +243,27 @@ export default {
     },
     voltarEtapa(etapaPedido) {
       this.etapaPedido = etapaPedido - 1;
+    },
+    onEnter() {
+      this.adicionarItem();
+    },
+    adicionarItem() {
+      this.pedidoCliente.push({
+        id: this.pedidoCliente.length,
+        nome: this.textoItem,
+        quantidade: this.quantidadeItem,
+      });
+      this.textoItem = null;
+      this.quantidadeItem = 1;
+    },
+    removeItem(id) {
+      this.pedidoCliente = this.pedidoCliente.filter((item) => item.id !== id);
+    },
+    diminuirQuantidade() {
+      this.quantidadeItem = parseInt(this.quantidadeItem, 10) - 1;
+    },
+    aumentarQuantidade() {
+      this.quantidadeItem = parseInt(this.quantidadeItem, 10) + 1;
     },
   },
 };

@@ -122,7 +122,7 @@ import {
   regraNomeCliente,
   regraNumero,
   regraCEP,
-} from '../../regras_input';
+} from '../regras_input';
 
 export default {
   name: 'SelecaoClienteForm',

@@ -162,8 +162,8 @@ import {
   regraNomeCliente,
   regraTelefone,
   regraTexto,
-} from '../../regras_input';
-import NovoClienteForm from './NovoClienteForm.vue';
+} from '../regras_input';
+import NovoClienteForm from './Forms/NovoClienteForm.vue';
 
 export default {
   components: { NovoClienteForm },

@@ -115,8 +115,8 @@ import {
   regraTelefone,
   regraTexto,
   regraNumero,
-} from '../../regras_input';
-import NovoEntregadorForm from './NovoEntregadorForm.vue';
+} from '../regras_input';
+import NovoEntregadorForm from './Forms/NovoEntregadorForm.vue';
 
 export default {
   components: { NovoEntregadorForm },
