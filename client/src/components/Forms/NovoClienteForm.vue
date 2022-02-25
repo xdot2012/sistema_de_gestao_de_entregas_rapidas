@@ -127,6 +127,7 @@ export default {
     enderecoEntregaBairro: null,
     enderecoEntregaCEP: null,
     enderecoEntregaReferencia: null,
+    clienteID: null,
     opcoesRua: [
       'Rua 1',
       'Rua 2',
@@ -155,9 +156,9 @@ export default {
     regraTexto,
   }),
   methods: {
-    callback() {
+    callback(id, data) {
       this.reset();
-      this.dialog();
+      this.dialog(id, data);
     },
     validate() {
       if (this.$refs.form.validate()) {

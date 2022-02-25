@@ -93,15 +93,20 @@
 
             <div v-else-if="etapaPedido==1" class="mt-5">
               <!-- SELEÇÃO CLIENTE -->
-              <v-radio-group v-model="cliente_pedido" row>
+              <v-radio-group v-model="getClientBy" row>
                 <v-radio label="Selecionar Cliente" color="primary" value="selecionar_cliente"
                 ></v-radio>
                 <v-radio label="Novo Cliente" color="primary" value="novo_cliente"
                 ></v-radio>
               </v-radio-group>
 
-              <novo-cliente-form v-if="cliente_pedido == 'novo_cliente'" />
-              <selecao-cliente-form v-else />
+              <novo-cliente-form
+                v-if="getClientBy == 'novo_cliente'"
+                :dialog="criarCliente"
+                ref="clientCreate"  />
+              <selecao-cliente-form v-else
+               ref="clientSelect"
+               :validSelection="clientValidation" />
               <!-- /SELEÇÃO CLIENTE -->
             </div>
 
@@ -111,7 +116,7 @@
                 <v-simple-table>
                   <thead>
                     <tr>
-                      <th colspan="3" class="mb-5 text-center primary white--text">
+                      <th colspan="2" class="mb-5 text-center primary white--text">
                         <h2>Resumo do Pedido</h2>
                       </th>
                     </tr>
@@ -120,15 +125,6 @@
                     <tr v-for="item in pedidoCliente" :key=item.id>
                       <td>{{item.nome}}</td>
                       <td>{{item.quantidade}}</td>
-                      <td>
-                        <v-btn
-                          @click="removeItem(item.id)"
-                          color="gray"
-                          icon
-                          small>
-                          <v-icon>mdi-delete</v-icon>
-                        </v-btn>
-                      </td>
                     </tr>
                   </tbody>
                 </v-simple-table>
@@ -140,19 +136,19 @@
                   <v-divider />
                   <h3>Cliente:</h3>
                   <div class="d-flex justify-space-between">
-                    <h3>Nome do Cliente</h3>
-                    <h3>Telefone do Cliente</h3>
+                    <h3>Nome do Cliente: {{clientData.name}}</h3>
+                    <h3>Telefone do Cliente: {{clientData.phone}}</h3>
                   </div>
                   <v-divider />
                   <div class="d-flex flex-column">
                     <h3>Endereço de Entrega:</h3>
                     <div class="d-flex justify-space-between">
-                      <h3>Rua</h3>
-                      <h3>Número</h3>
+                      <h3>Rua: {{clientData.street}}</h3>
+                      <h3>Número: {{clientData.number}}</h3>
                     </div>
                     <div class="d-flex justify-space-between">
-                      <h3>Bairro</h3>
-                      <h3>Cidade</h3>
+                      <h3>Bairro: {{clientData.district}}</h3>
+                      <h3>Cidade: {{clientData.city_name}}</h3>
                     </div>
                   </div>
                   <v-divider />
@@ -186,16 +182,23 @@
             <v-btn v-if="etapaPedido>0"
               x-large
               color="primary"
-              @click="voltarEtapa(etapaPedido)">Voltar</v-btn>
+              @click="voltarEtapa()">Voltar</v-btn>
             <v-spacer></v-spacer>
-            <v-btn v-if="etapaPedido<=1"
+            <v-btn v-if="etapaPedido==0"
               x-large
               color="primary"
-              @click="proximaEtapa(etapaPedido)">Próximo</v-btn>
+              @click="proximaEtapa()"
+              :disabled="!validaProdutos">Próximo</v-btn>
+            <v-btn v-else-if="etapaPedido==1"
+              x-large
+              color="primary"
+              @click="proximaEtapa()"
+              :disabled="!validaCliente">Próximo</v-btn>
             <v-btn v-else
               x-large
               color="primary"
-              @click="dialog.value = finalizarPedido()">
+              @click="dialog.value = finalizarPedido()"
+              :disabled="!metodoPagamento || !tipoEntrega">
               Finalizar Pedido</v-btn>
           </v-card-actions>
         </v-card>
@@ -204,8 +207,10 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 import NovoClienteForm from '../Forms/NovoClienteForm.vue';
-import SelecaoClienteForm from '../SelecaoClienteForm.vue';
+import SelecaoClienteForm from '../Forms/SelecaoClienteForm.vue';
 
 import {
   regraTexto,
@@ -213,17 +218,21 @@ import {
 } from '../../regras_input';
 
 export default {
+  computed: mapGetters(['getAllClients']),
   components: {
     NovoClienteForm,
     SelecaoClienteForm,
   },
+  beforeCreate() {
+    this.$store.dispatch('getClients');
+  },
   name: 'NovoPedido',
   data: () => ({
-    cliente_pedido: 'selecionar_cliente',
+    getClientBy: 'selecionar_cliente',
     etapaPedido: 0,
+    clientID: null,
     value: null,
     confirmaPedido: null,
-    itemsPedido: [],
     regraTexto,
     regraNumero,
     pedidoCliente: [],
@@ -231,6 +240,8 @@ export default {
     quantidadeItem: 1,
     metodoPagamento: null,
     tipoEntrega: null,
+    validaProdutos: false,
+    validaCliente: false,
   }),
   methods: {
     finalizarPedido() {
@@ -238,11 +249,17 @@ export default {
       this.confirmaPedido = true;
       return false;
     },
-    proximaEtapa(etapaPedido) {
-      this.etapaPedido = etapaPedido + 1;
+    proximaEtapa() {
+      if (this.etapaPedido === 1) {
+        if (this.getClientBy === 'selecionar_cliente') {
+          this.clientID = this.$refs.clientSelect.getClient();
+          this.clientData = this.$refs.clientSelect.getClientData();
+        }
+      }
+      this.etapaPedido += 1;
     },
-    voltarEtapa(etapaPedido) {
-      this.etapaPedido = etapaPedido - 1;
+    voltarEtapa() {
+      this.etapaPedido -= 1;
     },
     onEnter() {
       this.adicionarItem();
@@ -255,15 +272,27 @@ export default {
       });
       this.textoItem = null;
       this.quantidadeItem = 1;
+      this.validaProdutos = true;
     },
     removeItem(id) {
       this.pedidoCliente = this.pedidoCliente.filter((item) => item.id !== id);
+      if (this.pedidoCliente.length === 0) {
+        this.validaProdutos = false;
+      }
     },
     diminuirQuantidade() {
       this.quantidadeItem = parseInt(this.quantidadeItem, 10) - 1;
     },
     aumentarQuantidade() {
       this.quantidadeItem = parseInt(this.quantidadeItem, 10) + 1;
+    },
+    criarCliente(id, data) {
+      this.clientID = id;
+      this.clientData = data;
+      this.proximaEtapa(this.etapaPedido);
+    },
+    clientValidation(val) {
+      this.validaCliente = val;
     },
   },
 };

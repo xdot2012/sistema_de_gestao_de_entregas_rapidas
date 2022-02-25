@@ -2,22 +2,25 @@
   <div>
     <v-autocomplete
     v-model="clienteSelecao"
-    :items="opcoesClientes"
+    :items="getAllClients"
     dense
     filled
-    label="Cliente"></v-autocomplete>
+    label="Cliente"
+    item-text="name"
+    item-value="pk"
+    ></v-autocomplete>
     <v-divider></v-divider>
     <div v-if="clienteSelecao">
       <h2 class="mt-3">Cliente:</h2>
         <div class="d-flex">
           <v-text-field class="mr-2"
           label="Nome Cliente"
-          v-model="nomeCliente"
+          v-model="selectedClientInfo.name"
           :rules="regraNomeCliente"
           :readonly="!editarNomeTelefone"></v-text-field>
 
           <v-text-field label="Telefone do Cliente"
-          v-model="telefoneCliente"
+          v-model="selectedClientInfo.phone"
           v-mask="'(##) ##### - ####'"
           :rules="regraTelefone"
           :readonly="!editarNomeTelefone"></v-text-field>
@@ -53,7 +56,7 @@
           style="max-width: 25%"
           label="CEP"
           v-mask="'#####-###'"
-          v-model="enderecoEntregaCEP"
+          v-model="selectedClientInfo.code"
           :rules="regraCEP"
           :readonly="!editarEndereco"></v-text-field>
         </div>
@@ -63,14 +66,15 @@
           class="mr-3"
           style="max-width: 75%"
           label="Rua"
-          v-model="enderecoEntregaRua"
+          v-model="selectedClientInfo.street"
+          :items="opcoesRua"
           :readonly="!editarEndereco"></v-autocomplete>
 
           <v-text-field
           class="mr-3"
           style="max-width: 25%"
           label="Número"
-          v-model="enderecoEntregaNumero"
+          v-model="selectedClientInfo.number"
           :rules="regraNumero"
           :readonly="!editarEndereco"></v-text-field>
         </div>
@@ -80,14 +84,16 @@
           class="mr-3"
           style="max-width: 50%"
           label="Bairro"
-          v-model="enderecoEntregaBairro"
+          v-model="selectedClientInfo.district"
+          :items="opcoesBairro"
           :readonly="!editarEndereco"></v-autocomplete>
 
           <v-autocomplete
           class="mr-3"
           style="max-width: 50%"
           label="Cidade/Estado"
-          v-model="enderecoEntregaCidadeEstado"
+          v-model="selectedClientInfo.city_name"
+          :items="opcoesCidadeEstado"
           :readonly="!editarEndereco"></v-autocomplete>
         </div>
 
@@ -117,22 +123,33 @@
   </div>
 </template>
 <script>
+import { mapGetters } from 'vuex';
+
 import {
   regraTelefone,
   regraNomeCliente,
   regraNumero,
   regraCEP,
-} from '../regras_input';
+} from '../../regras_input';
 
 export default {
+  computed: mapGetters(['getAllClients']),
+  props: ['validSelection'],
   name: 'SelecaoClienteForm',
   data: () => ({
+    selectedClientInfo: {
+      name: null,
+      phone: null,
+      formated_phone: null,
+      pk: null,
+      address: null,
+    },
     editarEndereco: false,
     editarNomeTelefone: false,
     enderecoEditado: false,
     nomeTelefoneEditado: false,
-    clienteSelecao: null,
     nomeCliente: null,
+    clienteSelecao: null,
     telefoneCliente: null,
     enderecoEntregaCidadeEstado: null,
     enderecoEntregaNumero: null,
@@ -173,6 +190,26 @@ export default {
     salvarEndereco() {
       this.editarEndereco = !this.editarEndereco;
       this.enderecoEditado = true;
+    },
+    getClient() {
+      return this.clienteSelecao;
+    },
+    getClientData() {
+      return this.selectedClientInfo;
+    },
+  },
+  watch: {
+    clienteSelecao: function onChange(val) {
+      if (!val) {
+        this.validSelection(false);
+        return null;
+      }
+      const obj = this.$store.getters.getAllClients.find(
+        (item) => item.pk === val,
+      );
+      this.selectedClientInfo = obj;
+      this.validSelection(true);
+      return val;
     },
   },
 };

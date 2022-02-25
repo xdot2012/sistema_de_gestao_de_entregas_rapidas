@@ -15,6 +15,7 @@ const client = {
   }),
 
   getters: {
+    getClientByID: (state, id) => (state.clientList.find((item) => item.pk === id)),
     getAllClients: (state) => state.clientList,
     getAutoCompleteClientName: (state) => state.clientList.map(
       (item) => ({
@@ -40,7 +41,7 @@ const client = {
         .then((response) => {
           commit('ADD_CLIENT', [response.data]);
           dispatch('alertSuccess', { non_field_errors: ['Cliente Adicionado com Sucesso.'] });
-          formData.callback();
+          formData.callback(response.data.pk, response.data);
         })
         .catch((err) => {
           console.log(err);
