@@ -1,5 +1,19 @@
 from rest_framework import serializers
-from .models import Local, Client, DeliveryMan
+from .models import Local, Client, DeliveryMan, Order, OrderProduct
+
+
+class OrderProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderProduct
+        fields = ['pk', 'name', 'quantity']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    products = OrderProductSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Order
+        fields = ['pk', 'client', 'delivery_type', 'created_on', 'modified_on', 'ready_on', 'finished_on', 'created_by', 'modified_by', 'products']
 
 
 class DeliveryManSerializer(serializers.ModelSerializer):

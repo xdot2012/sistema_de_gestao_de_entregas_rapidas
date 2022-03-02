@@ -2,7 +2,7 @@ from django.db import models
 from meuapp.models import BaseModel
 
 DELIVERY_CHOICES = (
-    ('DELIVERY', 'Entrega Imediata'),
+    ('DEFAULT', 'Entrega Imediata'),
     ('PICKUP', 'Retirada no Local'),
 )
 
@@ -51,15 +51,22 @@ class Order(BaseModel):
     delivery_type = models.CharField(max_length=20, verbose_name='Tipo de Entrega', choices=DELIVERY_CHOICES)
     created_on = models.DateTimeField(verbose_name='Recebido em', auto_now_add=True)
     modified_on = models.DateTimeField(verbose_name='Modificado em', auto_now=True)
-    created_by = models.ForeignKey(verbose_name='Criado por', to='accounts.User', related_name='created_orders', on_delete=models.PROTECT)
-    modified_by = models.ForeignKey(verbose_name='Modificado por', to='accounts.User', related_name='modified_orders', on_delete=models.PROTECT)
+    ready_on = models.DateTimeField(verbose_name='Pronto para entrega em', null=True, blank=True)
     finished_on = models.DateTimeField(verbose_name='Concluída em', null=True, blank=True)
+    created_by = models.ForeignKey(verbose_name='Criado por', to='accounts.User', related_name='created_orders', on_delete=models.PROTECT)
+    modified_by = models.ForeignKey(verbose_name='Modificado por', to='accounts.User', related_name='modified_orders', null=True, blank=True, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f'{self.client} - {self.created_on}'
 
 
 class OrderProduct(BaseModel):
-    order = models.ForeignKey(verbose_name='Ordem', to='Order', on_delete=models.CASCADE)
+    order = models.ForeignKey(verbose_name='Ordem', to='Order', related_name='products', on_delete=models.CASCADE)
     name = models.CharField(verbose_name='Produto', max_length=200)
     quantity = models.PositiveIntegerField(verbose_name='Quantidade')
+
+    def __str__(self):
+        return self.name
 
 
 class OrderAppointment(BaseModel):

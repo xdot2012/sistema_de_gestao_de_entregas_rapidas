@@ -1,13 +1,14 @@
 from django.urls import path, include
 from rest_framework import routers
 from legacy import views
-from .apis import LocalViewSet, ClientViewSet, GenerateRouteAPI, DeliveryManViewSet
+from .apis import LocalViewSet, ClientViewSet, GenerateRouteAPI, DeliveryManViewSet, OrderApiView
 
 # Api routes
 router = routers.DefaultRouter()
 router.register(r'locals', LocalViewSet)
 router.register(r'clients', ClientViewSet)
 router.register(r'deliveryman', DeliveryManViewSet)
+router.register(r'orders', OrderApiView)
 
 urlpatterns = [
     path('api/', include(router.urls)),

@@ -6,13 +6,40 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import LocalSerializer, ClientSerializer, DeliveryManSerializer
-from .models import Local, Client, DeliveryMan
+from .serializers import LocalSerializer, ClientSerializer, DeliveryManSerializer, OrderSerializer
+from .models import Local, Client, DeliveryMan, Order, OrderProduct
 from rest_framework.response import Response
 from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
+from django.db import transaction
 
 api_key = '&key=AIzaSyD3iW-BDcjxvxPpQIr-YxZLu7TrcJ7I5hc'
+
+
+class OrderApiView(viewsets.ViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        request.data['created_by'] = request.user.pk
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        with transaction.atomic():
+            order_obj = Order.objects.create(client_id=request.data['client'],
+                                             created_by=request.user,
+                                             delivery_type=request.data['delivery_type'])
+
+            for item in request.data['products']:
+                OrderProduct.objects.create(order_id=order_obj.pk, name=item['name'], quantity=item['quantity'])
+
+        return Response(self.serializer_class(order_obj).data, status=status.HTTP_201_CREATED)
+
+    def list(self, request, *args, **kwargs):
+        queryset = Order.objects.all()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class DeliveryManViewSet(viewsets.ModelViewSet):
