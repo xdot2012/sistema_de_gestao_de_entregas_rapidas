@@ -18,6 +18,13 @@ STATUS_CHOICES = (
     ('IN_ROUTE', 'Em rota')
 )
 
+PAYMENT_CHOICES = (
+    ('CREDIT_CARD', 'Cartão de Crédito'),
+    ('DEBIT_CARD', 'Cartão de Débito'),
+    ('CASH', 'Dinheiro Vivo'),
+    ('PIX', 'Pix'),
+    ('TED', 'Transferência Bancária'),
+)
 
 class DeliveryMan(BaseModel):
     name = models.CharField('Nome', max_length=100)
@@ -48,6 +55,8 @@ class Client(BaseModel):
 
 class Order(BaseModel):
     client = models.ForeignKey(verbose_name='Cliente', to='Client', on_delete=models.PROTECT)
+    payment_method = models.CharField(max_length=20, verbose_name='Método de Pagamento', choices=PAYMENT_CHOICES, default='CASH')
+    is_paid = models.BooleanField(verbose_name='Já pago', default=False)
     delivery_type = models.CharField(max_length=20, verbose_name='Tipo de Entrega', choices=DELIVERY_CHOICES)
     created_on = models.DateTimeField(verbose_name='Recebido em', auto_now_add=True)
     modified_on = models.DateTimeField(verbose_name='Modificado em', auto_now=True)

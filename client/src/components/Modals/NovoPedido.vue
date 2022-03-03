@@ -4,7 +4,8 @@
         <v-btn class="flex-fill mx-2"
           x-large
           color="primary"
-          v-bind="attrs" v-on="on">Novo Pedido</v-btn>
+          v-bind="attrs" v-on="on"
+          @click="clearMessages">Novo Pedido</v-btn>
       </template>
 
       <template v-slot:default="dialog">
@@ -30,9 +31,9 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="item in pedidoCliente" :key=item.id>
-                      <td>{{item.nome}}</td>
-                      <td>{{item.quantidade}}</td>
+                    <tr v-for="item in pedidoCliente" :key=item.arrayID>
+                      <td>{{item.name}}</td>
+                      <td>{{item.quantity}}</td>
                       <td>
                         <v-btn
                           @click="removeItem(item.id)"
@@ -122,9 +123,9 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="item in pedidoCliente" :key=item.id>
-                      <td>{{item.nome}}</td>
-                      <td>{{item.quantidade}}</td>
+                    <tr v-for="item in pedidoCliente" :key=item.arrayID>
+                      <td>{{item.name}}</td>
+                      <td>{{item.quantity}}</td>
                     </tr>
                   </tbody>
                 </v-simple-table>
@@ -156,22 +157,24 @@
                     <div class="d-flex flex-column">
                       <h3>Método de Pagamento:</h3>
                         <v-radio-group v-model="metodoPagamento">
-                          <v-radio label="Já pago" value="pago"></v-radio>
-                          <v-radio label="Cartão Crédito" value="cartao_credito"></v-radio>
-                          <v-radio label="Cartão Débito" value="cartao_debito"></v-radio>
-                          <v-radio label="Dinheiro" value="dinheiro"></v-radio>
-                          <v-radio label="Pix" value="pix"></v-radio>
+                          <v-radio label="Cartão Crédito" value="CREDIT_CARD"></v-radio>
+                          <v-radio label="Cartão Débito" value="DEBIT_CARD"></v-radio>
+                          <v-radio label="Dinheiro" value="CASH"></v-radio>
+                          <v-radio label="Pix" value="PIX"></v-radio>
                         </v-radio-group>
                     </div>
                     <div class="d-flex flex-column ml-10">
                       <h3>Método de Entrega:</h3>
                       <v-radio-group v-model="tipoEntrega">
-                        <v-radio label="Delivery" value="delivery"></v-radio>
+                        <v-radio label="Delivery" value="DEFAULT"></v-radio>
                         <v-radio label="Agendar Horário" value="agendar_horario"></v-radio>
-                        <v-radio label="Retirada no Local" value="retirada_local"></v-radio>
+                        <v-radio label="Retirada no Local" value="PICKUP"></v-radio>
                       </v-radio-group>
                     </div>
                   </div>
+                    <v-row>
+                      <v-checkbox v-model="hasBeenPaid" label="O Pedido já foi pago."></v-checkbox>
+                    </v-row>
                 </div>
               </div>
               <!-- /ENTREGA -->
@@ -242,11 +245,40 @@ export default {
     tipoEntrega: null,
     validaProdutos: false,
     validaCliente: false,
+    hasBeenPaid: false,
   }),
   methods: {
-    finalizarPedido() {
+    clearMessages() {
+      this.$store.dispatch('alertClear');
+    },
+    callback(value) {
+      console.log(value);
+      this.limparPedido();
+    },
+    limparPedido() {
+      this.getClientBy = 'selecionar_cliente';
       this.etapaPedido = 0;
-      this.confirmaPedido = true;
+      this.clientID = null;
+      this.value = null;
+      this.confirmaPedido = null;
+      this.pedidoCliente = [];
+      this.textoItem = null;
+      this.quantidadeItem = 1;
+      this.metodoPagamento = null;
+      this.tipoEntrega = null;
+      this.validaProdutos = false;
+      this.validaCliente = false;
+      this.hasBeenPaid = false;
+    },
+    finalizarPedido() {
+      const order = {
+        client: this.clientID,
+        delivery_type: this.tipoEntrega,
+        payment_method: this.metodoPagamento,
+        is_paid: this.hasBeenPaid,
+        products: this.pedidoCliente,
+      };
+      this.$store.dispatch('createOrder', { order, callback: this.callback });
       return false;
     },
     proximaEtapa() {
@@ -266,9 +298,9 @@ export default {
     },
     adicionarItem() {
       this.pedidoCliente.push({
-        id: this.pedidoCliente.length,
-        nome: this.textoItem,
-        quantidade: this.quantidadeItem,
+        arrayID: this.pedidoCliente.length,
+        name: this.textoItem,
+        quantity: this.quantidadeItem,
       });
       this.textoItem = null;
       this.quantidadeItem = 1;

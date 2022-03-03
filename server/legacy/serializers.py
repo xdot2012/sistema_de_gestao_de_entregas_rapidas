@@ -8,14 +8,6 @@ class OrderProductSerializer(serializers.ModelSerializer):
         fields = ['pk', 'name', 'quantity']
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    products = OrderProductSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Order
-        fields = ['pk', 'client', 'delivery_type', 'created_on', 'modified_on', 'ready_on', 'finished_on', 'created_by', 'modified_by', 'products']
-
-
 class DeliveryManSerializer(serializers.ModelSerializer):
     phone_format = serializers.SerializerMethodField()
 
@@ -42,4 +34,14 @@ class LocalSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Local
         fields = ['pk', 'name', 'latitude', 'longitude', 'user_id']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    client_name = serializers.CharField(source='client.name', read_only=True)
+    products = OrderProductSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Order
+        fields = ['pk', 'client', 'delivery_type', 'created_on', 'modified_on', 'ready_on', 'finished_on', 'created_by',
+                  'modified_by', 'products', 'is_paid', 'payment_method', 'client_name']
 

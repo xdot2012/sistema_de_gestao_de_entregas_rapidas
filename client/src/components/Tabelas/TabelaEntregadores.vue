@@ -1,7 +1,7 @@
 <template>
-    <v-simple-table dark>
+    <v-simple-table>
     <template v-slot:default>
-      <thead class="primary table-head">
+      <thead class="table-head">
         <tr>
           <th class="text-left">
             ENTREGADOR
@@ -16,10 +16,10 @@
       </thead>
       <tbody class="table-body">
         <tr
-          v-for="item in desserts"
+          v-for="item in getAllDeliveryman"
           :key="item.id"
         >
-          <td>{{ item.nome }}</td>
+          <td>{{ item.name }}</td>
           <td>{{ item.status }}</td>
           <td>{{ item.saida }}</td>
         </tr>
@@ -30,24 +30,13 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
   name: 'Painel',
+  computed: mapGetters(['getAllDeliveryman']),
   data() {
     return {
-      desserts: [
-        {
-          id: 1,
-          nome: 'Maria',
-          status: 1,
-          saida: 1,
-        },
-        {
-          id: 2,
-          nome: 'Leopoldo',
-          status: 1,
-          saida: 1,
-        },
-      ],
     };
   },
 };

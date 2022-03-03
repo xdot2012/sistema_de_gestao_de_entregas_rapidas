@@ -61,6 +61,7 @@ export default {
   name: 'Container',
   beforeCreate() {
     this.$store.dispatch('getDeliveryman');
+    this.$store.dispatch('getOrders');
   },
   data() {
     return {

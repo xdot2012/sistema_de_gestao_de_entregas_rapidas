@@ -1,27 +1,25 @@
 <template>
-    <v-simple-table dark>
+    <v-simple-table >
     <template v-slot:default>
-      <thead class="primary table-head">
+      <thead class="table-head">
         <tr>
-          <th class="text-left">
-            STATUS
-          </th>
-          <th class="text-left">
-            CLIENTE
-          </th>
-          <th class="text-left">
-            PEDIDO
-          </th>
+          <th class="text-left">#</th>
+          <th class="text-left">CLIENTE</th>
+          <th class="text-left">PEDIDO</th>
         </tr>
       </thead>
       <tbody class="table-body">
         <tr
-          v-for="item in desserts"
+          v-for="item in allOrders"
           :key="item.id"
         >
-          <td>{{ item.status }}</td>
-          <td>{{ item.cliente }}</td>
-          <td>{{ item.pedido }}</td>
+          <td>{{ item.pk }}</td>
+          <td>{{ item.client_name }}</td>
+          <td>
+            <div v-for="product in item.products" :key="product.pk">
+              x{{product.quantity}} {{product.name}}
+            </div>
+          </td>
         </tr>
       </tbody>
     </template>
@@ -30,8 +28,12 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
   name: 'Painel',
+  computed: mapGetters(['allOrders']),
+
   data() {
     return {
       desserts: [
