@@ -37,6 +37,12 @@ class OrderApiView(viewsets.ViewSet):
         return Response(self.serializer_class(order_obj).data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
+        queryset = Order.objects.filter(finished_on=None)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['GET'], detail=False)
+    def history(self, request, *args, **kwargs):
         queryset = Order.objects.all()
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

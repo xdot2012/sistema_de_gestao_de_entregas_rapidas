@@ -33,8 +33,11 @@
 import { mapGetters } from 'vuex';
 
 export default {
-  name: 'Painel',
+  name: 'TabelaEntregadores',
   computed: mapGetters(['getAllDeliveryman']),
+  beforeCreate() {
+    this.$store.dispatch('getDeliveryman');
+  },
   data() {
     return {
     };

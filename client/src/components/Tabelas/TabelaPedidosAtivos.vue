@@ -10,7 +10,7 @@
       </thead>
       <tbody class="table-body">
         <tr
-          v-for="item in allOrders"
+          v-for="item in activeOrders"
           :key="item.id"
         >
           <td>{{ item.pk }}</td>
@@ -31,31 +31,14 @@
 import { mapGetters } from 'vuex';
 
 export default {
-  name: 'Painel',
-  computed: mapGetters(['allOrders']),
+  name: 'TabelaPedidosAtivos',
+  computed: mapGetters(['activeOrders']),
 
+  beforeCreate() {
+    this.$store.dispatch('getOrders');
+  },
   data() {
     return {
-      desserts: [
-        {
-          id: 1,
-          cliente: 'Maria',
-          status: 1,
-          pedido: 1,
-        },
-        {
-          id: 2,
-          cliente: 'Pedrin',
-          status: 1,
-          pedido: 1,
-        },
-        {
-          id: 3,
-          cliente: 'Sebastião',
-          status: 1,
-          pedido: 1,
-        },
-      ],
     };
   },
 };

@@ -3,17 +3,35 @@ import authRequest from '../../requests';
 const order = {
   state: () => ({
     orderList: [],
+    orderHistory: [],
   }),
 
   getters: {
-    allOrders: (state) => state.orderList,
+    activeOrders: (state) => state.orderList,
+    allOrders: (state) => state.orderHistory,
   },
 
   actions: {
     getOrders({ commit, dispatch }) {
       authRequest.get('/api/orders/')
         .then((response) => {
+          commit('RESET_ORDERS');
           commit('ADD_ORDER', response.data);
+        })
+        .catch((err) => {
+          console.log(err);
+          if (err.response?.data) {
+            console.log(err.response.data);
+            dispatch('alertError', err.response.data);
+          } else (dispatch('alertError', err));
+        });
+    },
+
+    getHistory({ commit, dispatch }) {
+      authRequest.get('/api/orders/history/')
+        .then((response) => {
+          commit('RESET_HISTORY');
+          commit('ADD_HISTORY', response.data);
         })
         .catch((err) => {
           console.log(err);
@@ -45,6 +63,12 @@ const order = {
     },
     ADD_ORDER(state, payload) {
       state.orderList = state.orderList.concat(payload);
+    },
+    RESET_HISTORY(state) {
+      state.orderHistory = [];
+    },
+    ADD_HISTORY(state, payload) {
+      state.orderHistory = state.orderHistory.concat(payload);
     },
   },
 };

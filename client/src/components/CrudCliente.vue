@@ -158,6 +158,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
+
 import {
   regraNomeCliente,
   regraTelefone,
