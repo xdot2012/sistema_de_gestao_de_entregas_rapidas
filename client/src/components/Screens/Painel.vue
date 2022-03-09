@@ -6,7 +6,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <div>
-            <buscar-pedido></buscar-pedido>
+          <v-btn @click="test">test</v-btn>
             <novo-pedido></novo-pedido>
           </div>
         </v-card-actions>
@@ -29,9 +29,9 @@
 </template>
 
 <script>
+import { dateTimeToDate, getDifInMinutes } from '../../functions';
 import TabelaPedidosAtivos from '../Tabelas/TabelaPedidosAtivos.vue';
 import TabelaEntregadores from '../Tabelas/TabelaEntregadores.vue';
-import BuscarPedido from '../Modals/BuscarPedido.vue';
 import NovoPedido from '../Modals/NovoPedido.vue';
 import GerarRota from '../Modals/GerarRota.vue';
 import ModalSucesso from '../Modals/ModalSucesso.vue';
@@ -40,7 +40,6 @@ export default {
   components: {
     TabelaPedidosAtivos,
     TabelaEntregadores,
-    BuscarPedido,
     NovoPedido,
     GerarRota,
     ModalSucesso,
@@ -51,6 +50,18 @@ export default {
       dialog: false,
       overlay: false,
     };
+  },
+  methods: {
+    test() {
+      const orders = this.$store.getters.activeOrders;
+      const lateOrders = orders.filter(
+        (item) => {
+          console.log(getDifInMinutes(Date.now(), dateTimeToDate(item.created_on)));
+          return dateTimeToDate(item.created_on) - Date.now() <= 10;
+        },
+      );
+      console.log(lateOrders);
+    },
   },
 };
 </script>

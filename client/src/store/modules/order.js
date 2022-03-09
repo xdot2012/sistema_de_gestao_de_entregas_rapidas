@@ -1,4 +1,9 @@
 import authRequest from '../../requests';
+import {
+  dateTimeToDate,
+  isLate,
+  isWarn,
+} from '../../functions';
 
 const order = {
   state: () => ({
@@ -9,6 +14,9 @@ const order = {
   getters: {
     activeOrders: (state) => state.orderList,
     allOrders: (state) => state.orderHistory,
+    inRouteOrders: (state) => state.orderList.filter((item) => item.ready_on != null),
+    lateOrders: (state) => state.orderList.filter((i) => isLate(dateTimeToDate(i.created_on))),
+    warnOrders: (state) => state.orderList.filter((i) => isWarn(dateTimeToDate(i.created_on))),
   },
 
   actions: {

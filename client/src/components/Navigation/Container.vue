@@ -25,18 +25,18 @@
         <v-sheet light class="head-card flex-fill"
         color="white" elevation="1" height="80%" rounded width="100">
           <div class="head-dot red"></div>
-          <div class="head-card-text">Atrasado: X</div>
+          <div class="head-card-text">Atrasado: {{lateOrders.length}}</div>
         </v-sheet>
         <v-sheet light
           class="head-card flex-fill" color="white" elevation="1" height="80%" rounded width="100">
           <div class="head-dot yellow"></div>
-          <div class="head-card-text">Aguardando: X</div>
+          <div class="head-card-text">Aguardando: {{warnOrders.length - lateOrders.length}}</div>
 
         </v-sheet>
         <v-sheet light
           class="head-card flex-fill" color="white" elevation="1" height="80%" rounded width="100">
           <div class="head-dot green"></div>
-          <div class="head-card-text">A Caminho: X</div>
+          <div class="head-card-text">A Caminho: {{inRouteOrders.length}}</div>
         </v-sheet>
       </div>
   </v-app-bar>
@@ -54,11 +54,14 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 import Message from './Message.vue';
 
 export default {
   components: { Message },
   name: 'Container',
+  computed: mapGetters(['inRouteOrders', 'lateOrders', 'warnOrders']),
   data() {
     return {
       drawer: null,
