@@ -6,7 +6,9 @@ const deliveryman = {
   }),
 
   getters: {
-    getAllDeliveryman: (state) => state.all,
+    getAllDeliveryman: (state) => state.all.map(
+      (elem) => Object.assign(elem, { selecionado: false }),
+    ),
   },
 
   actions: {

@@ -6,7 +6,7 @@ export function toDate(dateStr) {
   return new Date(parts[2], parts[1] - 1, parts[0]);
 }
 
-export function dateTimeToDate(datetimeStr) {
+export function stringToDate(datetimeStr) {
   const dateStr = datetimeStr.slice(0, datetimeStr.indexOf('T'));
   const timeStr = datetimeStr.slice(datetimeStr.indexOf('T') + 1);
 
@@ -16,15 +16,15 @@ export function dateTimeToDate(datetimeStr) {
 }
 
 export function getDifInMinutes(startDate, endDate) {
-  return Math.round(Math.abs(startDate - endDate) / 60000);
+  return Math.round(Math.abs(endDate - startDate) / 60000);
 }
 
 export function isLate(dateTime) {
-  return getDifInMinutes(Date.now(), dateTime) >= LATE_TIME;
+  return getDifInMinutes(dateTime, Date.now()) >= LATE_TIME;
 }
 
 export function isWarn(dateTime) {
-  return getDifInMinutes(Date.now(), dateTime) >= WARN_TIME;
+  return getDifInMinutes(dateTime, Date.now()) >= WARN_TIME;
 }
 
 export function getOrderStatus(dateTime) {
@@ -36,4 +36,42 @@ export function getOrderStatus(dateTime) {
     response = 'WARN';
   }
   return response;
+}
+
+export function getTotalProducts(orderList) {
+  let total = 0;
+  for (let i = 0; i < orderList.length; i += 1) {
+    total += orderList[i].quantity;
+  }
+  return total;
+}
+
+export function getPriority(order) {
+  const priorityData = {
+    waiting_time: getDifInMinutes(stringToDate(order.created_on), Date.now()),
+    quantity: getTotalProducts(order.products),
+    selected: false,
+    distance: Math.floor(Math.random() * 100),
+  };
+  return Object.assign(order, priorityData);
+}
+
+export function sortOrdersByTime(a, b) {
+  if (a.waiting_time < b.waiting_time) {
+    return 1;
+  }
+  if (a.waiting_time > b.waiting_time) {
+    return -1;
+  }
+  return 0;
+}
+
+export function sortOrdersByDistance(a, b) {
+  if (a.distance < b.distance) {
+    return -1;
+  }
+  if (a.distance > b.distance) {
+    return 1;
+  }
+  return 0;
 }

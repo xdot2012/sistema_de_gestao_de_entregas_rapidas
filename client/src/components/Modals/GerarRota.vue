@@ -20,7 +20,7 @@
           <v-card-text  class="flex-fill">
             <div v-if="!etapaPedido" class="d-flex">
               <div class="d-flex flex-column flex-fill" >
-                <h2 class="text-center">X Pedidos em Espera</h2>
+                <h2 class="text-center">{{ activeOrders.length }} Pedidos em Espera</h2>
                 <h3>Selecione Entregadores:</h3>
                 <div class="d-flex flex-column">
                   <v-checkbox
@@ -28,8 +28,8 @@
                     v-model="todosEntregadores"
                     @change="selecionaTodos()"/>
                   <v-checkbox
-                    v-for="entregador in listaEntregadores" :key="entregador.id"
-                    :label="entregador.nome"
+                    v-for="entregador in getAllDeliveryman" :key="entregador.pk"
+                    :label="entregador.name"
                     v-model="entregador.selecionado"
                     @change="selecionaEntregador(entregador)"/>
                   </div>
@@ -62,31 +62,36 @@
                       <tr>
                         <th>Selecionado</th>
                         <th>Pedido</th>
-                        <th class="text-center"># Produtos</th>
+                        <th class="text-center">Produtos</th>
                         <th>Distância</th>
                         <th>Tempo de Espera</th>
                         <th></th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="item in listaPedidos" :key=item.id>
+                      <tr v-for="item in ordersWithPriority" :key=item.pk>
                         <td>
                           <v-checkbox
-                            v-model="item.selecionado"
+                            v-model="item.selected"
                             :disabled="metodoSelecaoPedidos!='selecao_manual'"
                             @click="adicionaItem(item)"
                             />
                           </td>
-                        <td>{{item.nome}}</td>
-                        <td>{{item.quantidade}}</td>
-                        <td>{{item.distancia}}</td>
-                        <td>{{item.tempo_espera}}</td>
+                        <td>#{{item.pk}}</td>
+                        <td>
+                          <div v-for="product in item.products" :key="product.pk">
+                            x{{product.quantity}} - {{product.name}}
+                          </div>
+                        </td>
+                        <td>{{item.distance}}</td>
+                        <td>{{item.waiting_time}} minutos</td>
                       </tr>
                     </tbody>
                   </v-simple-table>
                 </div>
               </div>
-              <h2 class="mt-auto text-center">{{produtosSelecionados}} Produtos Selecionados</h2>
+              <h2 class="mt-auto text-center">
+                {{produtosSelecionados}}/{{capacidadeTotal}} Produtos Selecionados</h2>
             </div>
 
             <div v-else-if="etapaPedido==2" >
@@ -145,37 +150,22 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
+import { sortOrdersByTime, sortOrdersByDistance } from '../../functions';
 
 export default {
   name: 'GerarRota',
+  computed: mapGetters(['getAllDeliveryman', 'activeOrders', 'ordersWithPriority']),
   data: () => ({
     etapaPedido: 0,
     metodoPagamento: null,
     tipoEntrega: null,
     todosEntregadores: false,
     capacidadeTotal: 0,
-    listaEntregadores: [
-      {
-        id: 1,
-        nome: 'Josué',
-        capacidade: '10',
-        selecionado: null,
-      },
-      {
-        id: 2,
-        nome: 'Fernando',
-        capacidade: '10',
-        selecionado: null,
-      },
-      {
-        id: 3,
-        nome: 'Maria',
-        capacidade: '10',
-        selecionado: null,
-      },
-    ],
     nPedidos: 0,
     produtosSelecionados: 0,
+    listaEntregadores: [],
     listaPedidos: [
       {
         selecionado: null, nome: 'Pedido1', quantidade: 2, distancia: '1km', tempo_espera: '30 min',
@@ -208,64 +198,58 @@ export default {
     imprimeRota() {
       return false;
     },
-    elecionaEntregador(entregador) {
+    selecionaEntregador(entregador) {
       if (!entregador.selecionado) {
         this.todosEntregadores = false;
-        this.capacidadeTotal -= parseInt(entregador.capacidade, 10);
+        this.capacidadeTotal -= parseInt(entregador.capacity, 10);
         return;
       }
-      this.capacidadeTotal += parseInt(entregador.capacidade, 10);
+      this.capacidadeTotal += parseInt(entregador.capacity, 10);
     },
     selecionaTodos() {
       this.capacidadeTotal = 0;
       let count = 0;
-      this.listaEntregadores = this.listaEntregadores.map((elem) => {
-        count += parseInt(elem.capacidade, 10);
-        return {
-          id: elem.id,
-          nome: elem.nome,
-          capacidade: elem.capacidade,
-          selecionado: this.todosEntregadores,
-        };
+
+      this.listaEntregadores = this.$store.getters.getAllDeliveryman.map((elem) => {
+        count += parseInt(elem.capacity, 10);
+        return Object.assign(elem, { selecionado: this.todosEntregadores });
       });
       if (this.todosEntregadores) {
         this.capacidadeTotal = count;
       }
     },
     adicionaItem(item) {
-      if (item.selecionado) {
-        this.produtosSelecionados += item.quantidade;
+      if (item.selected) {
+        this.produtosSelecionados += item.quantity;
       } else {
-        this.produtosSelecionados -= item.quantidade;
+        this.produtosSelecionados -= item.quantity;
       }
     },
     rotaMaisCurta() {
       this.produtosSelecionados = 0;
-      this.listaPedidos = this.listaPedidos.map((elem) => {
-        this.produtosSelecionados += elem.quantidade;
-        return {
-          id: elem.id,
-          nome: elem.nome,
-          quantidade: elem.quantidade,
-          distancia: elem.distancia,
-          tempo_espera: elem.tempo_espera,
-          selecionado: true,
-        };
-      });
+      this.$store.getters.ordersWithPriority.sort(sortOrdersByDistance);
+      for (let i = 0; i < this.$store.getters.ordersWithPriority.length; i += 1) {
+        if (this.produtosSelecionados
+          + this.$store.getters.ordersWithPriority[i].quantity <= this.capacidadeTotal) {
+          this.produtosSelecionados += this.$store.getters.ordersWithPriority[i].quantity;
+          this.$store.getters.ordersWithPriority[i].selected = true;
+        } else {
+          this.$store.getters.ordersWithPriority[i].selected = false;
+        }
+      }
     },
     tempoDeEspera() {
       this.produtosSelecionados = 0;
-      this.listaPedidos = this.listaPedidos.map((elem) => {
-        this.produtosSelecionados += elem.quantidade;
-        return {
-          id: elem.id,
-          nome: elem.nome,
-          quantidade: elem.quantidade,
-          distancia: elem.distancia,
-          tempo_espera: elem.tempo_espera,
-          selecionado: true,
-        };
-      });
+      this.$store.getters.ordersWithPriority.sort(sortOrdersByTime);
+      for (let i = 0; i < this.$store.getters.ordersWithPriority.length; i += 1) {
+        if (this.produtosSelecionados
+          + this.$store.getters.ordersWithPriority[i].quantity <= this.capacidadeTotal) {
+          this.produtosSelecionados += this.$store.getters.ordersWithPriority[i].quantity;
+          this.$store.getters.ordersWithPriority[i].selected = true;
+        } else {
+          this.$store.getters.ordersWithPriority[i].selected = false;
+        }
+      }
     },
   },
 };

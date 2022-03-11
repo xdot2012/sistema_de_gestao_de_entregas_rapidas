@@ -6,7 +6,6 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <div>
-          <v-btn @click="test">test</v-btn>
             <novo-pedido></novo-pedido>
           </div>
         </v-card-actions>
@@ -29,7 +28,6 @@
 </template>
 
 <script>
-import { dateTimeToDate, getDifInMinutes } from '../../functions';
 import TabelaPedidosAtivos from '../Tabelas/TabelaPedidosAtivos.vue';
 import TabelaEntregadores from '../Tabelas/TabelaEntregadores.vue';
 import NovoPedido from '../Modals/NovoPedido.vue';
@@ -50,18 +48,6 @@ export default {
       dialog: false,
       overlay: false,
     };
-  },
-  methods: {
-    test() {
-      const orders = this.$store.getters.activeOrders;
-      const lateOrders = orders.filter(
-        (item) => {
-          console.log(getDifInMinutes(Date.now(), dateTimeToDate(item.created_on)));
-          return dateTimeToDate(item.created_on) - Date.now() <= 10;
-        },
-      );
-      console.log(lateOrders);
-    },
   },
 };
 </script>

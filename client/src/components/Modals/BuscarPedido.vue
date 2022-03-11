@@ -115,7 +115,7 @@
 <script>
 import { mapGetters } from 'vuex';
 
-import { dateTimeToDate } from '../../functions';
+import { stringToDate } from '../../functions';
 
 export default {
   name: 'BuscarPedido',
@@ -144,7 +144,7 @@ export default {
       );
 
       this.ordersFound = orders.map((item) => Object.assign(
-        item, { date: dateTimeToDate(item.created_on) },
+        item, { date: stringToDate(item.created_on) },
       ));
       return val;
     },
