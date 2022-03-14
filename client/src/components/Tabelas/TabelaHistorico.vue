@@ -14,7 +14,17 @@
       :items="allOrders"
       :items-per-page="10"
       :search="search"
-    ></v-data-table>
+    >
+        <template v-slot:item.products="{ item }">
+      <v-chip
+        dark
+        v-for="product in item.products" :key="product.pk"
+      >
+        x{{product.quantity}} - {{ product.name }}
+      </v-chip>
+    </template>
+
+    </v-data-table>
   </v-card>
 </template>
 
@@ -32,9 +42,15 @@ export default {
       search: null,
       headers: [
         { text: '#', value: 'pk' },
+        { text: 'Data', value: 'created_on' },
         { text: 'Cliente', value: 'client_name' },
         { text: 'Pedido', value: 'products' }],
     };
+  },
+  methods: {
+    getColor() {
+      return 'green';
+    },
   },
 };
 </script>

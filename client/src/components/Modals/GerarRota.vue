@@ -126,7 +126,13 @@
               color="primary"
               @click="voltarEtapa(etapaPedido)">Voltar</v-btn>
             <v-spacer></v-spacer>
-            <v-btn v-if="etapaPedido<=1"
+            <v-btn v-if="etapaPedido==0"
+              :disabled="!capacidadeTotal>0"
+              x-large
+              color="primary"
+              @click="proximaEtapa(etapaPedido)">Próximo</v-btn>
+            <v-btn v-else-if="etapaPedido==1"
+              :disabled="!produtosSelecionados>0"
               x-large
               color="primary"
               @click="proximaEtapa(etapaPedido)">Próximo</v-btn>
