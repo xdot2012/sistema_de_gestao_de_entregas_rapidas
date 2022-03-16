@@ -9,4 +9,5 @@ urlpatterns = [
 
     path('api/accounts/', include('accounts.urls')),
     path('', include('legacy.urls')),
+    path('', include('routing.urls')),
 ]

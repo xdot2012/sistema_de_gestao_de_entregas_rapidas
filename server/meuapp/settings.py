@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'simple_history',
     'accounts',
     'legacy',
+    'routing',
 
 ]
 
