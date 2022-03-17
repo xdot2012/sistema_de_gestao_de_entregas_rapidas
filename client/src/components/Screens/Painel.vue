@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="mt-5 d-flex flex-column justify-content-center align-items-center">
+      <div class="mt-5 d-flex flex-column justify-content-center align-items-center">
       <v-card class="card-painel">
         <tabela-pedidos-ativos></tabela-pedidos-ativos>
         <v-card-actions>
@@ -46,7 +46,6 @@ export default {
   data() {
     return {
       dialog: false,
-      overlay: false,
     };
   },
 };

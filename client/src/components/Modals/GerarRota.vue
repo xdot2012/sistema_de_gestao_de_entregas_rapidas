@@ -163,6 +163,9 @@ import { sortOrdersByTime, sortOrdersByDistance } from '../../functions';
 export default {
   name: 'GerarRota',
   computed: mapGetters(['getAllDeliveryman', 'activeOrders', 'ordersWithPriority']),
+  beforeCreate() {
+    this.$store.dispatch('getCitys');
+  },
   data: () => ({
     etapaPedido: 0,
     metodoPagamento: null,

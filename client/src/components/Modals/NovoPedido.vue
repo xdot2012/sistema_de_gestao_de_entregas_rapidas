@@ -228,6 +228,7 @@ export default {
   },
   beforeCreate() {
     this.$store.dispatch('getClients');
+    this.$store.dispatch('getCitys');
   },
   name: 'NovoPedido',
   data: () => ({

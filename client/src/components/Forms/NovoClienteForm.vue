@@ -25,17 +25,27 @@
 
       <v-divider class="mt-3"></v-divider>
       <h2 class="mt-1">Endereço de Entrega</h2>
+
       <v-row>
-        <v-text-field
+        <v-autocomplete
+        v-model="enderecoEntregaCidadeEstado"
+        :items="getAllCitys"
+        item-text="name"
+        dense
+        filled
+        label="Cidade/Estado"
+        :rules="[v => !!v || 'Item is required']"
+        ></v-autocomplete>
+        <v-autocomplete
         class="mr-3"
-        style="max-width: 25%"
-        label="CEP"
-        v-mask="'#####-###'"
-        :rules="regraCEP"
-        v-model="enderecoEntregaCEP"
-        hide-details="auto"
-        required
-        ></v-text-field>
+        style="max-width: 30%"
+        label="Bairro"
+        v-model="enderecoEntregaBairro"
+        :items="opcoesBairro"
+        dense
+        filled
+        :rules="[v => !!v || 'Item is required']"
+        ></v-autocomplete>
       </v-row>
 
       <v-row>
@@ -61,28 +71,17 @@
         ></v-text-field>
       </v-row>
 
-      <v-row>
-        <v-autocomplete
+      <v-row class="mb-10">
+        <v-text-field
         class="mr-3"
-        style="max-width: 30%"
-        label="Bairro"
-        v-model="enderecoEntregaBairro"
-        :items="opcoesBairro"
-        dense
-        filled
-        :rules="[v => !!v || 'Item is required']"
-        ></v-autocomplete>
-        <v-autocomplete
-        v-model="enderecoEntregaCidadeEstado"
-        :items="opcoesCidadeEstado"
-        dense
-        filled
-        label="Cidade/Estado"
-        :rules="[v => !!v || 'Item is required']"
-        ></v-autocomplete>
-      </v-row>
-
-      <v-row>
+        style="max-width: 25%"
+        label="CEP"
+        v-mask="'#####-###'"
+        :rules="regraCEP"
+        v-model="enderecoEntregaCEP"
+        hide-details="auto"
+        required
+        ></v-text-field>
         <v-text-field
         class="mr-3"
         label="Referência"
@@ -90,6 +89,11 @@
         hide-details="auto"
         ></v-text-field>
       </v-row>
+
+      <l-map style="height: 300px" :zoom="zoom" :center="center">
+        <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
+        <l-marker :lat-lng="markerLatLng"></l-marker>
+      </l-map>
 
       <v-row class="d-flex align-end justify-end fill-height">
           <v-btn
@@ -105,6 +109,9 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+import { LMap, LTileLayer, LMarker } from 'vue2-leaflet';
+
 import {
   regraTelefone,
   regraNomeCliente,
@@ -116,7 +123,20 @@ import {
 export default {
   name: 'NovoClienteForm',
   props: ['dialog'],
+  computed: mapGetters(['getAllCitys']),
+  components: {
+    LMap,
+    LTileLayer,
+    LMarker,
+  },
   data: () => ({
+    overlay: false,
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution:
+      '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    zoom: 15,
+    center: [-19.4307142, -44.1882217],
+    markerLatLng: [-19.4307142, -44.1882217],
     valid: false,
     clienteSelecao: null,
     nomeCliente: null,

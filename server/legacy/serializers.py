@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Local, Client, DeliveryMan, Order, OrderProduct
+from .models import Branch, Client, DeliveryMan, Order, OrderProduct
 
 
 class OrderProductSerializer(serializers.ModelSerializer):
@@ -30,10 +30,10 @@ class ClientSerializer(serializers.ModelSerializer):
         return f'({obj.phone[0:2]}){obj.phone[2:7]}-{obj.phone[7:]}'
 
 
-class LocalSerializer(serializers.HyperlinkedModelSerializer):
+class BranchSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Local
-        fields = ['pk', 'name', 'latitude', 'longitude', 'user_id']
+        model = Branch
+        fields = ['pk', 'name', 'latitude', 'longitude']
 
 
 class OrderSerializer(serializers.ModelSerializer):

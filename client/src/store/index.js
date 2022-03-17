@@ -7,6 +7,7 @@ import auth from './modules/auth';
 import client from './modules/client';
 import deliveryman from './modules/deliveryman';
 import order from './modules/order';
+import routing from './modules/routing';
 
 Vue.use(Vuex);
 
@@ -17,5 +18,6 @@ export default new Vuex.Store({
     client,
     deliveryman,
     order,
+    routing,
   },
 });

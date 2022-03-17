@@ -26,6 +26,7 @@ PAYMENT_CHOICES = (
     ('TED', 'Transferência Bancária'),
 )
 
+
 class DeliveryMan(BaseModel):
     name = models.CharField('Nome', max_length=100)
     phone = models.CharField('Telefone', max_length=11, unique=True)
@@ -83,9 +84,8 @@ class OrderAppointment(BaseModel):
     appointment = models.DateTimeField(verbose_name='Horário de Entrega')
 
 
-class Local(models.Model):
-    name = models.CharField(max_length=30)
-    user = models.ForeignKey('accounts.User', on_delete=models.CASCADE)
+class Branch(models.Model):
+    name = models.CharField(max_length=30, unique=True)
     latitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
     longitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
 
@@ -93,4 +93,4 @@ class Local(models.Model):
         return self.name
 
     class Meta:
-        unique_together = [['user', 'latitude', 'longitude']]
+        unique_together = [['latitude', 'longitude']]
