@@ -8,10 +8,3 @@ class Location(BaseModel):
     latitude = models.FloatField("Latitude")
     longitude = models.FloatField("Longitude")
     altitude = models.FloatField("Altitude")
-
-
-class City(BaseModel):
-    name = models.CharField("Cidade", max_length=200)
-
-    def __str__(self):
-        return f'{self.name}'

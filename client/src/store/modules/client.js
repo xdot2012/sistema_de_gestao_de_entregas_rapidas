@@ -1,12 +1,5 @@
 import authRequest from '../../requests';
-
-function formatAddress(obj) {
-  let address = `Rua/Av ${obj.street} nº${obj.number}, Bairro ${obj.district} - ${obj.city_name}/${obj.state_name}.\nCEP: ${obj.code};\n`;
-  if (obj.reference) {
-    address += `Referência: ${obj.reference}`;
-  }
-  return address;
-}
+import { formatAddress } from '../../functions';
 
 const client = {
   state: () => ({
@@ -15,7 +8,6 @@ const client = {
   }),
 
   getters: {
-    getClientByID: (state, id) => (state.clientList.find((item) => item.pk === id)),
     getAllClients: (state) => state.clientList,
     getAutoCompleteClientName: (state) => state.clientList.map(
       (item) => ({

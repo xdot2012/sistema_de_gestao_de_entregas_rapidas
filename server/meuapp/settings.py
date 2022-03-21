@@ -98,8 +98,8 @@ WSGI_APPLICATION = 'meuapp.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'dbsqlite',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'tcc_2022',
         'USER': 'postgres',
         'PASSWORD': 'root',
         'HOST': 'localhost',
@@ -183,3 +183,5 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework_datatables.pagination.DatatablesPageNumberPagination',
     'PAGE_SIZE': 2,
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

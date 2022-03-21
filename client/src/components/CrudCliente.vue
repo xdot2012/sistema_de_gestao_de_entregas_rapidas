@@ -164,6 +164,7 @@ import {
   regraTelefone,
   regraTexto,
 } from '../regras_input';
+import { formatAddress } from '../functions';
 import NovoClienteForm from './Forms/NovoClienteForm.vue';
 
 export default {
@@ -206,13 +207,6 @@ export default {
       this.telefoneBusca = '';
       this.enderecoBusca = '';
     },
-    formatAddress(obj) {
-      let address = `Rua/Av ${obj.street} nº${obj.number}, Bairro ${obj.district} - ${obj.city_name}/${obj.state_name}.\nCEP: ${obj.code};\n`;
-      if (obj.reference) {
-        address += `Referência: ${obj.reference}`;
-      }
-      return address;
-    },
     updateClient() {
       this.$store.dispatch('updateClient', { client: this.selectedClientInfo, clientID: this.selectedClientID, callback: this.onEdit });
     },
@@ -237,7 +231,7 @@ export default {
       this.selectedClientInfo = {
         name: obj.name,
         phone: obj.phone_format,
-        address: this.formatAddress(obj),
+        address: formatAddress(obj),
         last_order: 'Nunca',
       };
       return val;

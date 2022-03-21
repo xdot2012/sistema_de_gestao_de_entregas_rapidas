@@ -33,7 +33,7 @@ class ClientSerializer(serializers.ModelSerializer):
 class BranchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Branch
-        fields = ['pk', 'name', 'latitude', 'longitude']
+        fields = ['pk', 'name', 'latitude', 'longitude', 'state', 'country']
 
 
 class OrderSerializer(serializers.ModelSerializer):

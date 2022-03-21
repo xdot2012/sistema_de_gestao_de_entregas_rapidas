@@ -75,3 +75,15 @@ export function sortOrdersByDistance(a, b) {
   }
   return 0;
 }
+
+export function formatAddress(obj) {
+  let address = `Rua ${obj.street} nº${obj.number}, Bairro ${obj.district} - ${obj.city_name}/${obj.state_name}.CEP: ${obj.code};\n`;
+  if (obj.reference) {
+    address += `Referência: ${obj.reference}`;
+  }
+  return address;
+}
+
+export function formatAddressNominatin(obj) {
+  return `Rua ${obj.street}, ${obj.city_name}, ${obj.state_name}, ${obj.code}`;
+}

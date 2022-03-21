@@ -28,37 +28,42 @@
 
       <v-row>
         <v-autocomplete
-        v-model="enderecoEntregaCidadeEstado"
+        v-model="enderecoEntregaCidadeID"
         :items="getAllCitys"
         item-text="name"
+        item-value="pk"
         dense
         filled
         label="Cidade/Estado"
         :rules="[v => !!v || 'Item is required']"
         ></v-autocomplete>
-        <v-autocomplete
+        <v-text-field
+        disabled
+        v-model="enderecoEntregaEstado"
+        dense
+        filled
+        label="Estado"
+        ></v-text-field>
+        <v-text-field
         class="mr-3"
         style="max-width: 30%"
         label="Bairro"
         v-model="enderecoEntregaBairro"
-        :items="opcoesBairro"
         dense
         filled
-        :rules="[v => !!v || 'Item is required']"
-        ></v-autocomplete>
+        ></v-text-field>
       </v-row>
 
       <v-row>
-        <v-autocomplete
+        <v-text-field
         class="mr-3"
         label="Rua"
         v-model="enderecoEntregaRua"
-        :items="opcoesRua"
         dense
         filled
         required
         :rules="[v => !!v || 'Item is required']"
-        ></v-autocomplete>
+        ></v-text-field>
 
         <v-text-field
         class="mr-3"
@@ -90,10 +95,21 @@
         ></v-text-field>
       </v-row>
 
-      <l-map style="height: 300px" :zoom="zoom" :center="center">
-        <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
-        <l-marker :lat-lng="markerLatLng"></l-marker>
-      </l-map>
+      <v-row>
+        <v-btn
+          :disabled="!fullAddress()"
+          color="primary"
+          @click="showAddress()"
+          >Buscar Endereço
+          </v-btn>
+      </v-row>
+
+      <v-row v-if="showMap">
+        <l-map style="height: 300px" :zoom="zoom" :center="center">
+          <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
+          <l-marker :lat-lng="markerLatLng"></l-marker>
+        </l-map>
+      </v-row>
 
       <v-row class="d-flex align-end justify-end fill-height">
           <v-btn
@@ -119,17 +135,19 @@ import {
   regraCEP,
   regraTexto,
 } from '../../regras_input';
+import { formatAddressNominatin } from '../../functions';
 
 export default {
   name: 'NovoClienteForm',
   props: ['dialog'],
-  computed: mapGetters(['getAllCitys']),
+  computed: mapGetters(['getAllCitys', 'findCity']),
   components: {
     LMap,
     LTileLayer,
     LMarker,
   },
   data: () => ({
+    showMap: false,
     overlay: false,
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution:
@@ -141,34 +159,15 @@ export default {
     clienteSelecao: null,
     nomeCliente: null,
     telefoneCliente: null,
-    enderecoEntregaCidadeEstado: null,
+    enderecoEntregaCidadeID: null,
+    enderecoEntregaCidade: null,
+    enderecoEntregaEstado: null,
     enderecoEntregaNumero: null,
     enderecoEntregaRua: null,
     enderecoEntregaBairro: null,
     enderecoEntregaCEP: null,
     enderecoEntregaReferencia: null,
     clienteID: null,
-    opcoesRua: [
-      'Rua 1',
-      'Rua 2',
-      'Rua 3',
-    ],
-    opcoesBairro: [
-      'Bairro 1',
-      'Bairro 2',
-      'Bairro 3',
-    ],
-    opcoesCidadeEstado: [
-      'Cidade 1',
-      'Cidade 2',
-      'Cidade 3',
-    ],
-    opcoesClientes: [
-      'Cláudia',
-      'José',
-      'Maria',
-      'Roberto',
-    ],
     regraNomeCliente,
     regraTelefone,
     regraNumero,
@@ -176,6 +175,32 @@ export default {
     regraTexto,
   }),
   methods: {
+    setMapMarker(pointData) {
+      this.markerLatLng = [pointData.latitude, pointData.longitude];
+      this.center = [pointData.latitude, pointData.longitude];
+      this.zoom = 50;
+      this.showMap = true;
+    },
+    showAddress() {
+      const data = {
+        street: this.enderecoEntregaRua,
+        number: this.enderecoEntregaNumero,
+        district: this.enderecoEntregaBairro,
+        city_name: this.enderecoEntregaCidade,
+        state_name: this.enderecoEntregaEstado,
+        code: this.enderecoEntregaCEP,
+        reference: this.enderecoEntregaReferencia,
+      };
+      this.$store.dispatch('getLocation', { address: formatAddressNominatin(data), callback: this.setMapMarker });
+    },
+    fullAddress() {
+      return (this.enderecoEntregaBairro
+      && this.enderecoEntregaCidade
+      && this.enderecoEntregaBairro
+      && this.enderecoEntregaRua
+      && this.enderecoEntregaNumero
+      && this.enderecoEntregaCEP);
+    },
     callback(id, data) {
       this.reset();
       this.dialog(id, data);
@@ -200,12 +225,26 @@ export default {
         street: this.enderecoEntregaRua,
         district: this.enderecoEntregaBairro,
         code: this.enderecoEntregaCEP,
-        country_name: this.enderecoEntregaCidadeEstado,
-        state_name: this.enderecoEntregaCidadeEstado,
-        city_name: this.enderecoEntregaCidadeEstado,
+        country_name: this.enderecoEntregaPais,
+        state_name: this.enderecoEntregaEstado,
+        city_name: this.enderecoEntregaCidade,
         reference: this.enderecoEntregaReferencia,
       };
       this.$store.dispatch('createClient', { client, callback: this.callback });
+    },
+  },
+  watch: {
+    enderecoEntregaCidadeID: function onChange(val) {
+      if (!val) {
+        return null;
+      }
+      const city = this.$store.getters.getAllCitys
+        .find((item) => item.pk === val);
+
+      this.enderecoEntregaCidade = city.name;
+      this.enderecoEntregaEstado = city.state;
+      this.enderecoEntregaPais = city.country;
+      return val;
     },
   },
 };

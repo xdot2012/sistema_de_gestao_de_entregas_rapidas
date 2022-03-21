@@ -88,6 +88,8 @@ class Branch(models.Model):
     name = models.CharField(max_length=30, unique=True)
     latitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
     longitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
+    state = models.CharField("Estado", max_length=200)
+    country = models.CharField("País", max_length=200)
 
     def __str__(self):
         return self.name

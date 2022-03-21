@@ -17,7 +17,19 @@ const routing = {
           commit('ADD_CITY', response.data);
         })
         .catch((err) => {
-          console.log(err);
+          if (err.response?.data) {
+            console.log(err.response.data);
+            dispatch('alertError', err.response.data);
+          } else (dispatch('alertError', err));
+        });
+    },
+    getLocation({ dispatch }, formData) {
+      console.log(formData);
+      authRequest.post('/api/routes/location/', { address: formData.address })
+        .then((response) => {
+          formData.callback(response.data);
+        })
+        .catch((err) => {
           if (err.response?.data) {
             console.log(err.response.data);
             dispatch('alertError', err.response.data);

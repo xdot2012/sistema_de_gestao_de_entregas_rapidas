@@ -62,13 +62,12 @@
         </div>
 
         <div class="d-flex">
-          <v-autocomplete
+          <v-text-field
           class="mr-3"
           style="max-width: 75%"
           label="Rua"
           v-model="selectedClientInfo.street"
-          :items="opcoesRua"
-          :readonly="!editarEndereco"></v-autocomplete>
+          :readonly="!editarEndereco"></v-text-field>
 
           <v-text-field
           class="mr-3"
@@ -80,21 +79,19 @@
         </div>
 
         <div class="d-flex">
-          <v-autocomplete
+          <v-text-field
           class="mr-3"
           style="max-width: 50%"
           label="Bairro"
           v-model="selectedClientInfo.district"
-          :items="opcoesBairro"
-          :readonly="!editarEndereco"></v-autocomplete>
+          :readonly="!editarEndereco"></v-text-field>
 
-          <v-autocomplete
+          <v-text-field
           class="mr-3"
           style="max-width: 50%"
           label="Cidade/Estado"
           v-model="selectedClientInfo.city_name"
-          :items="opcoesCidadeEstado"
-          :readonly="!editarEndereco"></v-autocomplete>
+          :readonly="!editarEndereco"></v-text-field>
         </div>
 
       <div class="d-flex">
@@ -143,6 +140,9 @@ export default {
       formated_phone: null,
       pk: null,
       address: null,
+      street: null,
+      district: null,
+      city_name: null,
     },
     editarEndereco: false,
     editarNomeTelefone: false,
@@ -156,27 +156,6 @@ export default {
     enderecoEntregaRua: null,
     enderecoEntregaBairro: null,
     enderecoEntregaCEP: null,
-    opcoesRua: [
-      'Rua 1',
-      'Rua 2',
-      'Rua 3',
-    ],
-    opcoesBairro: [
-      'Bairro 1',
-      'Bairro 2',
-      'Bairro 3',
-    ],
-    opcoesCidadeEstado: [
-      'Cidade 1',
-      'Cidade 2',
-      'Cidade 3',
-    ],
-    opcoesClientes: [
-      'Cláudia',
-      'José',
-      'Maria',
-      'Roberto',
-    ],
     regraNomeCliente,
     regraTelefone,
     regraNumero,
