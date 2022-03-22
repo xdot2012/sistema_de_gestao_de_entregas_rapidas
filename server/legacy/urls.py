@@ -1,11 +1,12 @@
 from django.urls import path, include
 from rest_framework import routers
 from legacy import views
-from .apis import BranchApiView, ClientViewSet, GenerateRouteAPI, DeliveryManViewSet, OrderApiView
+from .apis import BranchApiView, ClientViewSet, GenerateRouteAPI, DeliveryManViewSet, OrderApiView, ClientAddressViewSet
 
 # Api routes
 router = routers.DefaultRouter()
 router.register(r'clients', ClientViewSet)
+router.register(r'address', ClientAddressViewSet)
 router.register(r'deliveryman', DeliveryManViewSet)
 router.register(r'orders', OrderApiView)
 

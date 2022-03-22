@@ -6,8 +6,8 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import BranchSerializer, ClientSerializer, DeliveryManSerializer, OrderSerializer
-from .models import Branch, Client, DeliveryMan, Order, OrderProduct
+from .serializers import BranchSerializer, ClientSerializer, DeliveryManSerializer, OrderSerializer, ClientAddressSerializer
+from .models import Branch, Client, DeliveryMan, Order, OrderProduct, ClientAddress
 from rest_framework.response import Response
 from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
@@ -55,6 +55,13 @@ class DeliveryManViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
 
+class ClientAddressViewSet(viewsets.ModelViewSet):
+    queryset = ClientAddress.objects.all()
+    serializer_class = ClientAddressSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = None
+
+
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
@@ -67,6 +74,17 @@ class ClientViewSet(viewsets.ModelViewSet):
         client_list = Client.objects.filter(**filters)
         serializer = self.get_serializer(client_list, many=True)
         return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        client_address = request.data['address']
+
+        with transaction.atomic():
+            client = Client.objects.create(name=serializer.validated_data['name'], phone=serializer.validated_data['phone'])
+            ClientAddress.objects.create(**client_address, client=client)
+
+        return Response(self.serializer_class(client).data, status=status.HTTP_201_CREATED)
 
 
 class BranchApiView(APIView):

@@ -1,5 +1,6 @@
 from django.db import models
 from meuapp.models import BaseModel
+from django.db import transaction
 
 DELIVERY_CHOICES = (
     ('DEFAULT', 'Entrega Imediata'),
@@ -38,20 +39,43 @@ class DeliveryMan(BaseModel):
 class Client(BaseModel):
     name = models.CharField('Nome', max_length=100)
     phone = models.CharField('Telefone', max_length=11, unique=True)
+
+    class Meta:
+        unique_together = ['name', 'phone']
+
+    def __str__(self):
+        return self.name
+
+
+class ClientAddress(BaseModel):
+    client = models.ForeignKey(to="legacy.Client", on_delete=models.CASCADE, related_name="addresses", )
+    country_name = models.CharField('País', max_length=100)
+    state_name = models.CharField('Estado', max_length=100)
+    city_name = models.CharField('Cidade', max_length=100)
     number = models.PositiveIntegerField('Número')
     street = models.CharField('Rua', max_length=100)
     district = models.CharField('Bairro', max_length=100)
     code = models.CharField('CEP', max_length=20)
     reference = models.CharField('Ponto de Referência', max_length=200, null=True, blank=True)
-    country_name = models.CharField('País', max_length=100)
-    state_name = models.CharField('Estado', max_length=100)
-    city_name = models.CharField('Cidade', max_length=100)
+    latitude = models.DecimalField(max_digits=22, decimal_places=16)
+    longitude = models.DecimalField(max_digits=22, decimal_places=16)
+    altitude = models.DecimalField(max_digits=22, decimal_places=16)
+    active = models.BooleanField(default=True)
+    created_on = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together: [['name', 'phone']]
+        ordering = ['-created_on']
+        unique_together = ['client', 'street', 'number']
 
     def __str__(self):
-        return self.name
+        return f'Rua/Av {self.city_name} nº{self.number}, {self.district}, {self.city_name}/{self.state_name}, {self.country_name}, {self.code}.'
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            # This will not call the save function again, witch is good!
+            ClientAddress.objects.filter(client=self.client.pk).update(active=False)
+
+            return super(ClientAddress, self).save(*args, **kwargs)
 
 
 class Order(BaseModel):

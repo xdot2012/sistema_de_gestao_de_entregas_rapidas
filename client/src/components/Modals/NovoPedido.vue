@@ -144,12 +144,12 @@
                   <div class="d-flex flex-column">
                     <h3>Endereço de Entrega:</h3>
                     <div class="d-flex justify-space-between">
-                      <h3>Rua: {{clientData.street}}</h3>
-                      <h3>Número: {{clientData.number}}</h3>
+                      <h3>Rua: {{clientData.address[0].street}}</h3>
+                      <h3>Número: {{clientData.address[0].number}}</h3>
                     </div>
                     <div class="d-flex justify-space-between">
-                      <h3>Bairro: {{clientData.district}}</h3>
-                      <h3>Cidade: {{clientData.city_name}}</h3>
+                      <h3>Bairro: {{clientData.address[0].district}}</h3>
+                      <h3>Cidade: {{clientData.address[0].city_name}}</h3>
                     </div>
                   </div>
                   <v-divider />

@@ -221,14 +221,16 @@ export default {
       const client = {
         name: this.nomeCliente,
         phone: formatPhone,
-        number: this.enderecoEntregaNumero,
-        street: this.enderecoEntregaRua,
-        district: this.enderecoEntregaBairro,
-        code: this.enderecoEntregaCEP,
-        country_name: this.enderecoEntregaPais,
-        state_name: this.enderecoEntregaEstado,
-        city_name: this.enderecoEntregaCidade,
-        reference: this.enderecoEntregaReferencia,
+        address: {
+          number: this.enderecoEntregaNumero,
+          street: this.enderecoEntregaRua,
+          district: this.enderecoEntregaBairro,
+          code: this.enderecoEntregaCEP,
+          country_name: this.enderecoEntregaPais,
+          state_name: this.enderecoEntregaEstado,
+          city_name: this.enderecoEntregaCidade,
+          reference: this.enderecoEntregaReferencia,
+        },
       };
       this.$store.dispatch('createClient', { client, callback: this.callback });
     },

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Branch, Client, DeliveryMan, Order, OrderProduct
+from .models import Branch, Client, DeliveryMan, Order, OrderProduct, ClientAddress
 
 
 class OrderProductSerializer(serializers.ModelSerializer):
@@ -19,15 +19,29 @@ class DeliveryManSerializer(serializers.ModelSerializer):
         return f'({obj.phone[0:2]}){obj.phone[2:7]}-{obj.phone[7:]}'
 
 
+class ClientAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientAddress
+        fields = ['pk', 'country_name', 'state_name', 'city_name', 'number', 'street', 'district', 'code', 'reference', 'created_on', 'client', 'latitude', 'longitude', 'altitude']
+
+
 class ClientSerializer(serializers.ModelSerializer):
-    phone_format = serializers.SerializerMethodField()
+    phone_format = serializers.SerializerMethodField(read_only=True)
+    addresses = ClientAddressSerializer(read_only=True, many=True)
+    main_address = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Client
-        fields = ['pk', 'name', 'phone', 'phone_format', 'number', 'street', 'district', 'code', 'reference', 'country_name', 'state_name', 'city_name']
+        fields = ['pk', 'name', 'phone', 'phone_format', 'main_address', 'addresses']
 
     def get_phone_format(self, obj):
         return f'({obj.phone[0:2]}){obj.phone[2:7]}-{obj.phone[7:]}'
+
+    def get_main_address(self, obj):
+        address = obj.addresses.filter(active=True).first()
+        if address is not None:
+            return address.pk
+        return None
 
 
 class BranchSerializer(serializers.ModelSerializer):
