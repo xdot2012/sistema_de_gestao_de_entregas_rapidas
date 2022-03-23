@@ -20,9 +20,18 @@ class DeliveryManSerializer(serializers.ModelSerializer):
 
 
 class ClientAddressSerializer(serializers.ModelSerializer):
+    format = serializers.SerializerMethodField(read_only=True)
+    nominatin = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = ClientAddress
-        fields = ['pk', 'country_name', 'state_name', 'city_name', 'number', 'street', 'district', 'code', 'reference', 'created_on', 'client', 'latitude', 'longitude', 'altitude']
+        fields = ['pk', 'format', 'nominatin', 'country_name', 'state_name', 'city_name', 'number', 'street', 'district', 'code', 'reference', 'created_on', 'client', 'latitude', 'longitude', 'altitude']
+
+    def get_format(self, obj):
+        return f'Rua {obj.street} nº{obj.number}, Bairro {obj.district} - {obj.city_name}/{obj.state_name}.CEP: {obj.code}'
+
+    def get_nominatin(self, obj):
+        return f'Rua {obj.street}, {obj.city_name}, {obj.state_name}, {obj.code}'
 
 
 class ClientSerializer(serializers.ModelSerializer):
@@ -40,7 +49,7 @@ class ClientSerializer(serializers.ModelSerializer):
     def get_main_address(self, obj):
         address = obj.addresses.filter(active=True).first()
         if address is not None:
-            return address.pk
+            return ClientAddressSerializer(address).data
         return None
 
 

@@ -74,6 +74,22 @@ const client = {
           } else (dispatch('alertError', [err]));
         });
     },
+    addClientAddress({ commit, dispatch }, formData) {
+      const fullAddress = Object.assign(formData.address, { client: formData.client });
+      console.log(fullAddress);
+      authRequest.post('/api/address/', fullAddress)
+        .then((response) => {
+          commit('ADD_ADDRESS', formData.client, response);
+          dispatch('alertSuccess', { non_field_errors: ['Endereço Adicionado com Sucesso.'] });
+          formData.callback(response.data);
+        })
+        .catch((err) => {
+          console.log(err);
+          if (err.response?.data) {
+            dispatch('alertError', { non_field_errors: [err.response.data] });
+          } else (dispatch('alertError', [err]));
+        });
+    },
   },
 
   mutations: {
@@ -87,6 +103,20 @@ const client = {
       const index = state.clientList.findIndex((item) => item.pk === payload);
       if (index !== -1) {
         state.clientList.splice(index, 1);
+      } else {
+        console.log('ERRO, CLIENTE NÃO ENCONTRADO!');
+      }
+    },
+    ADD_ADDRESS(state, clientID, payload) {
+      const obj = state.clientList.find((item) => item.pk === clientID);
+      if (obj) {
+        const index = state.clientList.findIndex((item) => item.pk === payload);
+        if (index !== -1) {
+          obj.addresses.concat([payload]);
+          state.clientList[index] = obj;
+        } else {
+          console.log('ERRO, CLIENTE NÃO ENCONTRADO!');
+        }
       } else {
         console.log('ERRO, CLIENTE NÃO ENCONTRADO!');
       }

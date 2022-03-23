@@ -26,94 +26,11 @@
       <v-divider class="mt-3"></v-divider>
       <h2 class="mt-1">Endereço de Entrega</h2>
 
-      <v-row>
-        <v-autocomplete
-        v-model="enderecoEntregaCidadeID"
-        :items="getAllCitys"
-        item-text="name"
-        item-value="pk"
-        dense
-        filled
-        label="Cidade/Estado"
-        :rules="[v => !!v || 'Item is required']"
-        ></v-autocomplete>
-        <v-text-field
-        disabled
-        v-model="enderecoEntregaEstado"
-        dense
-        filled
-        label="Estado"
-        ></v-text-field>
-        <v-text-field
-        class="mr-3"
-        style="max-width: 30%"
-        label="Bairro"
-        v-model="enderecoEntregaBairro"
-        dense
-        filled
-        ></v-text-field>
-      </v-row>
-
-      <v-row>
-        <v-text-field
-        class="mr-3"
-        label="Rua"
-        v-model="enderecoEntregaRua"
-        dense
-        filled
-        required
-        :rules="[v => !!v || 'Item is required']"
-        ></v-text-field>
-
-        <v-text-field
-        class="mr-3"
-        style="max-width: 10%"
-        label="Número"
-        :rules="regraNumero"
-        v-model="enderecoEntregaNumero"
-        hide-details="auto"
-        required
-        ></v-text-field>
-      </v-row>
-
-      <v-row class="mb-10">
-        <v-text-field
-        class="mr-3"
-        style="max-width: 25%"
-        label="CEP"
-        v-mask="'#####-###'"
-        :rules="regraCEP"
-        v-model="enderecoEntregaCEP"
-        hide-details="auto"
-        required
-        ></v-text-field>
-        <v-text-field
-        class="mr-3"
-        label="Referência"
-        v-model="enderecoEntregaReferencia"
-        hide-details="auto"
-        ></v-text-field>
-      </v-row>
-
-      <v-row>
-        <v-btn
-          :disabled="!fullAddress()"
-          color="primary"
-          @click="showAddress()"
-          >Buscar Endereço
-          </v-btn>
-      </v-row>
-
-      <v-row v-if="showMap">
-        <l-map style="height: 300px" :zoom="zoom" :center="center">
-          <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
-          <l-marker :lat-lng="markerLatLng"></l-marker>
-        </l-map>
-      </v-row>
+      <novo-endereco-form :onFinish="setAddress"/>
 
       <v-row class="d-flex align-end justify-end fill-height">
           <v-btn
-            :disabled="!valid"
+            :disabled="!valid||!hasAddress"
             color="primary"
             x-large
             @click="validate">
@@ -126,7 +43,6 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { LMap, LTileLayer, LMarker } from 'vue2-leaflet';
 
 import {
   regraTelefone,
@@ -135,16 +51,14 @@ import {
   regraCEP,
   regraTexto,
 } from '../../regras_input';
-import { formatAddressNominatin } from '../../functions';
+import NovoEnderecoForm from './NovoEnderecoForm.vue';
 
 export default {
   name: 'NovoClienteForm',
   props: ['dialog'],
   computed: mapGetters(['getAllCitys', 'findCity']),
   components: {
-    LMap,
-    LTileLayer,
-    LMarker,
+    NovoEnderecoForm,
   },
   data: () => ({
     showMap: false,
@@ -159,47 +73,46 @@ export default {
     clienteSelecao: null,
     nomeCliente: null,
     telefoneCliente: null,
-    enderecoEntregaCidadeID: null,
-    enderecoEntregaCidade: null,
-    enderecoEntregaEstado: null,
-    enderecoEntregaNumero: null,
-    enderecoEntregaRua: null,
-    enderecoEntregaBairro: null,
-    enderecoEntregaCEP: null,
-    enderecoEntregaReferencia: null,
+    address: {
+      street: null,
+      number: null,
+      district: null,
+      city_name: null,
+      state_name: null,
+      contry_name: null,
+      code: null,
+      reference: null,
+      latitude: null,
+      longitude: null,
+      altitude: null,
+    },
     clienteID: null,
     regraNomeCliente,
     regraTelefone,
     regraNumero,
     regraCEP,
     regraTexto,
+    hasAddress: false,
   }),
   methods: {
-    setMapMarker(pointData) {
-      this.markerLatLng = [pointData.latitude, pointData.longitude];
-      this.center = [pointData.latitude, pointData.longitude];
-      this.zoom = 50;
-      this.showMap = true;
-    },
-    showAddress() {
-      const data = {
-        street: this.enderecoEntregaRua,
-        number: this.enderecoEntregaNumero,
-        district: this.enderecoEntregaBairro,
-        city_name: this.enderecoEntregaCidade,
-        state_name: this.enderecoEntregaEstado,
-        code: this.enderecoEntregaCEP,
-        reference: this.enderecoEntregaReferencia,
-      };
-      this.$store.dispatch('getLocation', { address: formatAddressNominatin(data), callback: this.setMapMarker });
+    setAddress(data) {
+      this.address = data;
+      this.hasAddress = true;
     },
     fullAddress() {
-      return (this.enderecoEntregaBairro
-      && this.enderecoEntregaCidade
-      && this.enderecoEntregaBairro
-      && this.enderecoEntregaRua
-      && this.enderecoEntregaNumero
-      && this.enderecoEntregaCEP);
+      let response = false;
+      if (this.address.street
+        && this.address.number
+        && this.address.district
+        && this.address.city_name
+        && this.address.state_name
+        && this.address.contry_name
+        && this.address.code
+        && this.address.latitude
+        && this.address.longitude) {
+        response = true;
+      }
+      return response;
     },
     callback(id, data) {
       this.reset();
@@ -221,16 +134,7 @@ export default {
       const client = {
         name: this.nomeCliente,
         phone: formatPhone,
-        address: {
-          number: this.enderecoEntregaNumero,
-          street: this.enderecoEntregaRua,
-          district: this.enderecoEntregaBairro,
-          code: this.enderecoEntregaCEP,
-          country_name: this.enderecoEntregaPais,
-          state_name: this.enderecoEntregaEstado,
-          city_name: this.enderecoEntregaCidade,
-          reference: this.enderecoEntregaReferencia,
-        },
+        address: this.address,
       };
       this.$store.dispatch('createClient', { client, callback: this.callback });
     },

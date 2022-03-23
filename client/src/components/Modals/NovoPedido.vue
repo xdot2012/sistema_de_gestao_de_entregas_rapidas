@@ -144,12 +144,12 @@
                   <div class="d-flex flex-column">
                     <h3>Endereço de Entrega:</h3>
                     <div class="d-flex justify-space-between">
-                      <h3>Rua: {{clientData.address[0].street}}</h3>
-                      <h3>Número: {{clientData.address[0].number}}</h3>
+                      <h3>Rua: {{clientAddress.street}}</h3>
+                      <h3>Número: {{clientAddress.number}}</h3>
                     </div>
                     <div class="d-flex justify-space-between">
-                      <h3>Bairro: {{clientData.address[0].district}}</h3>
-                      <h3>Cidade: {{clientData.address[0].city_name}}</h3>
+                      <h3>Bairro: {{clientAddress.district}}</h3>
+                      <h3>Cidade: {{clientAddress.city_name}}</h3>
                     </div>
                   </div>
                   <v-divider />
@@ -228,7 +228,6 @@ export default {
   },
   beforeCreate() {
     this.$store.dispatch('getClients');
-    this.$store.dispatch('getCitys');
   },
   name: 'NovoPedido',
   data: () => ({
@@ -247,6 +246,19 @@ export default {
     validaProdutos: false,
     validaCliente: false,
     hasBeenPaid: false,
+    clientAddress: {
+      street: null,
+      number: null,
+      district: null,
+      city_name: null,
+      state_name: null,
+      country_name: null,
+      code: null,
+      reference: null,
+      latitude: null,
+      longitude: null,
+      altitude: null,
+    },
   }),
   methods: {
     clearMessages() {
@@ -322,6 +334,7 @@ export default {
     criarCliente(id, data) {
       this.clientID = id;
       this.clientData = data;
+      this.clientAddress = data.main_address;
       this.proximaEtapa(this.etapaPedido);
     },
     clientValidation(val) {
