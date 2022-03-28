@@ -38,8 +38,6 @@ const client = {
         .catch((err) => {
           console.log(err);
           if (err.response?.data) {
-            console.log('err.response.data');
-            console.log(err.response.data);
             dispatch('alertError', err.response.data);
           } else (dispatch('alertError', err));
         });
@@ -76,12 +74,24 @@ const client = {
     },
     addClientAddress({ commit, dispatch }, formData) {
       const fullAddress = Object.assign(formData.address, { client: formData.client });
-      console.log(fullAddress);
       authRequest.post('/api/address/', fullAddress)
         .then((response) => {
-          commit('ADD_ADDRESS', formData.client, response);
+          commit('ADD_ADDRESS', response.data);
           dispatch('alertSuccess', { non_field_errors: ['Endereço Adicionado com Sucesso.'] });
           formData.callback(response.data);
+        })
+        .catch((err) => {
+          console.log(err);
+          if (err.response?.data) {
+            dispatch('alertError', { non_field_errors: [err.response.data] });
+          } else (dispatch('alertError', [err]));
+        });
+    },
+    deleteClientAddress({ commit, dispatch }, formData) {
+      authRequest.delete(`/api/address/${formData.addressID}/`)
+        .then(() => {
+          commit('REMOVE_ADDRESS', formData);
+          dispatch('alertSuccess', { non_field_errors: ['Endereço Excluído com Sucesso.'] });
         })
         .catch((err) => {
           console.log(err);
@@ -107,16 +117,23 @@ const client = {
         console.log('ERRO, CLIENTE NÃO ENCONTRADO!');
       }
     },
-    ADD_ADDRESS(state, clientID, payload) {
-      const obj = state.clientList.find((item) => item.pk === clientID);
-      if (obj) {
-        const index = state.clientList.findIndex((item) => item.pk === payload);
-        if (index !== -1) {
-          obj.addresses.concat([payload]);
-          state.clientList[index] = obj;
-        } else {
-          console.log('ERRO, CLIENTE NÃO ENCONTRADO!');
-        }
+    ADD_ADDRESS(state, payload) {
+      const index = state.clientList.findIndex((item) => item.pk === payload.client);
+      if (index !== -1) {
+        const obj = state.clientList[index].addresses.concat([payload]);
+        state.clientList[index].addresses = obj;
+      } else {
+        console.log('ERRO, CLIENTE NÃO ENCONTRADO!');
+      }
+    },
+    REMOVE_ADDRESS(state, payload) {
+      const index = state.clientList.findIndex((item) => item.pk === payload.clientID);
+      if (index !== -1) {
+        const addressIndex = state.clientList[index].addresses.findIndex(
+          (item) => item.pk === payload.addressID,
+        );
+        if (addressIndex !== -1) state.clientList[index].addresses.splice(addressIndex, 1);
+        else console.log('ERRO, ENDEREÇO NÃO ENCONTRADO');
       } else {
         console.log('ERRO, CLIENTE NÃO ENCONTRADO!');
       }

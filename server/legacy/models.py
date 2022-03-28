@@ -64,7 +64,7 @@ class ClientAddress(BaseModel):
     created_on = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-created_on']
+        ordering = ['-active', '-created_on']
         unique_together = ['client', 'street', 'number']
 
     def __str__(self):
@@ -74,7 +74,6 @@ class ClientAddress(BaseModel):
         with transaction.atomic():
             # This will not call the save function again, witch is good!
             ClientAddress.objects.filter(client=self.client.pk).update(active=False)
-
             return super(ClientAddress, self).save(*args, **kwargs)
 
 

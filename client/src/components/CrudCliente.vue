@@ -53,7 +53,7 @@
               :items="getAllClients"
               dense
               label="Endereço do Cliente"
-              item-text="address"
+              item-text="main_address.format"
               item-value="pk"
             ></v-autocomplete>
           </div>

@@ -107,7 +107,8 @@
                 ref="clientCreate"  />
               <selecao-cliente-form v-else
                ref="clientSelect"
-               :validSelection="clientValidation" />
+               :validSelection="clientValidation"
+               :setDeliveryAddress="setClientAddress" />
               <!-- /SELEÇÃO CLIENTE -->
             </div>
 
@@ -264,8 +265,7 @@ export default {
     clearMessages() {
       this.$store.dispatch('alertClear');
     },
-    callback(value) {
-      console.log(value);
+    callback() {
       this.limparPedido();
     },
     limparPedido() {
@@ -339,6 +339,9 @@ export default {
     },
     clientValidation(val) {
       this.validaCliente = val;
+    },
+    setClientAddress(data) {
+      this.clientAddress = data;
     },
   },
 };

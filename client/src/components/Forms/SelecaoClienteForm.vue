@@ -111,6 +111,12 @@
         </div>
 
       <div class="d-flex">
+        <v-btn v-if="editarEndereco"
+          :disabled="!selectedAddressID"
+          @click="excluirEndereco"
+          class="mr-auto"
+          color="warning"
+          large>Excluir Endereço</v-btn>
         <v-spacer></v-spacer>
         <v-btn v-if="!editarEndereco"
           :disabled="!selectedAddressID"
@@ -163,7 +169,7 @@ import NovoEnderecoForm from './NovoEnderecoForm.vue';
 export default {
   components: { NovoEnderecoForm },
   computed: mapGetters(['getAllClients']),
-  props: ['validSelection'],
+  props: ['validSelection', 'setDeliveryAddress'],
   name: 'SelecaoClienteForm',
   data: () => ({
     selectedClientInfo: {
@@ -253,6 +259,9 @@ export default {
     setAddress(data) {
       this.selectedAddressID = data.pk;
     },
+    excluirEndereco() {
+      this.$store.dispatch('excluirEndereco', { addressID: this.selectedAddressID, clientID: this.clienteSelecao });
+    },
   },
   watch: {
     clienteSelecao: function onChange(val) {
@@ -293,6 +302,7 @@ export default {
         (item) => item.pk === val,
       );
       this.selectedAddress = obj;
+      this.setDeliveryAddress(this.selectedAddress);
       return val;
     },
   },
