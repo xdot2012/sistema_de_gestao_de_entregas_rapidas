@@ -63,7 +63,7 @@
                     :items="getAutoCompleteClientName"
                     dense
                     label="Endereço do Cliente"
-                    item-text="address"
+                    item-text="main_address.format"
                     item-value="pk"
                   ></v-autocomplete>
                 </div>
@@ -122,6 +122,7 @@ export default {
   computed: mapGetters(['activeOrders', 'getAutoCompleteClientName']),
   beforeCreate() {
     this.$store.dispatch('getHistory');
+    this.$store.dispatch('getClients');
   },
   data() {
     return {

@@ -259,6 +259,7 @@ export default {
       latitude: null,
       longitude: null,
       altitude: null,
+      pk: null,
     },
   }),
   methods: {
@@ -286,6 +287,7 @@ export default {
     finalizarPedido() {
       const order = {
         client: this.clientID,
+        address: this.clientAddress.pk,
         delivery_type: this.tipoEntrega,
         payment_method: this.metodoPagamento,
         is_paid: this.hasBeenPaid,

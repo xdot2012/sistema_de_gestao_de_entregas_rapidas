@@ -6,12 +6,13 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import BranchSerializer, ClientSerializer, DeliveryManSerializer, OrderSerializer, ClientAddressSerializer
-from .models import Branch, Client, DeliveryMan, Order, OrderProduct, ClientAddress
+from .serializers import ClientSerializer, DeliveryManSerializer, OrderSerializer
+from .models import Client, DeliveryMan, Order, OrderProduct
 from rest_framework.response import Response
 from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
 from django.db import transaction
+from routing.models import Branch, ClientAddress
 
 api_key = '&key=AIzaSyD3iW-BDcjxvxPpQIr-YxZLu7TrcJ7I5hc'
 
@@ -29,7 +30,8 @@ class OrderApiView(viewsets.ViewSet):
         with transaction.atomic():
             order_obj = Order.objects.create(client_id=request.data['client'],
                                              created_by=request.user,
-                                             delivery_type=request.data['delivery_type'])
+                                             delivery_type=request.data['delivery_type'],
+                                             address_id=request.data['address'])
 
             for item in request.data['products']:
                 OrderProduct.objects.create(order_id=order_obj.pk, name=item['name'], quantity=item['quantity'])
@@ -51,13 +53,6 @@ class OrderApiView(viewsets.ViewSet):
 class DeliveryManViewSet(viewsets.ModelViewSet):
     queryset = DeliveryMan.objects.all()
     serializer_class = DeliveryManSerializer
-    permission_classes = [IsAuthenticated]
-    pagination_class = None
-
-
-class ClientAddressViewSet(viewsets.ModelViewSet):
-    queryset = ClientAddress.objects.all()
-    serializer_class = ClientAddressSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = None
 
@@ -85,17 +80,6 @@ class ClientViewSet(viewsets.ModelViewSet):
             ClientAddress.objects.create(**client_address, client=client)
 
         return Response(self.serializer_class(client).data, status=status.HTTP_201_CREATED)
-
-
-class BranchApiView(APIView):
-    queryset = Branch.objects.all
-    serializer_class = BranchSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, *args, **kwargs):
-        queryset = self.queryset()
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(serializer.data)
 
 
 class GenerateRouteAPI(APIView):

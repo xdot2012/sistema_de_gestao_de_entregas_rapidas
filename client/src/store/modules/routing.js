@@ -25,7 +25,7 @@ const routing = {
     },
     getLocation({ dispatch }, formData) {
       console.log(formData);
-      authRequest.post('/api/routes/location/', { address: formData.address })
+      authRequest.post('/api/location/', { address: formData.address })
         .then((response) => {
           formData.callback(response.data);
         })

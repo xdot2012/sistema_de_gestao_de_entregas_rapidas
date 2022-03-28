@@ -147,9 +147,9 @@ export default {
       const city = this.$store.getters.getAllCitys
         .find((item) => item.pk === val);
 
-      this.enderecoEntregaCidade = city.name;
-      this.enderecoEntregaEstado = city.state;
-      this.enderecoEntregaPais = city.country;
+      this.enderecoEntregaCidade = city.city_name;
+      this.enderecoEntregaEstado = city.city_state;
+      this.enderecoEntregaPais = city.city_country;
       return val;
     },
   },

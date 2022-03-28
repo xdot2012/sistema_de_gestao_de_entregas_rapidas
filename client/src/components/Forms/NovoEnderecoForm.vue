@@ -4,7 +4,7 @@
       <v-autocomplete
       v-model="enderecoEntregaCidadeID"
       :items="getAllCitys"
-      item-text="name"
+      item-text="city_name"
       item-value="pk"
       dense
       filled
@@ -174,10 +174,9 @@ export default {
       const city = this.$store.getters.getAllCitys
         .find((item) => item.pk === val);
 
-      this.address.city_name = city.name;
-      this.address.state_name = city.state;
-      this.address.country_name = city.country;
-      console.log(this.address);
+      this.address.city_name = city.city_name;
+      this.address.state_name = city.state_name;
+      this.address.country_name = city.country_name;
       return val;
     },
   },
