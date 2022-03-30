@@ -1,6 +1,9 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+
+from legacy.models import Order
+from legacy.serializers import OrderSerializer
 from .models import Branch, ClientAddress
 from .router import get_location, get_path
 from .serializers import BranchSerializer, ClientAddressSerializer, LocationSerializer
@@ -42,6 +45,28 @@ class PathFinderAPIView(APIView):
 
     def post(self, request):
         branch = Branch.objects.filter(active=True).first()
-        adresses = ClientAddress.objects.filter(pk__in=request.data['addresses'])
-        path = get_path(branch.longitude, branch.latitude, adresses.values('longitude', 'latitude'))
-        print(path)
+        request.data['orders'].sort()
+        orders = Order.objects.filter(pk__in=request.data['orders']).order_by('address__id')
+        points_to_visit = []
+        for order in orders:
+            points_to_visit.append({
+                'longitude': order.address.longitude,
+                'latitude': order.address.latitude
+            })
+
+        path = get_path(branch.longitude, branch.latitude, points_to_visit)
+        data = []
+
+        for i in range(0, len(request.data['orders'])):
+            data.append({
+                'index': path['waypoints'][i+1]['waypoint_index'],
+                'distance': path['waypoints'][i+1]['distance'],
+                'name': path['waypoints'][i+1]['name'],
+                'longitude': path['waypoints'][i+1]['location'][0],
+                'latitude': path['waypoints'][i+1]['location'][1],
+                'order': OrderSerializer(orders.get(pk=request.data['orders'][i])).data,
+            })
+
+        data = sorted(data, key=lambda k: k['index'])
+
+        return Response(data, status=status.HTTP_200_OK)
