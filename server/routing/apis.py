@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from .models import Branch, ClientAddress
-from .router import get_location
+from .router import get_location, get_path
 from .serializers import BranchSerializer, ClientAddressSerializer, LocationSerializer
 from rest_framework import viewsets, status
 
@@ -35,3 +35,13 @@ class LocationAPIView(APIView):
         serializer = self.serializer_class(location)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class PathFinderAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        branch = Branch.objects.filter(active=True).first()
+        adresses = ClientAddress.objects.filter(pk__in=request.data['addresses'])
+        path = get_path(branch.longitude, branch.latitude, adresses.values('longitude', 'latitude'))
+        print(path)

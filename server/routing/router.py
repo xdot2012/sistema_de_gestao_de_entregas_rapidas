@@ -3,22 +3,14 @@ from vrpy import VehicleRoutingProblem
 import certifi
 import ssl
 import requests
-import folium
 import polyline
 
 import geopy.geocoders
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
-import io
-from PIL import Image
 
 ctx = ssl.create_default_context(cafile=certifi.where())
 geopy.geocoders.options.default_ssl_context = ctx
-
-
-def save_png(img_data):
-    img = Image.open(io.BytesIO(img_data))
-    img.save('image.png')
 
 
 def get_location(name):
@@ -51,56 +43,30 @@ def get_route(pickup_lon, pickup_lat, dropoff_lon, dropoff_lat):
     return out
 
 
-def get_map(route):
-    m = folium.Map(location=[(route['start_point'][0] + route['end_point'][0]) / 2,
-                             (route['start_point'][1] + route['end_point'][1]) / 2],
-                   zoom_start=13)
+def get_path(pickup_lon, pickup_lat, lon_lat_dict_array):
+    loc = "{},{}".format(pickup_lon, pickup_lat)
+    for item in lon_lat_dict_array:
+        loc += ";{},{}".format(item['longitude'], item['latitude'])
 
-    folium.PolyLine(
-        route['route'],
-        weight=8,
-        color='blue',
-        opacity=0.6
-    ).add_to(m)
+    url = "http://router.project-osrm.org/trip/v1/driving/"
+    url_options = "?roundtrip=true&source=first"
+    r = requests.get(url + loc + url_options)
+    if r.status_code != 200:
+        return {}
 
-    folium.Marker(
-        location=route['start_point'],
-        icon=folium.Icon(icon='play', color='green')
-    ).add_to(m)
+    res = r.json()
+    out = {
+        'waypoints': res['waypoints'],
+        'trips': res['trips']
+    }
+    return out
 
-    folium.Marker(
-        location=route['end_point'],
-        icon=folium.Icon(icon='stop', color='red')
-    ).add_to(m)
-
-    return m
 
 if __name__ == '__main__':
-    # Montar Grafo e Resolução de problemas de roteamento
-    G = DiGraph()
-    G.add_edge("Source", 1, cost=1)
-    G.add_edge("Source", 2, cost=2)
-    G.add_edge(1, "Sink", cost=0)
-    G.add_edge(2, "Sink", cost=2)
-    G.add_edge(1, 2, cost=1)
-    G.add_edge(2, 1, cost=1)
-    G.nodes[1]["demand"] = 5
-    G.nodes[2]["demand"] = 4
-
-    prob = VehicleRoutingProblem(G, load_capacity=10)
-    prob.solve()
-
     # Adquirir Coordenadas
-    firstLocation = get_location("Maria de Freitas, Sete Lagoas, Minas Gerais")
-    lastLocation = get_location("Avelino Macedo, Sete Lagoas, Minas Gerais")
-
-    # Adquirir Melhor Rota
-    if firstLocation and lastLocation:
-        route = get_route(firstLocation.longitude, firstLocation.latitude, lastLocation.longitude, lastLocation.latitude)
-
-        # (Temporário) Salvar Mapa
-        m = get_map(route)
-        save_png(m._to_png(5))
-    else:
-        print("ERRO!!! LOCAL NÃO ENCONTRADO!!!")
+    from routing.models import Branch, ClientAddress
+    from routing.router import get_path
+    branch = Branch.objects.all().first()
+    other_locations = ClientAddress.objects.all().values('longitude', 'latitude')[:5]
+    get_path(branch.longitude, branch.latitude, other_locations)
 

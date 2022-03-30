@@ -20,9 +20,9 @@ class Branch(models.Model):
     district = models.CharField('Bairro', max_length=100)
     code = models.CharField('CEP', max_length=20)
     reference = models.CharField('Ponto de Referência', max_length=200, null=True, blank=True)
-    latitude = models.DecimalField(max_digits=22, decimal_places=16)
-    longitude = models.DecimalField(max_digits=22, decimal_places=16)
-    altitude = models.DecimalField(max_digits=22, decimal_places=16)
+    latitude = models.CharField(max_length=20)
+    longitude = models.CharField(max_length=20)
+    altitude = models.CharField(max_length=20)
     active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -44,9 +44,9 @@ class ClientAddress(BaseModel):
     district = models.CharField('Bairro', max_length=100)
     code = models.CharField('CEP', max_length=20)
     reference = models.CharField('Ponto de Referência', max_length=200, null=True, blank=True)
-    latitude = models.DecimalField(max_digits=22, decimal_places=16)
-    longitude = models.DecimalField(max_digits=22, decimal_places=16)
-    altitude = models.DecimalField(max_digits=22, decimal_places=16)
+    latitude = models.CharField(max_length=20)
+    longitude = models.CharField(max_length=20)
+    altitude = models.CharField(max_length=20)
     active = models.BooleanField(default=True)
     distance = models.FloatField('Distância (KM)')
     created_on = models.DateTimeField(auto_now=True)
@@ -61,7 +61,7 @@ class ClientAddress(BaseModel):
     def save(self, *args, **kwargs):
         if not self.distance:
             branch = Branch.objects.filter(active=True).first()
-            route = get_route(branch.latitude, branch.longitude, self.latitude, self.longitude)
+            route = get_route(branch.longitude, branch.latitude, self.longitude, self.latitude)
             self.distance = route['distance']
 
         with transaction.atomic():

@@ -60,6 +60,7 @@ class Order(BaseModel):
     finished_on = models.DateTimeField(verbose_name='Concluída em', null=True, blank=True)
     created_by = models.ForeignKey(verbose_name='Criado por', to='accounts.User', related_name='created_orders', on_delete=models.PROTECT)
     modified_by = models.ForeignKey(verbose_name='Modificado por', to='accounts.User', related_name='modified_orders', null=True, blank=True, on_delete=models.PROTECT)
+    active = models.BooleanField(verbose_name='Ativa', default=True)
 
     def __str__(self):
         return f'{self.client} - {self.created_on}'

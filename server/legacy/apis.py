@@ -17,8 +17,8 @@ from routing.models import Branch, ClientAddress
 api_key = '&key=AIzaSyD3iW-BDcjxvxPpQIr-YxZLu7TrcJ7I5hc'
 
 
-class OrderApiView(viewsets.ViewSet):
-    queryset = Order.objects.all()
+class OrderApiView(viewsets.ModelViewSet):
+    queryset = Order.objects.filter(active=True)
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
@@ -31,7 +31,8 @@ class OrderApiView(viewsets.ViewSet):
             order_obj = Order.objects.create(client_id=request.data['client'],
                                              created_by=request.user,
                                              delivery_type=request.data['delivery_type'],
-                                             address_id=request.data['address'])
+                                             address_id=request.data['address'],
+                                             is_paid=request.data['is_paid'])
 
             for item in request.data['products']:
                 OrderProduct.objects.create(order_id=order_obj.pk, name=item['name'], quantity=item['quantity'])
@@ -39,15 +40,23 @@ class OrderApiView(viewsets.ViewSet):
         return Response(self.serializer_class(order_obj).data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
-        queryset = Order.objects.filter(finished_on=None)
+        queryset = Order.objects.filter(finished_on=None, active=True)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['GET'], detail=False)
     def history(self, request, *args, **kwargs):
-        queryset = Order.objects.all()
+        queryset = Order.objects.filter(active=True)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['DELETE'], detail=True)
+    def cancel(self, request, *args, **kwargs):
+        order = Order.objects.filter(pk=kwargs['pk'], active=True)
+        if order.exists():
+            Order.objects.filter(pk=kwargs['pk']).update(active=False)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "Não encontrado"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class DeliveryManViewSet(viewsets.ModelViewSet):
