@@ -3,10 +3,13 @@ import authRequest from '../../requests';
 const routing = {
   state: () => ({
     citys: [],
+    currentPath: [],
   }),
 
   getters: {
     getAllCitys: (state) => state.citys,
+    getPath: (state) => state.currentPath,
+    getOrdersInPath: (state) => state.currentPath.map((item) => item.order),
   },
 
   actions: {
@@ -36,6 +39,22 @@ const routing = {
           } else (dispatch('alertError', err));
         });
     },
+    generatePath({ commit, dispatch }, formData) {
+      authRequest.post('/api/pathfinder/', { orders: formData.orders })
+        .then((response) => {
+          commit('RESET_PATH');
+          commit('ADD_PATH', response.data);
+          dispatch('alertSuccess', { non_field_errors: ['Rota gerada com Sucesso'] });
+          formData.callback(formData.orders);
+        })
+        .catch((err) => {
+          console.log(err);
+          if (err.response?.data) {
+            console.log(err.response.data);
+            dispatch('alertError', err.response.data);
+          } else (dispatch('alertError', err));
+        });
+    },
   },
   mutations: {
     RESET_CITYS(state) {
@@ -43,6 +62,12 @@ const routing = {
     },
     ADD_CITY(state, payload) {
       state.citys = state.citys.concat(payload);
+    },
+    RESET_PATH(state) {
+      state.currentPath = [];
+    },
+    ADD_PATH(state, payload) {
+      state.currentPath = payload;
     },
   },
 };

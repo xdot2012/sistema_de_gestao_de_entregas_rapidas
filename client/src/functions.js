@@ -19,6 +19,10 @@ export function getDifInMinutes(startDate, endDate) {
   return Math.round(Math.abs(endDate - startDate) / 60000);
 }
 
+export function isOut(item) {
+  return item.ready_on != null;
+}
+
 export function isLate(dateTime) {
   return getDifInMinutes(dateTime, Date.now()) >= LATE_TIME;
 }

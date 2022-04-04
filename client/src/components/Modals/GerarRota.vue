@@ -21,7 +21,13 @@
             <div v-if="!etapaPedido" class="d-flex">
               <div class="d-flex flex-column flex-fill" >
                 <h2 class="text-center">{{ activeOrders.length }} Pedidos em Espera</h2>
-                <h3>Selecione Entregadores:</h3>
+                <v-text-field label="Digite a Capacidade de Entrega"
+                  type="number"
+                  v-model="capacidadeTotal"
+                  hide-details="auto"
+                  required
+                ></v-text-field>
+                <!-- <h3>Selecione Entregadores:</h3>
                 <div class="d-flex flex-column">
                   <v-checkbox
                     :label="'Selecionar Todos'"
@@ -33,7 +39,7 @@
                     v-model="entregador.selecionado"
                     @change="selecionaEntregador(entregador)"/>
                   </div>
-                <h2 class="text-center">Capacidade Total: {{capacidadeTotal}} Produtos</h2>
+                <h2 class="text-center">Capacidade Total: {{capacidadeTotal}} Produtos</h2> -->
               </div>
             </div>
 
@@ -48,11 +54,12 @@
                         value="tempo_espera" />
                       <v-radio
                         @click="rotaMaisCurta()"
-                        label="Priorizar Rota Mais Curta"
+                        label="Priorizar Menor Distância"
                         value="rota_mais_curta" />
                       <v-radio
                         label="Selecao Manual"
-                        value="selecao_manual" />
+                        value="selecao_manual"
+                        @click="limparSelecao()" />
                     </v-radio-group>
                 </div>
 
@@ -99,21 +106,32 @@
               <v-simple-table>
                 <thead>
                   <tr>
-                    <th>Entregador</th>
-                    <th>Pedido</th>
+                    <th>#</th>
+                    <!-- <th>Entregador</th> -->
+                    <th>Número do Pedido</th>
                     <th>Cliente</th>
                     <th>Endereço</th>
                     <th>Produtos</th>
+                    <th>Foi Paga?</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr
-                    v-for="item in listaItems" :key="item.id">
-                    <td>{{ item.entregador }}</td>
-                    <td>{{ item.pedido }}</td>
-                    <td>{{ item.cliente }}</td>
-                    <td>{{ item.endereco }}</td>
-                    <td>{{ item.produtos  }}</td>
+                    v-for="item in getPath" :key="item.index">
+                    <!-- <td>{{ item.entregador }}</td> -->
+                    <td>{{ item.index }} </td>
+                    <td>{{ item.order.pk }}</td>
+                    <td>{{ item.order.client_name }}</td>
+                    <td>{{ item.order.address.format }}</td>
+                    <td>{{ item.order.ispaid }}
+                    <td>
+                        <v-chip
+                          dark
+                          v-for="product in item.order.products" :key="product.pk"
+                        >
+                          x{{product.quantity}} - {{ product.name }}
+                        </v-chip>
+                      </td>
                     </tr>
                 </tbody>
               </v-simple-table>
@@ -147,7 +165,7 @@
                 x-large
                 color="primary"
                 @click="dialog.value = finalizarPedido()">
-                Finalizar Pedido</v-btn>
+                Finalizar</v-btn>
             </div>
           </v-card-actions>
         </v-card>
@@ -162,7 +180,7 @@ import { sortOrdersByTime, sortOrdersByDistance } from '../../functions';
 
 export default {
   name: 'GerarRota',
-  computed: mapGetters(['getAllDeliveryman', 'activeOrders', 'ordersWithPriority']),
+  computed: mapGetters(['getAllDeliveryman', 'activeOrders', 'ordersWithPriority', 'getPath']),
   beforeCreate() {
     this.$store.dispatch('getCitys');
   },
@@ -174,6 +192,7 @@ export default {
     capacidadeTotal: 0,
     nPedidos: 0,
     produtosSelecionados: 0,
+    ordensSelecionadas: [],
     listaEntregadores: [],
     listaPedidos: [
       {
@@ -196,10 +215,23 @@ export default {
     finalizarPedido() {
       this.etapaPedido = 0;
       this.confirmaPedido = true;
+      const orders = this.$store.getters.getOrdersInPath.map((order) => order.pk);
+      this.$store.dispatch('deliverOrders', { orders });
       return false;
     },
+    showRoute() {
+      this.etapaPedido += 1;
+    },
     proximaEtapa(etapaPedido) {
-      this.etapaPedido = etapaPedido + 1;
+      if (etapaPedido === 1) {
+        const orderList = this.$store.getters.ordersWithPriority.filter(
+          (item) => item.selected === true,
+        );
+        const orders = orderList.map((item) => item.pk);
+        this.$store.dispatch('generatePath', { orders, callback: this.showRoute });
+      } else {
+        this.etapaPedido = etapaPedido + 1;
+      }
     },
     voltarEtapa(etapaPedido) {
       this.etapaPedido = etapaPedido - 1;
@@ -227,10 +259,22 @@ export default {
         this.capacidadeTotal = count;
       }
     },
+    limparSelecao() {
+      this.produtosSelecionados = 0;
+      for (let i = 0; i < this.$store.getters.ordersWithPriority.length; i += 1) {
+        this.$store.getters.ordersWithPriority[i].selected = false;
+      }
+      this.ordensSelecionadas = [];
+    },
     adicionaItem(item) {
       if (item.selected) {
+        this.ordensSelecionadas.push(item);
         this.produtosSelecionados += item.quantity;
       } else {
+        const index = this.ordensSelecionadas.findIndex((order) => order.pk === item.pk);
+        if (index !== -1) {
+          this.ordensSelecionadas.splice(index, 1);
+        }
         this.produtosSelecionados -= item.quantity;
       }
     },
@@ -258,6 +302,13 @@ export default {
         } else {
           this.$store.getters.ordersWithPriority[i].selected = false;
         }
+      }
+    },
+  },
+  watch: {
+    capacidadeTotal: function onChange(val) {
+      if (typeof (val) === 'string') {
+        this.capacidadeTotal = parseInt(val, 10);
       }
     },
   },

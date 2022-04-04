@@ -7,19 +7,19 @@
           <v-spacer></v-spacer>
           <div>
             <novo-pedido></novo-pedido>
-          </div>
-        </v-card-actions>
-      </v-card>
-
-      <v-card class="card-painel mt-10">
-        <tabela-entregadores></tabela-entregadores>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <div>
             <gerar-rota></gerar-rota>
           </div>
         </v-card-actions>
       </v-card>
+
+      <!-- <v-card class="card-painel mt-10">
+        <tabela-entregadores></tabela-entregadores>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <div>
+          </div>
+        </v-card-actions>
+      </v-card> -->
 
     </div>
     <modal-sucesso ref="success" :dialog="dialog"/>
@@ -29,7 +29,7 @@
 
 <script>
 import TabelaPedidosAtivos from '../Tabelas/TabelaPedidosAtivos.vue';
-import TabelaEntregadores from '../Tabelas/TabelaEntregadores.vue';
+// import TabelaEntregadores from '../Tabelas/TabelaEntregadores.vue';
 import NovoPedido from '../Modals/NovoPedido.vue';
 import GerarRota from '../Modals/GerarRota.vue';
 import ModalSucesso from '../Modals/ModalSucesso.vue';
@@ -37,7 +37,7 @@ import ModalSucesso from '../Modals/ModalSucesso.vue';
 export default {
   components: {
     TabelaPedidosAtivos,
-    TabelaEntregadores,
+    // TabelaEntregadores,
     NovoPedido,
     GerarRota,
     ModalSucesso,

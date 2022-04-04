@@ -4,6 +4,7 @@ import {
   isLate,
   isWarn,
   getPriority,
+  isOut,
 } from '../../functions';
 
 const order = {
@@ -15,9 +16,13 @@ const order = {
   getters: {
     activeOrders: (state) => state.orderList,
     allOrders: (state) => state.orderHistory,
-    inRouteOrders: (state) => state.orderList.filter((item) => item.ready_on != null),
-    lateOrders: (state) => state.orderList.filter((i) => isLate(stringToDate(i.created_on))),
-    warnOrders: (state) => state.orderList.filter((i) => isWarn(stringToDate(i.created_on))),
+    inRouteOrders: (state) => state.orderList.filter((item) => isOut(item)),
+    lateOrders: (state) => state.orderList.filter(
+      (i) => !isOut(i) && isLate(stringToDate(i.created_on)),
+    ),
+    warnOrders: (state) => state.orderList.filter(
+      (i) => !isOut(i) && isWarn(stringToDate(i.created_on)),
+    ),
     ordersWithPriority: (state) => state.orderList.filter((item) => getPriority(item)),
   },
 
@@ -51,12 +56,27 @@ const order = {
           } else (dispatch('alertError', err));
         });
     },
+
     createOrder({ commit, dispatch }, formData) {
       authRequest.post('/api/orders/', formData.order)
         .then((response) => {
           commit('ADD_ORDER', [response.data]);
           dispatch('alertSuccess', { non_field_errors: ['Ordem Iniciada com Sucesso.'] });
           formData.callback(response.data.pk, response.data);
+        })
+        .catch((err) => {
+          console.log(err);
+          if (err.response?.data) {
+            console.log(err.response.data);
+            dispatch('alertError', err.response.data);
+          } else (dispatch('alertError', err));
+        });
+    },
+
+    deliverOrders({ commit, dispatch }, formData) {
+      authRequest.post('/api/orders/deliver/', { orders: formData.orders })
+        .then((response) => {
+          commit('UPDATE_ORDERS', [response.data]);
         })
         .catch((err) => {
           console.log(err);
@@ -73,6 +93,20 @@ const order = {
     },
     ADD_ORDER(state, payload) {
       state.orderList = state.orderList.concat(payload);
+    },
+    UPDATE_ORDERS(state, payload) {
+      const orderKeys = payload.map((item) => item.pk);
+      console.log(orderKeys);
+      const ordersToUpdate = state.orderList.filter((item) => item.pk in orderKeys);
+      ordersToUpdate.map((obj) => {
+        const index = state.orderList.findIndex((old) => old.pk === obj.pk);
+        if (index !== -1) {
+          state.orderList[index] = obj;
+        } else {
+          console.log('ERRO, ORDEM NÃO ENCONTRADA!');
+        }
+        return obj;
+      });
     },
     RESET_HISTORY(state) {
       state.orderHistory = [];

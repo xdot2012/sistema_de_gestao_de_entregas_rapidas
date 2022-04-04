@@ -1,3 +1,5 @@
+import datetime
+
 import requests
 import json
 import ortools
@@ -58,6 +60,21 @@ class OrderApiView(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({"detail": "Não encontrado"}, status=status.HTTP_404_NOT_FOUND)
 
+    @action(methods=['POST'], detail=False)
+    def deliver(self, request, *args, **kwargs):
+        orders = list(map(int, request.data['orders']))
+        queryset = Order.objects.filter(pk__in=orders)
+        queryset.update(ready_on=datetime.datetime.now())
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['POST'], detail=False)
+    def finish(self, request, *args, **kwargs):
+        orders = list(map(int, request.data['orders']))
+        queryset = Order.objects.filter(pk__in=orders)
+        queryset.update(finished_on=datetime.datetime.now())
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class DeliveryManViewSet(viewsets.ModelViewSet):
     queryset = DeliveryMan.objects.all()

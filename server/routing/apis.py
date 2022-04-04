@@ -45,8 +45,9 @@ class PathFinderAPIView(APIView):
 
     def post(self, request):
         branch = Branch.objects.filter(active=True).first()
-        request.data['orders'].sort()
-        orders = Order.objects.filter(pk__in=request.data['orders']).order_by('address__id')
+        orders_pk = list(map(int, request.data['orders']))
+        orders_pk.sort()
+        orders = Order.objects.filter(pk__in=orders_pk).order_by('address__id')
         points_to_visit = []
         for order in orders:
             points_to_visit.append({
@@ -57,14 +58,14 @@ class PathFinderAPIView(APIView):
         path = get_path(branch.longitude, branch.latitude, points_to_visit)
         data = []
 
-        for i in range(0, len(request.data['orders'])):
+        for i in range(0, len(orders_pk)):
             data.append({
                 'index': path['waypoints'][i+1]['waypoint_index'],
                 'distance': path['waypoints'][i+1]['distance'],
                 'name': path['waypoints'][i+1]['name'],
                 'longitude': path['waypoints'][i+1]['location'][0],
                 'latitude': path['waypoints'][i+1]['location'][1],
-                'order': OrderSerializer(orders.get(pk=request.data['orders'][i])).data,
+                'order': OrderSerializer(orders.get(pk=orders_pk[i])).data,
             })
 
         data = sorted(data, key=lambda k: k['index'])

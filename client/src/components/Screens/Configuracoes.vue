@@ -1,16 +1,19 @@
 <template>
   <div>
     <crud-cliente />
-    <crud-entregador />
+    <!-- <crud-entregador /> -->
   </div>
 </template>
 
 <script>
 import CrudCliente from '../CrudCliente.vue';
-import CrudEntregador from '../CrudEntregador.vue';
+// import CrudEntregador from '../CrudEntregador.vue';
 
 export default {
-  components: { CrudCliente, CrudEntregador },
+  components: {
+    CrudCliente,
+    // CrudEntregador,
+  },
   name: 'Configuracoes',
   beforeCreate() {
     this.$store.dispatch('getClients');
