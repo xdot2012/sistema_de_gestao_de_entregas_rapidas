@@ -14,11 +14,15 @@ class OrderSerializer(serializers.ModelSerializer):
     address = ClientAddressSerializer(read_only=True)
     client_name = serializers.CharField(source='client.name', read_only=True)
     products = OrderProductSerializer(read_only=True, many=True)
+    key = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = ['pk', 'address', 'client', 'delivery_type', 'created_on', 'modified_on', 'ready_on', 'finished_on', 'created_by',
-                  'modified_by', 'products', 'is_paid', 'payment_method', 'client_name']
+                  'modified_by', 'products', 'is_paid', 'payment_method', 'client_name', 'key']
+
+    def get_key(self, obj):
+        return f'{obj.pk}{obj.modified_on}{obj.ready_on}'
 
 
 class DeliveryManSerializer(serializers.ModelSerializer):

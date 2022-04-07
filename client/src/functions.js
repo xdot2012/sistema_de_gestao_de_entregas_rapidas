@@ -33,7 +33,6 @@ export function isWarn(dateTime) {
 
 export function getOrderStatus(dateTime) {
   let response = 'UNDEFINED';
-
   if (isLate(dateTime)) {
     response = 'LATE';
   } else if (isWarn(dateTime)) {

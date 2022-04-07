@@ -1,3 +1,5 @@
+import Vue from 'vue';
+
 import authRequest from '../../requests';
 import {
   stringToDate,
@@ -76,7 +78,52 @@ const order = {
     deliverOrders({ commit, dispatch }, formData) {
       authRequest.post('/api/orders/deliver/', { orders: formData.orders })
         .then((response) => {
-          commit('UPDATE_ORDERS', [response.data]);
+          console.log('update!');
+          commit('UPDATE_ORDERS', response.data);
+          formData.callback();
+        })
+        .catch((err) => {
+          console.log(err);
+          if (err.response?.data) {
+            console.log(err.response.data);
+            dispatch('alertError', err.response.data);
+          } else (dispatch('alertError', err));
+        });
+    },
+
+    cancelOrders({ commit, dispatch }, formData) {
+      authRequest.post('/api/orders/cancel/', { orders: formData.orders })
+        .then((response) => {
+          commit('REMOVE_ORDERS', response.data);
+          formData.callback();
+        })
+        .catch((err) => {
+          console.log(err);
+          if (err.response?.data) {
+            console.log(err.response.data);
+            dispatch('alertError', err.response.data);
+          } else (dispatch('alertError', err));
+        });
+    },
+    finishOrders({ commit, dispatch }, formData) {
+      authRequest.post('/api/orders/finish/', { orders: formData.orders })
+        .then((response) => {
+          commit('REMOVE_ORDERS', response.data);
+          formData.callback();
+        })
+        .catch((err) => {
+          console.log(err);
+          if (err.response?.data) {
+            console.log(err.response.data);
+            dispatch('alertError', err.response.data);
+          } else (dispatch('alertError', err));
+        });
+    },
+    resetOrders({ commit, dispatch }, formData) {
+      authRequest.post('/api/orders/reset/', { orders: formData.orders })
+        .then((response) => {
+          commit('UPDATE_ORDERS', response.data);
+          formData.callback();
         })
         .catch((err) => {
           console.log(err);
@@ -95,13 +142,21 @@ const order = {
       state.orderList = state.orderList.concat(payload);
     },
     UPDATE_ORDERS(state, payload) {
-      const orderKeys = payload.map((item) => item.pk);
-      console.log(orderKeys);
-      const ordersToUpdate = state.orderList.filter((item) => item.pk in orderKeys);
-      ordersToUpdate.map((obj) => {
+      payload.map((obj) => {
         const index = state.orderList.findIndex((old) => old.pk === obj.pk);
         if (index !== -1) {
-          state.orderList[index] = obj;
+          Vue.set(state.orderList, index, obj);
+        } else {
+          console.log('ERRO, ORDEM NÃO ENCONTRADA!');
+        }
+        return obj;
+      });
+    },
+    REMOVE_ORDERS(state, payload) {
+      payload.map((obj) => {
+        const index = state.orderList.findIndex((old) => old.pk === obj.pk);
+        if (index !== -1) {
+          state.orderList.splice(index, 1);
         } else {
           console.log('ERRO, ORDEM NÃO ENCONTRADA!');
         }

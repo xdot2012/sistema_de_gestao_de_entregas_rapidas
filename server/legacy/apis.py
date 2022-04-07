@@ -52,19 +52,19 @@ class OrderApiView(viewsets.ModelViewSet):
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(methods=['DELETE'], detail=True)
+    @action(methods=['POST'], detail=False)
     def cancel(self, request, *args, **kwargs):
-        order = Order.objects.filter(pk=kwargs['pk'], active=True)
-        if order.exists():
-            Order.objects.filter(pk=kwargs['pk']).update(active=False)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({"detail": "Não encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        orders = list(map(int, request.data['orders']))
+        queryset = Order.objects.filter(pk__in=orders)
+        queryset.update(active=False, modified_by=request.user)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=False)
     def deliver(self, request, *args, **kwargs):
         orders = list(map(int, request.data['orders']))
         queryset = Order.objects.filter(pk__in=orders)
-        queryset.update(ready_on=datetime.datetime.now())
+        queryset.update(ready_on=datetime.datetime.now(), modified_by=request.user)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -72,9 +72,18 @@ class OrderApiView(viewsets.ModelViewSet):
     def finish(self, request, *args, **kwargs):
         orders = list(map(int, request.data['orders']))
         queryset = Order.objects.filter(pk__in=orders)
-        queryset.update(finished_on=datetime.datetime.now())
+        queryset.update(finished_on=datetime.datetime.now(), is_paid=True, modified_by=request.user)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['POST'], detail=False)
+    def reset(self, request, *args, **kwargs):
+        orders = list(map(int, request.data['orders']))
+        queryset = Order.objects.filter(pk__in=orders)
+        queryset.update(ready_on=None, finished_on=None, modified_by=request.user)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class DeliveryManViewSet(viewsets.ModelViewSet):
     queryset = DeliveryMan.objects.all()
