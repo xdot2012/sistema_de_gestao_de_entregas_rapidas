@@ -7,6 +7,7 @@ import Configuracoes from '../components/Screens/Configuracoes.vue';
 import Historico from '../components/Screens/Historico.vue';
 import Login from '../components/Screens/Login.vue';
 import PageNotFound from '../components/Screens/PageNotFound.vue';
+import EsqueciMinhaSenha from '../components/Screens/EsqueciMinhaSenha.vue';
 
 Vue.use(Router);
 
@@ -43,6 +44,11 @@ const router = new Router({
       path: '/auth',
       name: 'Login',
       component: Login,
+    },
+    {
+      path: '/redefinirSenha',
+      name: 'RedefinirSenha',
+      component: EsqueciMinhaSenha,
     },
     {
       path: '*',

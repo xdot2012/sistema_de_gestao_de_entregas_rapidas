@@ -1,5 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import viewsets, status
+from rest_framework.decorators import action
+
 from accounts.models import User
 from accounts.serializers import UserSerializer
 from rest_framework import permissions

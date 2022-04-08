@@ -12,28 +12,29 @@
                       <message></message>
                         <v-form>
                            <v-text-field
-                              name="username"
-                              label="Username"
+                              name="email"
+                              label="Digite seu Email"
                               type="text"
-                              v-model="username"
-                              v-on:keydown.enter='loginUser'
+                              v-model="email"
+                              v-on:keydown.enter='redefinirSenha'
                               required
                            ></v-text-field>
-                           <v-text-field
-                              id="password"
-                              name="password"
-                              label="Password"
+                            <v-text-field
+                              name="senha"
+                              label="Digite a nova Senha"
                               type="password"
                               v-model="password"
-                              v-on:keydown.enter='loginUser'
+                              v-on:keydown.enter='redefinirSenha'
                               required
                            ></v-text-field>
                         </v-form>
                      </v-card-text>
                      <v-card-actions>
-                        <v-btn text link :to="{name:'RedefinirSenha'}"> Esqueci minha Senha</v-btn>
                         <v-spacer></v-spacer>
-                        <v-btn type="submit" color="primary" @click="loginUser">Login</v-btn>
+                        <v-btn
+                        type="submit"
+                        color="primary"
+                        @click="redefinirSenha">Refefinir Senha</v-btn>
                      </v-card-actions>
                   </v-card>
                </v-flex>
@@ -53,14 +54,13 @@ export default {
   computed: mapGetters(['getAlertType', 'getMessage']),
   data() {
     return {
-      username: null,
-      password: null,
-      message: 'asdasdas',
+      email: null,
+      password: null
     };
   },
   methods: {
-    async loginUser() {
-      this.$store.dispatch('login', { username: this.username, password: this.password });
+    redefinirSenha() {
+      this.$store.dispatch('redefinirSenha');
     },
   },
 };

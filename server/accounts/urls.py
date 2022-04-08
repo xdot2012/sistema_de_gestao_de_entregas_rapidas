@@ -12,5 +12,6 @@ router.register(r'users', UsersViewSet)
 urlpatterns = [
     path('token/', AuthToken.as_view()),
     path('', include(router.urls)),
+    path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
 ]
 

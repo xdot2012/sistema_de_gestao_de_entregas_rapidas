@@ -30,10 +30,13 @@ const auth = {
         });
     },
     logout({ commit }) {
-      const token = axios.defaults.headers.common.Authorization;
       commit('REMOVE_USER');
       window.location.replace('/auth');
-      console.log(token);
+    },
+    redefinirSenha({ commit }) {
+      console.log('lol');
+      commit('REMOVE_USER');
+      window.location.replace('/auth');
     },
   },
 
