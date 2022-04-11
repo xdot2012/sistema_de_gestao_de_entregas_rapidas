@@ -8,6 +8,7 @@ import Historico from '../components/Screens/Historico.vue';
 import Login from '../components/Screens/Login.vue';
 import PageNotFound from '../components/Screens/PageNotFound.vue';
 import EsqueciMinhaSenha from '../components/Screens/EsqueciMinhaSenha.vue';
+import ResetarSenha from '../components/Screens/ResetarSenha.vue';
 
 Vue.use(Router);
 
@@ -46,9 +47,14 @@ const router = new Router({
       component: Login,
     },
     {
+      path: '/esqueciMinhaSenha',
+      name: 'EsqueciSenha',
+      component: EsqueciMinhaSenha,
+    },
+    {
       path: '/redefinirSenha',
       name: 'RedefinirSenha',
-      component: EsqueciMinhaSenha,
+      component: ResetarSenha,
     },
     {
       path: '*',

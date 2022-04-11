@@ -33,10 +33,35 @@ const auth = {
       commit('REMOVE_USER');
       window.location.replace('/auth');
     },
-    redefinirSenha({ commit }) {
-      console.log('lol');
-      commit('REMOVE_USER');
-      window.location.replace('/auth');
+    passwordResetEmail({ commit, dispatch }, data) {
+      axios.post('/api/accounts/password_reset/', data)
+        .then(() => {
+          dispatch('alertSuccess', { non_field_errors: ['Success.'] });
+          commit('REMOVE_USER');
+          window.location.replace('/auth');
+        })
+        .catch((err) => {
+          if (err.response?.data) {
+            dispatch('alertError', err.response.data);
+          } else {
+            dispatch('alertError', { non_field_errors: [err] });
+          }
+        });
+    },
+    resetPassword({ commit, dispatch }, data) {
+      axios.post('/api/accounts/password_reset/confirm/', data)
+        .then(() => {
+          dispatch('alertSuccess', { non_field_errors: ['Success.'] });
+          commit('REMOVE_USER');
+          window.location.replace('/auth');
+        })
+        .catch((err) => {
+          if (err.response?.data) {
+            dispatch('alertError', err.response.data);
+          } else {
+            dispatch('alertError', { non_field_errors: [err] });
+          }
+        });
     },
   },
 

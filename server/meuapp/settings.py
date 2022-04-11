@@ -62,8 +62,6 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
 ]
@@ -188,3 +186,8 @@ REST_FRAMEWORK = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+CLIENT_BASE_URL = 'localhost:8080/'
+PASSWORD_RESET_URL = CLIENT_BASE_URL + 'redefinirSenha/'

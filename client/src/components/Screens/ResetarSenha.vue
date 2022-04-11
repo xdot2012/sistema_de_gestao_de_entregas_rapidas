@@ -6,19 +6,11 @@
                <v-flex xs12 sm8 md4>
                   <v-card class="elevation-12">
                      <v-toolbar dark color="primary">
-                        <v-toolbar-title>Login form</v-toolbar-title>
+                        <v-toolbar-title>Redefinir Senha</v-toolbar-title>
                      </v-toolbar>
                      <v-card-text>
                       <message></message>
-                        <v-form>
-                           <v-text-field
-                              name="email"
-                              label="Digite seu Email"
-                              type="text"
-                              v-model="email"
-                              v-on:keydown.enter='redefinirSenha'
-                              required
-                           ></v-text-field>
+                        <div>
                             <v-text-field
                               name="senha"
                               label="Digite a nova Senha"
@@ -27,14 +19,13 @@
                               v-on:keydown.enter='redefinirSenha'
                               required
                            ></v-text-field>
-                        </v-form>
+                        </div>
                      </v-card-text>
                      <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn
-                        type="submit"
                         color="primary"
-                        @click="redefinirSenha">Refefinir Senha</v-btn>
+                        @click="redefinirSenha">Enviar Email</v-btn>
                      </v-card-actions>
                   </v-card>
                </v-flex>
@@ -54,13 +45,13 @@ export default {
   computed: mapGetters(['getAlertType', 'getMessage']),
   data() {
     return {
-      email: null,
-      password: null
+      password: null,
     };
   },
   methods: {
     redefinirSenha() {
-      this.$store.dispatch('redefinirSenha');
+      const parameters = this.$route.query;
+      this.$store.dispatch('resetPassword', { token: parameters.token, password: this.password });
     },
   },
 };

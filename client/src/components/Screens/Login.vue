@@ -31,7 +31,7 @@
                         </v-form>
                      </v-card-text>
                      <v-card-actions>
-                        <v-btn text link :to="{name:'RedefinirSenha'}"> Esqueci minha Senha</v-btn>
+                        <v-btn text link :to="{name:'EsqueciSenha'}"> Esqueci minha Senha</v-btn>
                         <v-spacer></v-spacer>
                         <v-btn type="submit" color="primary" @click="loginUser">Login</v-btn>
                      </v-card-actions>

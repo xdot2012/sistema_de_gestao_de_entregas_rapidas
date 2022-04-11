@@ -6,7 +6,7 @@
                <v-flex xs12 sm8 md4>
                   <v-card class="elevation-12">
                      <v-toolbar dark color="primary">
-                        <v-toolbar-title>Login form</v-toolbar-title>
+                        <v-toolbar-title>Redefinir Senha</v-toolbar-title>
                      </v-toolbar>
                      <v-card-text>
                       <message></message>
@@ -22,11 +22,15 @@
                         </v-form>
                      </v-card-text>
                      <v-card-actions>
+                        <v-btn
+                        type="submit"
+                        link
+                        :to="{name:'Login'}">Voltar</v-btn>
                         <v-spacer></v-spacer>
                         <v-btn
                         type="submit"
                         color="primary"
-                        @click="redefinirSenha">Refefinir Senha</v-btn>
+                        @click="redefinirSenha">Enviar Email</v-btn>
                      </v-card-actions>
                   </v-card>
                </v-flex>
@@ -51,7 +55,7 @@ export default {
   },
   methods: {
     redefinirSenha() {
-      this.$store.dispatch('redefinirSenha');
+      this.$store.dispatch('passwordResetEmail', { email: this.email });
     },
   },
 };
