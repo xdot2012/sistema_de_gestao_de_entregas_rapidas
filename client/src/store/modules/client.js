@@ -1,5 +1,4 @@
 import authRequest from '../../requests';
-import { formatAddress } from '../../functions';
 
 const client = {
   state: () => ({
@@ -15,7 +14,7 @@ const client = {
         pk: item.pk,
         phone: item.phone,
         phone_format: item.phone_format,
-        address: formatAddress(item),
+        address: item.main_address.format,
       }),
     ),
   },

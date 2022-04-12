@@ -63,7 +63,7 @@
                     :items="getAutoCompleteClientName"
                     dense
                     label="Endereço do Cliente"
-                    item-text="main_address.format"
+                    item-text="address"
                     item-value="pk"
                   ></v-autocomplete>
                 </div>
@@ -75,16 +75,6 @@
                   <v-date-picker
                     full-width
                     v-model="dataBusca" />
-                  <v-autocomplete
-                    class="mt-5"
-                    v-model="selectedClientID"
-                    :search-input.sync="enderecoBusca"
-                    :items="activeOrders"
-                    dense
-                    label="Data do Pedido"
-                    item-text="created_on"
-                    item-value="pk"
-                  ></v-autocomplete>
                 </div>
               </v-tab-item>
             </v-tabs-items>

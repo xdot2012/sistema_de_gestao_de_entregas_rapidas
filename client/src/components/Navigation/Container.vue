@@ -1,18 +1,26 @@
 <template>
   <v-app>
-  <v-navigation-drawer app v-model="drawer" absolute temporary class="sticky">
-    <div class="drawer-content d-flex flex-column fill-height">
-      <v-btn link :to="{name:'Painel'}" @click="drawer=false"
-        x-large class="drawer-button mt-5" small color="primary">PAINEL</v-btn>
-      <v-btn link :to="{name:'Historico'}" @click="drawer=false"
-        x-large class="drawer-button" small color="primary">HISTÓRICO</v-btn>
-      <v-btn link :to="{name:'Configuracoes'}" @click="drawer=false"
-        x-large class="drawer-button" small color="primary">CONFIGURAÇÕES</v-btn>
+  <v-navigation-drawer
+    app
+    v-model="drawer"
+    absolute
+    temporary
+    color="primary"
+    class="sticky">
+    <v-btn-toggle
+      v-model="toggle_exclusive"
+      background-color="primary"
+      class="drawer-content d-flex flex-column fill-height">
+      <v-btn :to="{name:'Painel'}" @click="drawer=false"
+        x-large color="primary">PAINEL</v-btn>
+      <v-btn :to="{name:'Historico'}" @click="drawer=false"
+        x-large color="primary">HISTÓRICO</v-btn>
+      <v-btn :to="{name:'Configuracoes'}" @click="drawer=false"
+        x-large color="primary">CONFIGURAÇÕES</v-btn>
       <v-spacer></v-spacer>
       <v-btn @click="logout"
-       x-large class="drawer-button mb-5" small color="primary">SAIR</v-btn>
-
-    </div>
+       x-large color="primary">SAIR</v-btn>
+    </v-btn-toggle>
   </v-navigation-drawer>
 
   <v-app-bar app color="primary" dark>
@@ -23,7 +31,7 @@
 
       <div class="head-container">
         <v-sheet light class="head-card flex-fill"
-        color="white" elevation="1" height="80%" rounded width="100">
+        color="white" elevation="5" height="80%" rounded width="100">
           <div class="head-dot red"></div>
           <div class="head-card-text">Atrasado: {{lateOrders.length}}</div>
         </v-sheet>
@@ -45,7 +53,7 @@
   <v-main>
     <message class="sticky mr-5 ml-5 mt-2 mb-2"></message>
     <!-- Provides the application the proper gutter -->
-    <v-container fluid>
+    <v-container fluid color="secondary">
       <router-view></router-view>
     </v-container>
   </v-main>
@@ -64,6 +72,7 @@ export default {
   computed: mapGetters(['inRouteOrders', 'lateOrders', 'warnOrders']),
   data() {
     return {
+      toggle_exclusive: null,
       drawer: null,
       items: [
         { title: 'Home', icon: 'mdi-view-dashboard' },

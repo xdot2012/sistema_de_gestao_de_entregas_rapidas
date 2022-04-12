@@ -3,37 +3,52 @@
       <v-main>
          <v-container fluid fill-height>
             <v-layout align-center justify-center>
-               <v-flex xs12 sm8 md4>
+               <v-flex xs12 sm8 md5>
                   <v-card class="elevation-12">
-                     <v-toolbar dark color="primary">
-                        <v-toolbar-title>Login form</v-toolbar-title>
-                     </v-toolbar>
-                     <v-card-text>
+                    <v-toolbar class="elevation-0" dark color="primary">
+                      <v-card-title>
+                        <v-toolbar-title>Login Form</v-toolbar-title>
+                      </v-card-title>
+                    </v-toolbar>
+                     <v-card-text class="pa-5">
                       <message></message>
                         <v-form>
                            <v-text-field
-                              name="username"
-                              label="Username"
-                              type="text"
-                              v-model="username"
-                              v-on:keydown.enter='loginUser'
-                              required
+                            filled
+                            name="username"
+                            label="Username"
+                            type="text"
+                            v-model="username"
+                            v-on:keydown.enter='loginUser'
+                            required
                            ></v-text-field>
                            <v-text-field
-                              id="password"
-                              name="password"
-                              label="Password"
-                              type="password"
-                              v-model="password"
-                              v-on:keydown.enter='loginUser'
-                              required
+                            filled
+                            id="password"
+                            name="password"
+                            label="Password"
+                            type="password"
+                            v-model="password"
+                            v-on:keydown.enter='loginUser'
+                            required
                            ></v-text-field>
                         </v-form>
                      </v-card-text>
-                     <v-card-actions>
-                        <v-btn text link :to="{name:'EsqueciSenha'}"> Esqueci minha Senha</v-btn>
-                        <v-spacer></v-spacer>
-                        <v-btn type="submit" color="primary" @click="loginUser">Login</v-btn>
+                     <v-card-actions class="flex-column pl-5 pr-5">
+                        <v-btn
+                        class="login-btn"
+                        block
+                        type="submit"
+                        color="primary"
+                        x-large
+                        @click="loginUser">Login</v-btn>
+                        <v-btn
+                        class="mt-5 mb-2 mr-auto"
+                        small
+                        text
+                        link
+                        :to="{name:'EsqueciSenha'}"
+                        @click="clearMessages()"> Esqueci minha Senha</v-btn>
                      </v-card-actions>
                   </v-card>
                </v-flex>
@@ -65,3 +80,14 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.login-form {
+  width: 100%;
+}
+
+.login-btn {
+  width: 80%;
+}
+
+</style>
