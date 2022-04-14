@@ -31,12 +31,12 @@
           <v-btn v-if="!editarNomeTelefone"
             @click="editarNomeTelefone=!editarNomeTelefone"
             class="ml-auto"
-            color="primary"
+            color="accent"
             large>Editar</v-btn>
           <v-btn v-else
             @click="salvarNomeTelefone()"
             class="ml-auto"
-            color="primary"
+            color="accent"
             large>Salvar Alterações</v-btn>
           <v-snackbar
             v-model="nomeTelefoneEditado"
@@ -110,38 +110,56 @@
           </div>
         </div>
 
-      <div class="d-flex">
-        <v-btn v-if="editarEndereco"
-          :disabled="!selectedAddressID"
-          @click="excluirEndereco"
-          class="mr-auto"
-          color="warning"
-          large>Excluir Endereço</v-btn>
-        <v-spacer></v-spacer>
-        <v-btn v-if="!editarEndereco"
+      <div>
+        <div v-if="editarEndereco" class="d-flex flex-row justify-space-between">
+          <v-btn
+            :disabled="!selectedAddressID"
+            @click="excluirEndereco"
+            color="error"
+            large>Excluir Endereço</v-btn>
+
+            <div>
+              <v-btn
+                class="mr-5"
+                @click="editarEndereco = !editarEndereco"
+                color="default"
+                large>Cancelar
+              </v-btn>
+              <v-btn
+                @click="salvarEndereco()"
+                color="accent"
+                large>Salvar Alterações
+              </v-btn>
+            </div>
+        </div>
+        <div v-else-if="!addEndereco" class="d-flex flex-row justify-end">
+          <v-btn
           :disabled="!selectedAddressID"
           @click="editarEndereco=!editarEndereco"
           class="ml-auto"
-          color="primary"
+          color="accent"
           large>Editar Endereço</v-btn>
-        <v-btn v-else
-          @click="salvarEndereco()"
-          class="ml-auto"
-          color="primary"
-          large>Salvar Alterações</v-btn>
-        <v-btn
-          v-if="!addEndereco"
-          @click="novoEndereco()"
-          class="ml-5"
-          color="primary"
-          large>Adicionar Outro Endereço</v-btn>
-        <v-btn
-          v-else
-          :disabled="!validatedAddress"
-          @click="adicionarEndereco()"
-          class="ml-5"
-          color="primary"
-          large>Salvar Endereço</v-btn>
+          <v-btn
+            @click="novoEndereco()"
+            class="ml-5"
+            color="accent"
+            large>Adicionar Outro Endereço
+          </v-btn>
+        </div>
+        <div class="d-flex flex-row justify-end" v-else>
+          <v-btn
+            @click="addEndereco = !addEndereco"
+            class="ml-5"
+            color="default"
+            large>Cancelar</v-btn>
+          <v-btn
+            :disabled="!validatedAddress"
+            @click="adicionarEndereco()"
+            class="ml-5"
+            color="accent"
+            large>Salvar Endereço</v-btn>
+          </div>
+      </div>
         <v-snackbar
         v-model="enderecoEditado"
         :timeout="2000"
@@ -150,8 +168,6 @@
         left
         >Atualizado com Sucesso
         </v-snackbar>
-      </div>
-
     </div>
   </div>
 </template>

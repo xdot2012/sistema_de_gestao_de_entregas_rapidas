@@ -3,41 +3,56 @@
       <template v-slot:activator="{ on, attrs }">
         <v-btn class="flex-fill mx-2"
           x-large
-          color="primary"
+          color="accent"
           v-bind="attrs" v-on="on"
           @click="clearMessages">Novo Pedido</v-btn>
       </template>
 
       <template v-slot:default="dialog">
         <v-card class="pa-8 d-flex flex-column" width="100vw" min-height="90vh">
-          <v-card-title class="d-flex">
-              <div class="text-h5">Novo Pedido</div>
-              <v-spacer />
-              <v-btn icon text @click="dialog.value = false">
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
+          <v-card-title>
+              <v-col cols=12>
+                <v-row>
+                  <h1 class="ml-auto">
+                  Novo Pedido
+                  </h1>
+                  <v-btn
+                  class="ml-auto"
+                  icon
+                  text
+                  @click="dialog.value = false">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </v-row>
+              </v-col>
           </v-card-title>
 
-          <v-card-text class="flex-fill">
-            <div class="d-flex" v-if="!etapaPedido">
+          <v-card-text class="flex-fill mt-5">
+            <v-col cols=12 class="d-flex" v-if="!etapaPedido">
               <!-- SELEÇÃO DE PRODUTO -->
-              <div class="d-flex flex-column" style="width: 25%; height: 100%">
+              <v-col cols=6 class="d-flex flex-column tabela-pedidos">
                 <v-simple-table light>
                   <thead>
                     <tr>
                       <th colspan="3" class="mb-5 text-center primary white--text">
-                        <h2>Resumo do Pedido</h2>
+                        <h2>Pedido</h2>
                       </th>
+                      <tr>
+                    </tr>
+                    <tr v-if="pedidoCliente.length>0">
+                      <th>Nome</th>
+                      <th>Quantidade</th>
+                      <th class="text-end">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="item in pedidoCliente" :key=item.arrayID>
                       <td>{{item.name}}</td>
                       <td>{{item.quantity}}</td>
-                      <td>
+                      <td class="text-end">
                         <v-btn
                           @click="removeItem(item.id)"
-                          color="gray"
+                          color="accent"
                           icon
                           small>
                           <v-icon>mdi-delete</v-icon>
@@ -46,11 +61,11 @@
                     </tr>
                   </tbody>
                 </v-simple-table>
-              </div>
+              </v-col>
 
-              <div class="ml-auto d-flex justify-end" style="width:70%">
+              <v-col cols=6 class="ml-auto d-flex justify-end">
                 <div cl="d-flex flex-column">
-                  <h3>Descrição do Produto:</h3>
+                  <h3>Descrição:</h3>
                   <v-text-field
                     v-on:keyup.enter="onEnter()"
                     :rules="regraTexto"
@@ -62,7 +77,7 @@
                       icon
                       @click="diminuirQuantidade()"
                       small
-                      color="primary"
+                      color="accent"
                       :disabled="quantidadeItem<=1">
                       <v-icon>mdi-minus</v-icon>
                     </v-btn>
@@ -76,21 +91,21 @@
                       icon
                       @click="aumentarQuantidade()"
                       small
-                      color="primary">
+                      color="accent">
                       <v-icon>mdi-plus</v-icon>
                     </v-btn>
                     <v-btn
                       @click="adicionarItem()"
                       class="ml-5"
-                      color="primary"
+                      color="accent"
                       :disabled="!textoItem || !quantidadeItem"
                       >ADICIONAR AO PEDIDO
                     </v-btn>
                   </div>
                 </div>
-              </div>
+              </v-col>
               <!-- /SELEÇÃO DE PRODUTOS -->
-            </div>
+            </v-col>
 
             <div v-else-if="etapaPedido==1" class="mt-5">
               <!-- SELEÇÃO CLIENTE -->
@@ -185,25 +200,30 @@
           <v-card-actions class="justify-end mt-auto">
             <v-btn v-if="etapaPedido>0"
               x-large
-              color="primary"
+              color="default"
               @click="voltarEtapa()">Voltar</v-btn>
             <v-spacer></v-spacer>
-            <v-btn v-if="etapaPedido==0"
-              x-large
-              color="primary"
-              @click="proximaEtapa()"
-              :disabled="!validaProdutos">Próximo</v-btn>
-            <v-btn v-else-if="etapaPedido==1"
-              x-large
-              color="primary"
-              @click="proximaEtapa()"
-              :disabled="!validaCliente">Próximo</v-btn>
-            <v-btn v-else
-              x-large
-              color="primary"
-              @click="dialog.value = finalizarPedido()"
-              :disabled="!metodoPagamento || !tipoEntrega">
-              Finalizar Pedido</v-btn>
+            <v-col cols=3>
+              <v-btn v-if="etapaPedido==0"
+                block
+                x-large
+                color="primary"
+                @click="proximaEtapa()"
+                :disabled="!validaProdutos">Continuar</v-btn>
+              <v-btn v-else-if="etapaPedido==1"
+                block
+                x-large
+                color="primary"
+                @click="proximaEtapa()"
+                :disabled="!validaCliente">Continuar</v-btn>
+              <v-btn v-else
+                block
+                x-large
+                color="accent"
+                @click="dialog.value = finalizarPedido()"
+                :disabled="!metodoPagamento || !tipoEntrega">
+                Finalizar Pedido</v-btn>
+            </v-col>
           </v-card-actions>
         </v-card>
       </template>
@@ -317,6 +337,7 @@ export default {
         name: this.textoItem,
         quantity: this.quantidadeItem,
       });
+      this.pedidoCliente.reverse();
       this.textoItem = null;
       this.quantidadeItem = 1;
       this.validaProdutos = true;
@@ -350,4 +371,9 @@ export default {
 </script>
 
 <style>
+.tabela-pedidos {
+  overflow-y: scroll;
+  max-height: 50vh;
+}
+
 </style>

@@ -2,6 +2,7 @@
   <v-dialog>
       <template v-slot:activator="{ on, attrs }">
         <v-btn class="flex-fill mx-2"
+          :disabled="activeOrders.length==0"
           x-large
           color="primary"
           v-bind="attrs" v-on="on">Gerar Rota</v-btn>
@@ -141,7 +142,7 @@
           <v-card-actions class="justify-end mt-auto">
             <v-btn v-if="etapaPedido>0"
               x-large
-              color="primary"
+              color="default"
               @click="voltarEtapa(etapaPedido)">Voltar</v-btn>
             <v-spacer></v-spacer>
             <v-btn v-if="etapaPedido==0"

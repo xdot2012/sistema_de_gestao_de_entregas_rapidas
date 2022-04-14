@@ -72,14 +72,14 @@
     <v-row>
       <v-btn
         :disabled="!fullAddress()"
-        color="primary"
+        color="accent"
         @click="showAddress()"
         >Validar Endereço
         </v-btn>
     </v-row>
 
     <v-row v-if="showMap">
-      <l-map style="height: 300px" :zoom="zoom" :center="center">
+      <l-map class="mt-5 mb-5" style="height: 300px" :zoom="zoom" :center="center">
         <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
         <l-marker :lat-lng="markerLatLng"></l-marker>
       </l-map>

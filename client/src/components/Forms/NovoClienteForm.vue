@@ -1,6 +1,7 @@
 <template>
-  <div class="d-flex flex-column fill-height" style="max-height: 90%">
-    <h2 class="mt-2">Informações do Cliente</h2>
+  <v-col cols=12>
+    <v-row><h2 class="mb-10">Informações do Cliente</h2>
+    </v-row>
     <v-form
       ref="form"
       v-model="valid"
@@ -23,10 +24,9 @@
         ></v-text-field>
       </v-row>
 
-      <v-divider class="mt-3"></v-divider>
-      <h2 class="mt-1">Endereço de Entrega</h2>
+      <h2 class="mt-10">Endereço de Entrega</h2>
 
-      <novo-endereco-form :onFinish="setAddress"/>
+      <novo-endereco-form class="mt-5" :onFinish="setAddress"/>
 
       <v-row class="d-flex align-end justify-end fill-height">
           <v-btn
@@ -38,7 +38,7 @@
           </v-btn>
       </v-row>
     </v-form>
-  </div>
+  </v-col>
 </template>
 
 <script>
