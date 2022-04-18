@@ -17,6 +17,7 @@ const order = {
 
   getters: {
     activeOrders: (state) => state.orderList,
+    waitingOrders: (state) => state.orderList.filter((item) => !isOut(item)),
     allOrders: (state) => state.orderHistory,
     inRouteOrders: (state) => state.orderList.filter((item) => isOut(item)),
     lateOrders: (state) => state.orderList.filter(
@@ -80,6 +81,7 @@ const order = {
         .then((response) => {
           console.log('update!');
           commit('UPDATE_ORDERS', response.data);
+          console.log(formData);
           formData.callback();
         })
         .catch((err) => {

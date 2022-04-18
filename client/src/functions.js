@@ -19,6 +19,13 @@ export function getDifInMinutes(startDate, endDate) {
   return Math.round(Math.abs(endDate - startDate) / 60000);
 }
 
+export function calendarDate(datetimeStr) {
+  const dateStr = datetimeStr.slice(0, datetimeStr.indexOf('T'));
+
+  const parts = dateStr.split('-');
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
+}
+
 export function isOut(item) {
   return item.ready_on != null;
 }
@@ -89,4 +96,8 @@ export function formatAddress(obj) {
 
 export function formatAddressNominatin(obj) {
   return `Rua ${obj.street}, ${obj.city_name}, ${obj.state_name}, ${obj.code}`;
+}
+
+export function formatPhone(phone) {
+  return phone.replace(' ', '').replace('(', '').replace(')', '').replace('-', '');
 }

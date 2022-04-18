@@ -1,7 +1,11 @@
 <template>
   <div>
     <tabela-historico />
-    <buscar-pedido />
+    <div class="d-flex justify-end">
+      <v-col cols="3">
+        <buscar-pedido />
+      </v-col>
+    </div>
   </div>
 </template>
 

@@ -59,7 +59,7 @@
           </div>
         </v-tab-item>
       </v-tabs-items>
-      <div class="col-6">
+      <div class="col-6 clientInfo hide" id="client-info">
         <v-card>
           <v-card-title>
               <v-text-field
@@ -111,17 +111,17 @@
           <v-card-actions >
             <v-btn
               v-if="editarCliente && selectedClientID"
-              color="warning"
+              color="error"
               @click="deleteClient">
               Excluir Cliente
             </v-btn>
             <v-spacer />
             <v-btn
               v-if="!editarCliente"
-              color="primary"
+              color="accent"
               x-large
               :disabled="!selectedClientID">Ver Pedidos</v-btn>
-            <v-btn v-else color="primary" x-large @click="updateClient">Salvar Alterações</v-btn>
+            <v-btn v-else color="accent" x-large @click="updateClient">Salvar Alterações</v-btn>
           </v-card-actions>
         </v-card>
       </div>
@@ -132,7 +132,7 @@
         <template v-slot:activator="{ on, attrs }">
           <v-btn class="flex-fill mx-2"
             x-large
-            color="primary"
+            color="accent"
             v-bind="attrs" v-on="on">Cadastrar novo Cliente</v-btn>
         </template>
 
@@ -219,10 +219,17 @@ export default {
     onEdit() {
 
     },
+    showClientInfo() {
+      document.getElementById('client-info').classList.remove('hide');
+    },
+    hideClientInfo() {
+      document.getElementById('client-info').classList.add('hide');
+    },
   },
   watch: {
     selectedClientID: function onChange(val) {
       if (!val) {
+        this.hideClientInfo();
         return null;
       }
       const obj = this.$store.getters.getAllClients.find(
@@ -231,9 +238,10 @@ export default {
       this.selectedClientInfo = {
         name: obj.name,
         phone: obj.phone_format,
-        address: formatAddress(obj),
+        address: formatAddress(obj.main_address),
         last_order: 'Nunca',
       };
+      this.showClientInfo();
       return val;
     },
   },
@@ -241,4 +249,12 @@ export default {
 </script>
 
 <style>
+.clientInfo {
+  transition: 3s;
+}
+
+.hide {
+  display: none;
+}
+
 </style>

@@ -2,7 +2,7 @@
   <v-dialog>
       <template v-slot:activator="{ on, attrs }">
         <v-btn class="flex-fill mx-2"
-          :disabled="activeOrders.length==0"
+          :disabled="waitingOrders.length==0"
           x-large
           color="primary"
           v-bind="attrs" v-on="on">Gerar Rota</v-btn>
@@ -21,7 +21,7 @@
           <v-card-text  class="flex-fill">
             <div v-if="!etapaPedido" class="d-flex">
               <div class="d-flex flex-column flex-fill" >
-                <h2 class="text-center">{{ activeOrders.length }} Pedidos em Espera</h2>
+                <h2 class="text-center">{{ waitingOrders.length }} Pedidos em Espera</h2>
                 <v-text-field label="Digite a Capacidade de Entrega"
                   type="number"
                   v-model="capacidadeTotal"
@@ -181,7 +181,7 @@ import { sortOrdersByTime, sortOrdersByDistance } from '../../functions';
 
 export default {
   name: 'GerarRota',
-  computed: mapGetters(['getAllDeliveryman', 'activeOrders', 'ordersWithPriority', 'getPath']),
+  computed: mapGetters(['getAllDeliveryman', 'waitingOrders', 'ordersWithPriority', 'getPath']),
   beforeCreate() {
     this.$store.dispatch('getCitys');
   },
@@ -195,29 +195,29 @@ export default {
     produtosSelecionados: 0,
     ordensSelecionadas: [],
     listaEntregadores: [],
-    listaPedidos: [
-      {
-        selecionado: null, nome: 'Pedido1', quantidade: 2, distancia: '1km', tempo_espera: '30 min',
-      },
-      {
-        selecionado: null, nome: 'Pedido1', quantidade: 2, distancia: '1km', tempo_espera: '30 min',
-      },
-    ],
     metodoSelecaoPedidos: null,
-    listaItems: [{
-      id: 1, entregador: 'Carlos', pedido: '123', cliente: 'José Pereira da Silva', endereco: 'Rua x, Bairro Y - Nº123', produtos: '1 Feijão com Batata',
-    },
-    {
-      id: 2, entregador: 'José', pedido: '321', cliente: 'José Pereira da Silva', endereco: 'Rua x, Bairro Y - Nº123', produtos: '1 Feijão com Batata',
-    },
-    ],
   }),
   methods: {
+    onFinish() {
+      this.clearForm();
+    },
+    clearForm() {
+      this.etapaPedido = 0;
+      this.metodoPagamento = null;
+      this.tipoEntrega = null;
+      this.todosEntregadores = false;
+      this.capacidadeTotal = 0;
+      this.nPedidos = 0;
+      this.produtosSelecionados = 0;
+      this.ordensSelecionadas = [];
+      this.listaEntregadores = [];
+      this.metodoSelecaoPedidos = null;
+    },
     finalizarPedido() {
       this.etapaPedido = 0;
       this.confirmaPedido = true;
       const orders = this.$store.getters.getOrdersInPath.map((order) => order.pk);
-      this.$store.dispatch('deliverOrders', { orders });
+      this.$store.dispatch('deliverOrders', { orders, callback: this.onFinish });
       return false;
     },
     showRoute() {

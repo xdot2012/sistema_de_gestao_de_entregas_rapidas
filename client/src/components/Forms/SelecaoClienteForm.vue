@@ -21,23 +21,31 @@
 
           <v-text-field label="Telefone do Cliente"
           v-model="selectedClientInfo.phone"
-          v-mask="'(##) ##### - ####'"
+          v-mask="'(##)#####-####'"
           :rules="regraTelefone"
           :readonly="!editarNomeTelefone"></v-text-field>
         </div>
 
         <div class="d-flex">
           <v-spacer></v-spacer>
-          <v-btn v-if="!editarNomeTelefone"
+          <div v-if="!editarNomeTelefone">
+          <v-btn
             @click="editarNomeTelefone=!editarNomeTelefone"
             class="ml-auto"
             color="accent"
             large>Editar</v-btn>
-          <v-btn v-else
+          </div>
+          <div v-else>
+          <v-btn
+            @click="editarNomeTelefone=!editarNomeTelefone"
+            class="ml-auto mr-5"
+            color="Default"
+            large>Cancelar</v-btn>
+          <v-btn
             @click="salvarNomeTelefone()"
-            class="ml-auto"
             color="accent"
             large>Salvar Alterações</v-btn>
+          </div>
           <v-snackbar
             v-model="nomeTelefoneEditado"
             :timeout="2000"
@@ -180,6 +188,7 @@ import {
   regraNumero,
   regraCEP,
 } from '../../regras_input';
+import { formatPhone } from '../../functions';
 import NovoEnderecoForm from './NovoEnderecoForm.vue';
 
 export default {
@@ -188,6 +197,7 @@ export default {
   props: ['validSelection', 'setDeliveryAddress'],
   name: 'SelecaoClienteForm',
   data: () => ({
+    formatPhone,
     selectedClientInfo: {
       name: null,
       phone: null,
@@ -228,9 +238,20 @@ export default {
     validatedAddress: false,
   }),
   methods: {
+    salvarnomeTelefonSucesso() {
+      this.nomeTelefoneEditado = true;
+    },
     salvarNomeTelefone() {
       this.editarNomeTelefone = !this.editarNomeTelefone;
-      this.nomeTelefoneEditado = true;
+      const client = {
+        name: this.selectedClientInfo.name,
+        phone: this.formatPhone(this.selectedClientInfo.phone),
+      };
+      this.$store.dispatch('updateClient', {
+        client,
+        clientID: this.selectedClientInfo.pk,
+        callback: this.salvarnomeTelefonSucesso,
+      });
     },
     salvarEndereco() {
       this.editarEndereco = !this.editarEndereco;

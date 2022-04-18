@@ -9,7 +9,7 @@
       </template>
 
       <template v-slot:default="dialog">
-        <v-card class="pa-8 d-flex flex-column" width="100vw" min-height="90vh">
+        <v-card class="pa-8 pt-3 d-flex flex-column" width="100vw" min-height="90vh">
           <v-card-title>
               <v-col cols=12>
                 <v-row>
@@ -129,12 +129,68 @@
 
             <div v-else-if="etapaPedido==2" class="d-flex">
               <!-- ENTREGA -->
-              <div class="d-flex flex-column" style="width: 25%; height: 100%">
-                <v-simple-table>
+              <v-col cols="9">
+                <v-row>
+                  <h2>Cliente:</h2>
+                </v-row>
+                <v-row>
+                  <v-col cols="6">
+                    <h3>Nome do Cliente:</h3> {{clientData.name}}
+                  </v-col>
+                  <v-col cols="6">
+                    <h3>Telefone do Cliente:</h3> {{clientData.phone}}
+                  </v-col>
+                </v-row>
+
+                <v-row>
+                  <h2>Endereço de Entrega:</h2>
+                </v-row>
+                <v-row>
+                  <v-col cols="6">
+                    <h3>Rua:</h3> {{clientAddress.street}}
+                  </v-col>
+                </v-row>
+                <v-row class="mt-1">
+                  <v-col cols="4">
+                    <h3>Número:</h3> {{clientAddress.number}}
+                  </v-col>
+                  <v-col cols="4">
+                    <h3>Bairro:</h3> {{clientAddress.district}}
+                  </v-col>
+                  <v-col cols="4">
+                    <h3>Cidade:</h3> {{clientAddress.city_name}}
+                  </v-col>
+                </v-row>
+
+                <v-row>
+                    <h3>Método de Pagamento:</h3>
+                </v-row>
+                <v-row>
+                      <v-radio-group row v-model="metodoPagamento">
+                        <v-radio label="Cartão Crédito" value="CREDIT_CARD"></v-radio>
+                        <v-radio label="Cartão Débito" value="DEBIT_CARD"></v-radio>
+                        <v-radio label="Dinheiro" value="CASH"></v-radio>
+                        <v-radio label="Pix" value="PIX"></v-radio>
+                      </v-radio-group>
+                </v-row>
+                <v-row>
+                    <h3>Método de Entrega:</h3>
+                </v-row>
+                <v-row>
+                    <v-radio-group row v-model="tipoEntrega">
+                      <v-radio label="Delivery" value="DEFAULT"></v-radio>
+                      <v-radio label="Agendar Horário" value="agendar_horario"></v-radio>
+                      <v-radio label="Retirada no Local" value="PICKUP"></v-radio>
+                    </v-radio-group>
+                </v-row>
+              </v-col>
+
+              <v-col cols="3" >
+                <v-simple-table class="tabela-pedidos">
                   <thead>
                     <tr>
                       <th colspan="2" class="mb-5 text-center primary white--text">
-                        <h2>Resumo do Pedido</h2>
+                        <h2>Pedido do Cliente</h2>
                       </th>
                     </tr>
                   </thead>
@@ -145,54 +201,10 @@
                     </tr>
                   </tbody>
                 </v-simple-table>
-              </div>
-
-              <div class="ml-10 d-flex justify-start flex-fill">
-                <div class="d-flex flex-column flex-fill" >
-                  <h2>Resumo do Pedido:</h2>
-                  <v-divider />
-                  <h3>Cliente:</h3>
-                  <div class="d-flex justify-space-between">
-                    <h3>Nome do Cliente: {{clientData.name}}</h3>
-                    <h3>Telefone do Cliente: {{clientData.phone}}</h3>
-                  </div>
-                  <v-divider />
-                  <div class="d-flex flex-column">
-                    <h3>Endereço de Entrega:</h3>
-                    <div class="d-flex justify-space-between">
-                      <h3>Rua: {{clientAddress.street}}</h3>
-                      <h3>Número: {{clientAddress.number}}</h3>
-                    </div>
-                    <div class="d-flex justify-space-between">
-                      <h3>Bairro: {{clientAddress.district}}</h3>
-                      <h3>Cidade: {{clientAddress.city_name}}</h3>
-                    </div>
-                  </div>
-                  <v-divider />
-                  <div class="d-flex justify-start">
-                    <div class="d-flex flex-column">
-                      <h3>Método de Pagamento:</h3>
-                        <v-radio-group v-model="metodoPagamento">
-                          <v-radio label="Cartão Crédito" value="CREDIT_CARD"></v-radio>
-                          <v-radio label="Cartão Débito" value="DEBIT_CARD"></v-radio>
-                          <v-radio label="Dinheiro" value="CASH"></v-radio>
-                          <v-radio label="Pix" value="PIX"></v-radio>
-                        </v-radio-group>
-                    </div>
-                    <div class="d-flex flex-column ml-10">
-                      <h3>Método de Entrega:</h3>
-                      <v-radio-group v-model="tipoEntrega">
-                        <v-radio label="Delivery" value="DEFAULT"></v-radio>
-                        <v-radio label="Agendar Horário" value="agendar_horario"></v-radio>
-                        <v-radio label="Retirada no Local" value="PICKUP"></v-radio>
-                      </v-radio-group>
-                    </div>
-                  </div>
-                    <v-row>
-                      <v-checkbox v-model="hasBeenPaid" label="O Pedido já foi pago."></v-checkbox>
-                    </v-row>
-                </div>
-              </div>
+                <v-row class="justify-end mr-3">
+                  <v-checkbox v-model="hasBeenPaid" label="O Pedido já foi pago."></v-checkbox>
+                </v-row>
+              </v-col>
               <!-- /ENTREGA -->
             </div>
           </v-card-text>
@@ -374,6 +386,7 @@ export default {
 .tabela-pedidos {
   overflow-y: scroll;
   max-height: 50vh;
+  min-height: 50vh;
 }
 
 </style>

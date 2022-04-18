@@ -51,6 +51,7 @@ import {
   regraCEP,
   regraTexto,
 } from '../../regras_input';
+import { formatPhone } from '../../functions';
 import NovoEnderecoForm from './NovoEnderecoForm.vue';
 
 export default {
@@ -61,6 +62,7 @@ export default {
     NovoEnderecoForm,
   },
   data: () => ({
+    formatPhone,
     showMap: false,
     overlay: false,
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -130,10 +132,10 @@ export default {
       this.$refs.form.resetValidation();
     },
     criarCliente() {
-      const formatPhone = this.telefoneCliente.replace(' ', '').replace('(', '').replace(')', '').replace('-', '');
+      const clearPhone = this.formatPhone(this.telefoneCliente);
       const client = {
         name: this.nomeCliente,
-        phone: formatPhone,
+        phone: clearPhone,
         address: this.address,
       };
       this.$store.dispatch('createClient', { client, callback: this.callback });

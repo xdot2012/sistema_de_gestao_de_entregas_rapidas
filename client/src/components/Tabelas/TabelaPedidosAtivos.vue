@@ -46,11 +46,11 @@
             </td>
           </tr>
         </tbody>
-        <tfoot>
-          <atualizar-pedido :orders="selectedOrders" :updateTable="atualizarPedidos"/>
-        </tfoot>
       </template>
     </v-simple-table>
+    <div class="d-flex justify-end">
+        <atualizar-pedido :orders="selectedOrders" :updateTable="atualizarPedidos"/>
+    </div>
   </div>
 </template>
 

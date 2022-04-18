@@ -42,8 +42,22 @@ const client = {
         });
     },
     updateClient({ commit, dispatch }, formData) {
-      console.log(formData);
       authRequest.put(`/api/clients/${formData.clientID}/`, formData.client)
+        .then((response) => {
+          commit('REMOVE_CLIENT', formData.clientID);
+          commit('ADD_CLIENT', [response.data]);
+          dispatch('alertSuccess', { non_field_errors: ['Cliente Alterado com Sucesso.'] });
+          formData.callback();
+        })
+        .catch((err) => {
+          console.log(err);
+          if (err.response?.data) {
+            dispatch('alertError', err.response.data);
+          } else (dispatch('alertError', { non_field_errors: [err] }));
+        });
+    },
+    updateClientNamePhone({ commit, dispatch }, formData) {
+      authRequest.put(`/api/clients/${formData.clientID}/name_and_phone/`, formData.client)
         .then((response) => {
           commit('REMOVE_CLIENT', formData.clientID);
           commit('ADD_CLIENT', [response.data]);

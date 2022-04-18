@@ -15,6 +15,7 @@ from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
 from django.db import transaction
 from routing.models import Branch, ClientAddress
+from django.core.exceptions import ObjectDoesNotExist
 
 api_key = '&key=AIzaSyD3iW-BDcjxvxPpQIr-YxZLu7TrcJ7I5hc'
 
@@ -115,6 +116,20 @@ class ClientViewSet(viewsets.ModelViewSet):
             ClientAddress.objects.create(**client_address, client=client)
 
         return Response(self.serializer_class(client).data, status=status.HTTP_201_CREATED)
+
+    @action(methods=['PUT'], detail=True)
+    def name_phone(self, request, *args, **kwargs):
+        try:
+            client = Client.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response({'error': 'Cliente não encontrado'}, status=status.HTTP_400_BAD_REQUEST)
+
+        client.name = request.data['name']
+        client.phone = request.data['phone']
+        client.save()
+
+        serializer = self.serializer_class(client, many=False)
+        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
 
 class GenerateRouteAPI(APIView):

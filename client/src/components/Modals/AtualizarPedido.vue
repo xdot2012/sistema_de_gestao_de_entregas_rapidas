@@ -1,15 +1,16 @@
 <template>
-  <v-dialog max-width="95%">
+  <v-dialog width="50%" >
       <template v-slot:activator="{ on, attrs }">
-        <v-btn class="flex-fill mx-2"
-          :disabled="orders.length<1"
-          color="primary"
-          v-bind="attrs" v-on="on">Atualizar Pedidos</v-btn>
+        <v-btn class="ma-2 mr-5"
+          :disabled="orders.length==0"
+          color="accent"
+          v-bind="attrs" v-on="on">Atualizar Pedidos Selecionados</v-btn>
       </template>
 
       <template v-slot:default="dialog">
-        <v-card class=" pa-8">
+        <v-card class=" pa-8" >
           <v-card-title class="d-flex ">
+            Atualizar Status de Pedido(s)
           </v-card-title>
 
           <v-card-text>

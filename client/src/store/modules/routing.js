@@ -45,6 +45,7 @@ const routing = {
           commit('RESET_PATH');
           commit('ADD_PATH', response.data);
           dispatch('alertSuccess', { non_field_errors: ['Rota gerada com Sucesso'] });
+          console.log(formData);
           formData.callback(formData.orders);
         })
         .catch((err) => {

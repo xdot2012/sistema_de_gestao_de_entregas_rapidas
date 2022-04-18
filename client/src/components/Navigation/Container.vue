@@ -15,8 +15,8 @@
         x-large color="primary">PAINEL</v-btn>
       <v-btn :to="{name:'Historico'}" @click="drawer=false"
         x-large color="primary">HISTÓRICO</v-btn>
-      <v-btn :to="{name:'Configuracoes'}" @click="drawer=false"
-        x-large color="primary">CONFIGURAÇÕES</v-btn>
+      <!-- <v-btn :to="{name:'Configuracoes'}" @click="drawer=false"
+        x-large color="primary">CONFIGURAÇÕES</v-btn> -->
       <v-spacer></v-spacer>
       <v-btn @click="logout"
        x-large color="primary">SAIR</v-btn>
