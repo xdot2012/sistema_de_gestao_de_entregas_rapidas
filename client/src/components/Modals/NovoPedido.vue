@@ -51,7 +51,7 @@
                       <td>{{item.quantity}}</td>
                       <td class="text-end">
                         <v-btn
-                          @click="removeItem(item.id)"
+                          @click="removeItem(item.arrayID)"
                           color="accent"
                           icon
                           small>
@@ -341,9 +341,12 @@ export default {
       this.etapaPedido -= 1;
     },
     onEnter() {
-      this.adicionarItem();
+      if (this.textoItem !== null && this.quantidadeItem > 0) {
+        this.adicionarItem();
+      }
     },
     adicionarItem() {
+      this.pedidoCliente.reverse();
       this.pedidoCliente.push({
         arrayID: this.pedidoCliente.length,
         name: this.textoItem,
@@ -355,7 +358,7 @@ export default {
       this.validaProdutos = true;
     },
     removeItem(id) {
-      this.pedidoCliente = this.pedidoCliente.filter((item) => item.id !== id);
+      this.pedidoCliente = this.pedidoCliente.filter((item) => item.arrayID !== id);
       if (this.pedidoCliente.length === 0) {
         this.validaProdutos = false;
       }

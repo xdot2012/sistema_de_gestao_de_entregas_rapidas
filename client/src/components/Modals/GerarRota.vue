@@ -124,15 +124,18 @@
                     <td>{{ item.order.pk }}</td>
                     <td>{{ item.order.client_name }}</td>
                     <td>{{ item.order.address.format }}</td>
-                    <td>{{ item.order.ispaid }}
                     <td>
-                        <v-chip
-                          dark
-                          v-for="product in item.order.products" :key="product.pk"
-                        >
-                          x{{product.quantity}} - {{ product.name }}
-                        </v-chip>
-                      </td>
+                      <v-chip
+                        dark
+                        v-for="product in item.order.products" :key="product.pk"
+                      >
+                        x{{product.quantity}} - {{ product.name }}
+                      </v-chip>
+                    </td>
+                    <td>
+                      <v-icon color="success" v-if="item.order.ispaid"> mdi-check</v-icon>
+                      <v-icon color="error" v-else>mdi-close</v-icon>
+                    </td>
                     </tr>
                 </tbody>
               </v-simple-table>

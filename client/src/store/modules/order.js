@@ -81,7 +81,7 @@ const order = {
         .then((response) => {
           console.log('update!');
           commit('UPDATE_ORDERS', response.data);
-          console.log(formData);
+          dispatch('alertSuccess', { non_field_errors: ['Ordens foram atualizadas'] });
           formData.callback();
         })
         .catch((err) => {
@@ -97,6 +97,7 @@ const order = {
       authRequest.post('/api/orders/cancel/', { orders: formData.orders })
         .then((response) => {
           commit('REMOVE_ORDERS', response.data);
+          dispatch('alertSuccess', { non_field_errors: ['Ordens foram atualizadas'] });
           formData.callback();
         })
         .catch((err) => {
@@ -111,6 +112,7 @@ const order = {
       authRequest.post('/api/orders/finish/', { orders: formData.orders })
         .then((response) => {
           commit('REMOVE_ORDERS', response.data);
+          dispatch('alertSuccess', { non_field_errors: ['Ordens foram atualizadas'] });
           formData.callback();
         })
         .catch((err) => {
@@ -125,6 +127,7 @@ const order = {
       authRequest.post('/api/orders/reset/', { orders: formData.orders })
         .then((response) => {
           commit('UPDATE_ORDERS', response.data);
+          dispatch('alertSuccess', { non_field_errors: ['Ordens foram atualizadas'] });
           formData.callback();
         })
         .catch((err) => {
