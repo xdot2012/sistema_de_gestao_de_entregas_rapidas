@@ -1,3 +1,5 @@
+import print from 'print-js';
+
 export const LATE_TIME = 10;
 export const WARN_TIME = 5;
 
@@ -100,4 +102,12 @@ export function formatAddressNominatin(obj) {
 
 export function formatPhone(phone) {
   return phone.replace(' ', '').replace('(', '').replace(')', '').replace('-', '');
+}
+
+export function printJSONRoute(data, headers) {
+  print({
+    printable: data,
+    type: 'json',
+    properties: headers,
+  });
 }

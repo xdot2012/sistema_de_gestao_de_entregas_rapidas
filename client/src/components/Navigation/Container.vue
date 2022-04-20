@@ -50,10 +50,10 @@
   </v-app-bar>
 
   <!-- Sizes your content based upon application components -->
-  <v-main>
+  <v-main class="secondary">
     <message class="sticky mr-5 ml-5 mt-2 mb-2"></message>
     <!-- Provides the application the proper gutter -->
-    <v-container fluid color="secondary">
+    <v-container fluid>
       <router-view></router-view>
     </v-container>
   </v-main>

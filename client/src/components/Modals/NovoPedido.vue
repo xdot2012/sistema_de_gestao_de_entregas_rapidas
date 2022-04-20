@@ -3,6 +3,7 @@
       <template v-slot:activator="{ on, attrs }">
         <v-btn class="flex-fill mx-2"
           x-large
+          block
           color="accent"
           v-bind="attrs" v-on="on"
           @click="clearMessages">Novo Pedido</v-btn>
@@ -10,14 +11,13 @@
 
       <template v-slot:default="dialog">
         <v-card class="pa-8 pt-3 d-flex flex-column" width="100vw" min-height="90vh">
-          <v-card-title>
+          <v-card-title class="text-h4">
               <v-col cols=12>
-                <v-row>
-                  <h1 class="ml-auto">
+                <v-row >
+                  <v-spacer />
                   Novo Pedido
-                  </h1>
+                  <v-spacer />
                   <v-btn
-                  class="ml-auto"
                   icon
                   text
                   @click="dialog.value = false">
@@ -31,7 +31,7 @@
             <v-col cols=12 class="d-flex" v-if="!etapaPedido">
               <!-- SELEÇÃO DE PRODUTO -->
               <v-col cols=6 class="d-flex flex-column tabela-pedidos">
-                <v-simple-table light>
+                <v-simple-table light >
                   <thead>
                     <tr>
                       <th colspan="3" class="mb-5 text-center primary white--text">
@@ -210,10 +210,14 @@
           </v-card-text>
 
           <v-card-actions class="justify-end mt-auto">
-            <v-btn v-if="etapaPedido>0"
-              x-large
-              color="default"
-              @click="voltarEtapa()">Voltar</v-btn>
+            <v-col cols="2">
+              <v-btn v-if="etapaPedido>0"
+                x-large
+                block
+                color="default"
+                @click="voltarEtapa()">Voltar
+              </v-btn>
+            </v-col>
             <v-spacer></v-spacer>
             <v-col cols=3>
               <v-btn v-if="etapaPedido==0"

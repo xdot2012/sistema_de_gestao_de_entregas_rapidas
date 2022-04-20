@@ -4,14 +4,16 @@
         <v-btn class="flex-fill mx-2"
           :disabled="waitingOrders.length==0"
           x-large
-          color="primary"
+          block
+          color="accent"
           v-bind="attrs" v-on="on">Gerar Rota</v-btn>
       </template>
 
       <template v-slot:default="dialog">
         <v-card class="pa-8 d-flex flex-column" width="100vw" Resumo min-height="90vh">
-          <v-card-title class="d-flex">
-              <div class="text-h5">Gerar Rota</div>
+          <v-card-title class="d-flex text-h5">
+              <v-spacer />
+              Gerar Rota
               <v-spacer />
               <v-btn icon text @click="dialog.value = false">
                 <v-icon>mdi-close</v-icon>
@@ -27,6 +29,7 @@
                   v-model="capacidadeTotal"
                   hide-details="auto"
                   required
+                  v-on:keydown.enter='selecionaCapacidade'
                 ></v-text-field>
                 <!-- <h3>Selecione Entregadores:</h3>
                 <div class="d-flex flex-column">
@@ -143,44 +146,65 @@
           </v-card-text>
 
           <v-card-actions class="justify-end mt-auto">
-            <v-btn v-if="etapaPedido>0"
-              x-large
-              color="default"
-              @click="voltarEtapa(etapaPedido)">Voltar</v-btn>
-            <v-spacer></v-spacer>
-            <v-btn v-if="etapaPedido==0"
-              :disabled="!capacidadeTotal>0"
-              x-large
-              color="primary"
-              @click="proximaEtapa(etapaPedido)">Próximo</v-btn>
-            <v-btn v-else-if="etapaPedido==1"
-              :disabled="!produtosSelecionados>0"
-              x-large
-              color="primary"
-              @click="proximaEtapa(etapaPedido)">Próximo</v-btn>
-            <div v-else>
-              <v-btn
-                class="mr-5"
+            <v-col cols="2">
+              <v-btn v-if="etapaPedido>0"
                 x-large
-                color="primary"
-                @click="imprimeRota()">
-                Imprimir Rota</v-btn>
+                block
+                color="default"
+                @click="voltarEtapa(etapaPedido)">Voltar</v-btn>
+            </v-col>
+            <v-spacer />
+            <v-col cols="3">
               <v-btn
+                v-if="etapaPedido==0"
+                :disabled="!capacidadeTotal>0"
                 x-large
+                block
                 color="primary"
-                @click="dialog.value = finalizarPedido()">
-                Finalizar</v-btn>
-            </div>
-          </v-card-actions>
-        </v-card>
-      </template>
+                @click="proximaEtapa(etapaPedido)">Próximo
+              </v-btn>
+              <v-btn
+                v-else-if="etapaPedido==1"
+                :disabled="!produtosSelecionados>0"
+                x-large
+                block
+                color="primary"
+                @click="proximaEtapa(etapaPedido)">Próximo
+              </v-btn>
+            <v-row v-else>
+              <v-col cols="6">
+                <v-btn
+                  class="mr-5"
+                  x-large
+                  block
+                  color="primary"
+                  @click="imprimeRota()">
+                  Imprimir Rota</v-btn>
+              </v-col>
+              <v-col cols="6">
+                <v-btn
+                  x-large
+                  block
+                  color="primary"
+                  @click="dialog.value = finalizarPedido()">
+                  Finalizar</v-btn>
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-card-actions>
+      </v-card>
+    </template>
   </v-dialog>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
 
-import { sortOrdersByTime, sortOrdersByDistance } from '../../functions';
+import {
+  sortOrdersByTime,
+  sortOrdersByDistance,
+  printJSONRoute,
+} from '../../functions';
 
 export default {
   name: 'GerarRota',
@@ -189,6 +213,7 @@ export default {
     this.$store.dispatch('getCitys');
   },
   data: () => ({
+    printJSONRoute,
     etapaPedido: 0,
     metodoPagamento: null,
     tipoEntrega: null,
@@ -226,21 +251,37 @@ export default {
     showRoute() {
       this.etapaPedido += 1;
     },
-    proximaEtapa(etapaPedido) {
-      if (etapaPedido === 1) {
+    proximaEtapa() {
+      if (this.etapaPedido === 1) {
         const orderList = this.$store.getters.ordersWithPriority.filter(
           (item) => item.selected === true,
         );
         const orders = orderList.map((item) => item.pk);
         this.$store.dispatch('generatePath', { orders, callback: this.showRoute });
       } else {
-        this.etapaPedido = etapaPedido + 1;
+        this.etapaPedido += 1;
       }
     },
-    voltarEtapa(etapaPedido) {
-      this.etapaPedido = etapaPedido - 1;
+    voltarEtapa() {
+      this.etapaPedido -= 1;
+    },
+    getOrderStatus(order) {
+      if (order.ispaid) {
+        return 'Sim';
+      }
+      return 'Não';
     },
     imprimeRota() {
+      const jsonData = this.$store.getters.getPath.map((item) => ({
+        '#': item.index,
+        numero: item.order.pk,
+        cliente: item.order.client_name,
+        endereco: item.order.address.format,
+        produtos: item.order.products.map((product) => `x${product.quantity} - ${product.name}`),
+        paga: this.getOrderStatus(item.order),
+      }));
+      const headers = ['#', 'numero', 'cliente', 'endereco', 'produtos', 'paga'];
+      this.printJSONRoute(jsonData, headers);
       return false;
     },
     selecionaEntregador(entregador) {
@@ -306,6 +347,11 @@ export default {
         } else {
           this.$store.getters.ordersWithPriority[i].selected = false;
         }
+      }
+    },
+    selecionaCapacidade() {
+      if (this.capacidadeTotal > 0) {
+        this.proximaEtapa();
       }
     },
   },

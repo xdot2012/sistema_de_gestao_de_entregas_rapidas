@@ -31,7 +31,7 @@
       <v-row class="d-flex align-end justify-end fill-height">
           <v-btn
             :disabled="!valid||!hasAddress"
-            color="primary"
+            color="accent"
             x-large
             @click="validate">
               Cadastrar Cliente

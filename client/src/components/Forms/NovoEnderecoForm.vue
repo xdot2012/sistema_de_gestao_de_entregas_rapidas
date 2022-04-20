@@ -17,9 +17,10 @@
       dense
       filled
       label="Estado"
+      class="ml-3"
       ></v-text-field>
       <v-text-field
-      class="mr-3"
+      class="ml-3"
       style="max-width: 30%"
       label="Bairro"
       v-model="address.district"

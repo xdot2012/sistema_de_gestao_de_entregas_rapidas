@@ -3,7 +3,8 @@
       <template v-slot:activator="{ on, attrs }">
         <v-btn class="ma-2 mr-5"
           :disabled="orders.length==0"
-          color="accent"
+          color="primary"
+          block
           v-bind="attrs" v-on="on">Atualizar Pedidos Selecionados</v-btn>
       </template>
 

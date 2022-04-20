@@ -13,4 +13,8 @@ export default {
 </script>
 
 <style>
+  .card-body {
+    height: 60vh;
+    overflow-y: scroll;
+  }
 </style>
