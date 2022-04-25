@@ -54,7 +54,7 @@
     <message class="sticky mr-5 ml-5 mt-2 mb-2"></message>
     <!-- Provides the application the proper gutter -->
     <v-container fluid>
-      <router-view></router-view>
+      <router-view class="d-flex flex-column justify-center align-center"></router-view>
     </v-container>
   </v-main>
 

@@ -1,11 +1,11 @@
 <template>
   <div>
-      <div class="mt-5 d-flex flex-column justify-center align-center">
-      <v-card class="card-painel pa-5 elevation-5">
+      <div class="d-flex flex-column justify-center align-center">
+      <v-card class="main-card pa-5 elevation-5">
         <v-card-title class="d-flex justify-center text-h4">
           Pedidos Ativos
         </v-card-title>
-        <v-card-text class="card-body">
+        <v-card-text class="main-card-body">
           <div
             v-if="activeOrders.length==0">
             <h2 class="">
@@ -134,33 +134,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-  .card-painel {
-    width: 95vw;
-    min-height: 85vh;
-  }
-
-  .botao-painel {
-    max-width: 25vw;
-    width: 25%;
-    margin-left: auto;
-  }
-
-  .modal-painel {
-    width:80vw;
-    height: 80vh;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .modal-painel-body {
-    flex-grow: fill;
-  }
-
-  .table-body {
-    color:black;
-    background-color: white;
-  }
-</style>
