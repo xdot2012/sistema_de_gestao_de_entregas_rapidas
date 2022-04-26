@@ -17,6 +17,9 @@ const client = {
         address: item.main_address.format,
       }),
     ),
+    getAutoCompleteAddress: (state) => state.clientList.map(
+      (item) => item.main_address.format,
+    ),
   },
 
   actions: {

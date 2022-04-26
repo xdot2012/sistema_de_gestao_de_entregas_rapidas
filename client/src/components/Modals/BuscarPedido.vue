@@ -70,13 +70,11 @@
                       <h1>Digite o Endereço</h1>
                       <v-autocomplete
                         class="mt-5"
-                        v-model="selectedClientID"
+                        v-model="selectedAddress"
                         :search-input.sync="enderecoBusca"
-                        :items="getAutoCompleteClientName"
+                        :items="getAutoCompleteAddress"
                         dense
                         label="Endereço do Cliente"
-                        item-text="address"
-                        item-value="pk"
                       ></v-autocomplete>
                     </div>
                   </v-tab-item>
@@ -137,7 +135,7 @@ import { stringToDate, calendarDate } from '../../functions';
 
 export default {
   name: 'BuscarPedido',
-  computed: mapGetters(['activeOrders', 'getAutoCompleteClientName']),
+  computed: mapGetters(['activeOrders', 'getAutoCompleteClientName', 'getAutoCompleteAddress']),
   beforeCreate() {
     this.$store.dispatch('getHistory');
     this.$store.dispatch('getClients');
@@ -146,6 +144,7 @@ export default {
     return {
       tab: null,
       selectedClientID: null,
+      selectedAddress: null,
       nomeBusca: null,
       telefoneBusca: null,
       enderecoBusca: null,
@@ -168,6 +167,17 @@ export default {
       }
       const orders = this.$store.getters.allOrders.filter(
         (item) => item.client === val,
+      );
+
+      this.ordersFound = this.formatOrders(orders);
+      return val;
+    },
+    selectedAddress: function onChange(val) {
+      if (!val) {
+        return null;
+      }
+      const orders = this.$store.getters.allOrders.filter(
+        (item) => item.address.format === val,
       );
 
       this.ordersFound = this.formatOrders(orders);
