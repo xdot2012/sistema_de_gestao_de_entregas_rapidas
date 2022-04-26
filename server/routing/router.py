@@ -1,5 +1,3 @@
-from networkx import DiGraph
-from vrpy import VehicleRoutingProblem
 import certifi
 import ssl
 import requests

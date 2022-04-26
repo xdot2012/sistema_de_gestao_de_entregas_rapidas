@@ -1,9 +1,4 @@
-from django.shortcuts import render
-
-# accounts/views.py
-from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
-from django.views import generic
 from django.views.generic.edit import CreateView
 from accounts.forms import UserCreationForm
 

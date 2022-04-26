@@ -1,7 +1,5 @@
 from django.db import models
 from meuapp.models import BaseModel
-from django.db import transaction
-from routing.router import get_route
 
 DELIVERY_CHOICES = (
     ('DEFAULT', 'Entrega Imediata'),

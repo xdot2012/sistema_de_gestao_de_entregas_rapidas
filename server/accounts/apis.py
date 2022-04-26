@@ -1,9 +1,8 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
 
 from accounts.models import User
-from accounts.serializers import UserSerializer
+from accounts.serializers import UserSerializer, UserAuthenticationSerializer
 from rest_framework import permissions
 
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -14,8 +13,9 @@ from rest_framework.response import Response
 class AuthToken(ObtainAuthToken):
 
     def post(self, request, *args, **kwargs):
-        if request.data['username']:
-            request.data['username'] = request.data['username'].upper()
+        auth_serializer = UserAuthenticationSerializer(data=request.data, many=False)
+        auth_serializer.is_valid(raise_exception=True)
+        request.data['username'] = request.data['username'].upper()
 
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -38,7 +38,7 @@ class IsPostOrIsAuthenticated(permissions.BasePermission):
         return bool(request.user and request.user.is_authenticated)
 
 
-class UsersViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsPostOrIsAuthenticated]
