@@ -94,7 +94,7 @@
                             x{{product.quantity}} - {{product.name}}
                           </div>
                         </td>
-                        <td>{{item.distance}}</td>
+                        <td>{{item.address.distance}} m</td>
                         <td>{{item.waiting_time}} minutos</td>
                       </tr>
                     </tbody>
@@ -121,7 +121,7 @@
                 </thead>
                 <tbody>
                   <tr
-                    v-for="item in getPath" :key="item.index">
+                    v-for="item in ordersInPath" :key="item.index">
                     <!-- <td>{{ item.entregador }}</td> -->
                     <td>{{ item.index }} </td>
                     <td>{{ item.order.pk }}</td>
@@ -136,12 +136,28 @@
                       </v-chip>
                     </td>
                     <td>
-                      <v-icon color="success" v-if="item.order.ispaid"> mdi-check</v-icon>
+                      <v-icon color="success" v-if="item.order.is_paid"> mdi-check</v-icon>
                       <v-icon color="error" v-else>mdi-close</v-icon>
                     </td>
                     </tr>
                 </tbody>
               </v-simple-table>
+
+              <l-map style="height: 350px" :zoom="zoom" :center="polylineData[0]">
+                <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
+                <l-marker
+                  v-for="order in ordersInPath"
+                  v-bind:key="order.index"
+                  :lat-lng="order.point">
+                <l-popup>{{order.index}}º - {{ order.name }}</l-popup>
+                </l-marker>
+                <l-polyline
+                  v-for="leg in polylineLegData"
+                  v-bind:key="leg.polilyne"
+                  :lat-lngs="leg.polyline"
+                  :color="getColor(leg.key)">
+                </l-polyline>
+              </l-map>
             </div>
           </v-card-text>
 
@@ -199,6 +215,13 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import {
+  LMap,
+  LTileLayer,
+  LPolyline,
+  LMarker,
+  LPopup,
+} from 'vue2-leaflet';
 
 import {
   sortOrdersByTime,
@@ -207,13 +230,32 @@ import {
 } from '../../functions';
 
 export default {
+  components: {
+    LMap,
+    LTileLayer,
+    LPolyline,
+    LMarker,
+    LPopup,
+  },
   name: 'GerarRota',
-  computed: mapGetters(['getAllDeliveryman', 'waitingOrders', 'ordersWithPriority', 'getPath']),
+  computed: mapGetters([
+    'getAllDeliveryman',
+    'waitingOrders',
+    'ordersWithPriority',
+    'getPath',
+    'ordersInPath',
+    'polylineData',
+    'polylineStepData',
+    'polylineLegData',
+  ]),
   beforeCreate() {
     this.$store.dispatch('getCitys');
   },
   data: () => ({
     printJSONRoute,
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    zoom: 15,
     etapaPedido: 0,
     metodoPagamento: null,
     tipoEntrega: null,
@@ -224,8 +266,29 @@ export default {
     ordensSelecionadas: [],
     listaEntregadores: [],
     metodoSelecaoPedidos: null,
+    polilyneColors: [
+      '#2629de',
+      '#26de29',
+      '#26cbde',
+      '#de7926',
+    ],
   }),
   methods: {
+    getColor(index) {
+      if (index === this.$store.getters.polylineLegData.length - 1) {
+        return '#d61e1e';
+      }
+      if (index < this.$store.getters.polylineLegData.length - 1) {
+        if (index < this.polilyneColors.length) {
+          return this.polilyneColors[index];
+        }
+      }
+      let randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+      while (randomColor in this.polilyneColors) {
+        randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+      }
+      return randomColor;
+    },
     onFinish() {
       this.clearForm();
     },
@@ -244,7 +307,7 @@ export default {
     finalizarPedido() {
       this.etapaPedido = 0;
       this.confirmaPedido = true;
-      const orders = this.$store.getters.getOrdersInPath.map((order) => order.pk);
+      const orders = this.$store.getters.ordersInPath.map((item) => item.order.pk);
       this.$store.dispatch('deliverOrders', { orders, callback: this.onFinish });
       return false;
     },

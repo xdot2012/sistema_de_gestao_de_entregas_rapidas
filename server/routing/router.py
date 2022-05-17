@@ -41,13 +41,56 @@ def get_route(pickup_lon, pickup_lat, dropoff_lon, dropoff_lat):
     return out
 
 
-def get_path(pickup_lon, pickup_lat, lon_lat_dict_array):
-    loc = "{},{}".format(pickup_lon, pickup_lat)
-    for item in lon_lat_dict_array:
+def get_trip_route_data(trips):
+    legs_data = []
+    trip = {
+        'polyline': []
+    }
+    leg_count = 0
+    for trip in trips:
+        for leg in trip['legs']:
+            leg_points = []
+            steps = []
+            for step in leg['steps']:
+                step_points = []
+                for location in polyline.decode(step['geometry']):
+                    step_points.append([location[0], location[1]])
+                    leg_points.append([location[0], location[1]])
+                step_data = {
+                    'points': step_points,
+                    'name': step['name'],
+                    'key': step['geometry'],
+                    'duration': step['duration'],
+                    'distance': step['distance'],
+                    'type': None,
+                }
+                if 'maneuver' in step:
+                    step_data['type'] = step['maneuver']['type']
+
+                steps.append(step_data)
+            legs_data.append({
+                'steps': steps,
+                'polyline': leg_points,
+                'key': leg_count,
+            })
+            leg_count += 1
+
+    data = {
+        'full_path': polyline.decode(trip['geometry']),
+        'legs': legs_data,
+        'duration': trip['duration'],
+        'distance': trip['distance'],
+    }
+    return data
+
+
+def get_path(lon_lat_dict_array):
+    loc = "{},{}".format(lon_lat_dict_array[0]['longitude'], lon_lat_dict_array[0]['latitude'])
+    for item in lon_lat_dict_array[1:]:
         loc += ";{},{}".format(item['longitude'], item['latitude'])
 
     url = "http://router.project-osrm.org/trip/v1/driving/"
-    url_options = "?roundtrip=true&source=first"
+    url_options = "?roundtrip=true&source=first&steps=true"
     r = requests.get(url + loc + url_options)
     if r.status_code != 200:
         return {}
@@ -55,7 +98,8 @@ def get_path(pickup_lon, pickup_lat, lon_lat_dict_array):
     res = r.json()
     out = {
         'waypoints': res['waypoints'],
-        'trips': res['trips']
+        'trips': res['trips'],
+        'route': get_trip_route_data(res['trips'])
     }
     return out
 

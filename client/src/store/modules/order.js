@@ -26,7 +26,9 @@ const order = {
     warnOrders: (state) => state.orderList.filter(
       (i) => !isOut(i) && isWarn(stringToDate(i.created_on)),
     ),
-    ordersWithPriority: (state) => state.orderList.filter((item) => getPriority(item)),
+    ordersWithPriority: (state) => state.orderList.filter(
+      (item) => !isOut(item),
+    ).filter((item) => getPriority(item)),
   },
 
   actions: {

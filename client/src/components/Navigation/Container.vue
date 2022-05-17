@@ -28,7 +28,7 @@
       <v-toolbar-title>FoodBoard</v-toolbar-title>
 
       <v-spacer></v-spacer>
-
+<!--
       <div class="head-container">
         <v-sheet light class="head-card flex-fill"
         color="white" elevation="5" height="80%" rounded width="100">
@@ -46,7 +46,7 @@
           <div class="head-dot green"></div>
           <div class="head-card-text">A Caminho: {{inRouteOrders.length}}</div>
         </v-sheet>
-      </div>
+      </div> -->
   </v-app-bar>
 
   <!-- Sizes your content based upon application components -->

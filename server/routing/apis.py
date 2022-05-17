@@ -48,26 +48,36 @@ class PathFinderAPIView(APIView):
         orders_pk = list(map(int, request.data['orders']))
         orders_pk.sort()
         orders = Order.objects.filter(pk__in=orders_pk).order_by('address__id')
-        points_to_visit = []
+        points_to_visit = [
+            {'longitude': branch.longitude,
+             'latitude': branch.latitude,
+             'order': None
+             }
+        ]
         for order in orders:
             points_to_visit.append({
                 'longitude': order.address.longitude,
-                'latitude': order.address.latitude
+                'latitude': order.address.latitude,
+                'order': order,
             })
 
-        path = get_path(branch.longitude, branch.latitude, points_to_visit)
+        path = get_path(points_to_visit)
         data = []
 
-        for i in range(0, len(orders_pk)):
+        for i in range(0, len(points_to_visit)):
             data.append({
-                'index': path['waypoints'][i+1]['waypoint_index'],
-                'distance': path['waypoints'][i+1]['distance'],
-                'name': path['waypoints'][i+1]['name'],
-                'longitude': path['waypoints'][i+1]['location'][0],
-                'latitude': path['waypoints'][i+1]['location'][1],
-                'order': OrderSerializer(orders.get(pk=orders_pk[i])).data,
+                'index': path['waypoints'][i]['waypoint_index'],
+                'distance': path['waypoints'][i]['distance'],
+                'name': path['waypoints'][i]['name'],
+                'longitude': path['waypoints'][i]['location'][0],
+                'latitude': path['waypoints'][i]['location'][1],
+                'order': OrderSerializer(points_to_visit[path['waypoints'][i]['waypoint_index']]['order']).data,
+                'point': [path['waypoints'][i]['location'][1], path['waypoints'][i]['location'][0]]
             })
 
         data = sorted(data, key=lambda k: k['index'])
-
-        return Response(data, status=status.HTTP_200_OK)
+        response = {
+            'data': data,
+            'route': path['route']
+        }
+        return Response(response, status=status.HTTP_200_OK)

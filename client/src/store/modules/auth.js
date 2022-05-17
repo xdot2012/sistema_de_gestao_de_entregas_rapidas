@@ -36,9 +36,9 @@ const auth = {
     passwordResetEmail({ commit, dispatch }, data) {
       axios.post('/api/accounts/password_reset/', data)
         .then(() => {
-          dispatch('alertSuccess', { non_field_errors: ['Success.'] });
           commit('REMOVE_USER');
           window.location.replace('/auth');
+          dispatch('alertSuccess', { non_field_errors: ['Email Enviado com Sucesso.'] });
         })
         .catch((err) => {
           if (err.response?.data) {

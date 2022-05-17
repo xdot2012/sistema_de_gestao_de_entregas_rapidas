@@ -1,7 +1,7 @@
 <template>
   <div>
       <div class="d-flex flex-column justify-center align-center">
-      <v-card class="main-card pa-5 elevation-5">
+      <v-card class="main-card pa-5 elevation-0">
         <v-card-title class="d-flex justify-center text-h4">
           Pedidos Ativos
         </v-card-title>

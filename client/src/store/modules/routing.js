@@ -9,7 +9,11 @@ const routing = {
   getters: {
     getAllCitys: (state) => state.citys,
     getPath: (state) => state.currentPath,
-    getOrdersInPath: (state) => state.currentPath.map((item) => item.order),
+    getOrdersInPath: (state) => state.currentPath.data.map((item) => item.order),
+    polylineData: (state) => state.currentPath.route.full_path,
+    polylineLegData: (state) => state.currentPath.route.legs,
+    polylineStepData: (state) => state.currentPath.route.legs.steps,
+    ordersInPath: (state) => state.currentPath.data.slice(1),
   },
 
   actions: {

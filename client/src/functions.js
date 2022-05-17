@@ -63,7 +63,6 @@ export function getPriority(order) {
     waiting_time: getDifInMinutes(stringToDate(order.created_on), Date.now()),
     quantity: getTotalProducts(order.products),
     selected: false,
-    distance: Math.floor(Math.random() * 100),
   };
   return Object.assign(order, priorityData);
 }
@@ -79,10 +78,10 @@ export function sortOrdersByTime(a, b) {
 }
 
 export function sortOrdersByDistance(a, b) {
-  if (a.distance < b.distance) {
+  if (a.address.distance < b.address.distance) {
     return -1;
   }
-  if (a.distance > b.distance) {
+  if (a.address.distance > b.address.distance) {
     return 1;
   }
   return 0;
