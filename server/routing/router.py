@@ -84,10 +84,12 @@ def get_trip_route_data(trips):
     return data
 
 
-def get_path(lon_lat_dict_array):
-    loc = "{},{}".format(lon_lat_dict_array[0]['longitude'], lon_lat_dict_array[0]['latitude'])
-    for item in lon_lat_dict_array[1:]:
-        loc += ";{},{}".format(item['longitude'], item['latitude'])
+def get_path(waypoints):
+    loc = ""
+    for key in waypoints:
+        loc += f'{key};'
+
+    loc = loc[:-1]
 
     url = "http://router.project-osrm.org/trip/v1/driving/"
     url_options = "?roundtrip=true&source=first&steps=true"
@@ -96,6 +98,7 @@ def get_path(lon_lat_dict_array):
         return {}
 
     res = r.json()
+
     out = {
         'waypoints': res['waypoints'],
         'trips': res['trips'],

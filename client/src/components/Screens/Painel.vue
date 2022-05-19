@@ -18,8 +18,9 @@
                 <tr>
                   <th class="text-left">#</th>
                   <th class="text-left">CLIENTE</th>
-                  <th class="text-left">PEDIDO</th>
                   <th class="text-left">SITUAÇÃO</th>
+                  <th class="text-left">HORA DO PEDIDO</th>
+                  <th class="text-left">PEDIDO</th>
                   <th class="text-left">SELEÇÃO</th>
                 </tr>
               </thead>
@@ -31,19 +32,35 @@
                   <td>{{ item.pk }}</td>
                   <td>{{ item.client_name }}</td>
                   <td>
-                    <div v-for="product in item.products" :key="product.pk">
-                      x{{product.quantity}} {{product.name}}
+                    <div v-if="item.delivery_type==='PICKUP'">
+                      <v-icon color="success">mdi-package-up</v-icon>
+                       Aguardando Cliente
                     </div>
-                  </td>
-                  <td>
-                    <div v-if="isOut(item)">
+                    <div v-else-if="isOut(item)">
                       <v-icon color="success">mdi-motorbike</v-icon>
+                       Saiu para Entrega em {{ item.ready_on }}
+                    </div>
+                    <div v-else-if="item.delivery_type==='SCHEDULE'">
+                      <v-icon color="success">mdi-calendar-clock</v-icon>
+                       Entrega Agendada para {{ item.appointment }}
                     </div>
                     <div v-else-if="isLate(item.created_on)">
                       <v-icon color="error">mdi-clock</v-icon>
+                       Em Atraso
+                    </div>
+                    <div v-else-if="isWarn(item.created_on)">
+                      <v-icon color="warning">mdi-clock</v-icon>
+                      Aguardando Envio
                     </div>
                     <div v-else>
                       <v-icon color="success">mdi-clock</v-icon>
+                       Aguardando Envio
+                    </div>
+                  </td>
+                  <td>{{ item.started_on }}</td>
+                  <td>
+                    <div v-for="product in item.products" :key="product.pk">
+                      x{{product.quantity}} {{product.name}}
                     </div>
                   </td>
                   <td>

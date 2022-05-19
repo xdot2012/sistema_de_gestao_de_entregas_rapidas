@@ -2,11 +2,11 @@ import Vue from 'vue';
 
 import authRequest from '../../requests';
 import {
-  stringToDate,
   isLate,
   isWarn,
   getPriority,
   isOut,
+  isWaiting,
 } from '../../functions';
 
 const order = {
@@ -17,17 +17,17 @@ const order = {
 
   getters: {
     activeOrders: (state) => state.orderList,
-    waitingOrders: (state) => state.orderList.filter((item) => !isOut(item)),
+    waitingOrders: (state) => state.orderList.filter((item) => isWaiting(item)),
     allOrders: (state) => state.orderHistory,
     inRouteOrders: (state) => state.orderList.filter((item) => isOut(item)),
     lateOrders: (state) => state.orderList.filter(
-      (i) => !isOut(i) && isLate(stringToDate(i.created_on)),
+      (i) => !isOut(i) && isLate(i.created_on),
     ),
     warnOrders: (state) => state.orderList.filter(
-      (i) => !isOut(i) && isWarn(stringToDate(i.created_on)),
+      (i) => !isOut(i) && isWarn(i.created_on),
     ),
     ordersWithPriority: (state) => state.orderList.filter(
-      (item) => !isOut(item),
+      (item) => isWaiting(item),
     ).filter((item) => getPriority(item)),
   },
 

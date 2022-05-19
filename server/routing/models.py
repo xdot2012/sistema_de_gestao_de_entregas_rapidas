@@ -3,8 +3,12 @@ from meuapp.models import BaseModel
 from .router import get_route
 
 
-def get_format(obj):
+def get_complete(obj):
     return f'Rua {obj.street} nº{obj.number}, Bairro {obj.district} - {obj.city_name}/{obj.state_name}.CEP: {obj.code}'
+
+
+def get_format(obj):
+    return f'Rua {obj.street} nº{obj.number}, Bairro {obj.district}'
 
 
 def get_nominatin(obj):

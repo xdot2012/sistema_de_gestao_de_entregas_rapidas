@@ -8,12 +8,12 @@ const routing = {
 
   getters: {
     getAllCitys: (state) => state.citys,
-    getPath: (state) => state.currentPath,
+    getPath: (state) => state.currentPath.data,
     getOrdersInPath: (state) => state.currentPath.data.map((item) => item.order),
     polylineData: (state) => state.currentPath.route.full_path,
     polylineLegData: (state) => state.currentPath.route.legs,
     polylineStepData: (state) => state.currentPath.route.legs.steps,
-    ordersInPath: (state) => state.currentPath.data.slice(1),
+    ordersInPath: (state) => [].concat(...state.currentPath.data.map((item) => item.orders)),
   },
 
   actions: {
@@ -31,7 +31,6 @@ const routing = {
         });
     },
     getLocation({ dispatch }, formData) {
-      console.log(formData);
       authRequest.post('/api/location/', { address: formData.address })
         .then((response) => {
           formData.callback(response.data);
@@ -49,7 +48,6 @@ const routing = {
           commit('RESET_PATH');
           commit('ADD_PATH', response.data);
           dispatch('alertSuccess', { non_field_errors: ['Rota gerada com Sucesso'] });
-          console.log(formData);
           formData.callback(formData.orders);
         })
         .catch((err) => {

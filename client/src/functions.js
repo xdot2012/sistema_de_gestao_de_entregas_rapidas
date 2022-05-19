@@ -1,43 +1,61 @@
 import print from 'print-js';
 
-export const LATE_TIME = 10;
-export const WARN_TIME = 5;
+export const SCHEDULE_TIME = 30;
+export const LATE_TIME = 30;
+export const WARN_TIME = 100;
 
 export function toDate(dateStr) {
-  const parts = dateStr.split('-');
+  const parts = dateStr.split('/');
   return new Date(parts[2], parts[1] - 1, parts[0]);
 }
 
+export function calendarDate(datetimeStr) {
+  const dateStr = datetimeStr.slice(0, datetimeStr.indexOf(' '));
+  const parts = dateStr.split('/');
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
+}
+
 export function stringToDate(datetimeStr) {
-  const dateStr = datetimeStr.slice(0, datetimeStr.indexOf('T'));
-  const timeStr = datetimeStr.slice(datetimeStr.indexOf('T') + 1);
+  const dateStr = datetimeStr.slice(0, datetimeStr.indexOf(' '));
+  const timeStr = datetimeStr.slice(datetimeStr.indexOf(' ') + 1);
 
   const timeParts = timeStr.split(':');
-  const parts = dateStr.split('-');
-  return new Date(parts[2], parts[1] - 1, parts[0], timeParts[0], timeParts[1]);
+  const parts = dateStr.split('/');
+  const date = new Date(parts[2], parts[1] - 1, parts[0], timeParts[0], timeParts[1]);
+  return date;
 }
 
 export function getDifInMinutes(startDate, endDate) {
   return Math.round(Math.abs(endDate - startDate) / 60000);
 }
 
-export function calendarDate(datetimeStr) {
-  const dateStr = datetimeStr.slice(0, datetimeStr.indexOf('T'));
-
-  const parts = dateStr.split('-');
-  return `${parts[2]}-${parts[1]}-${parts[0]}`;
-}
-
 export function isOut(item) {
   return item.ready_on != null;
 }
 
+export function onTimeToDeliver(item) {
+  if (item.delivery_type === 'PICKUP') {
+    return false;
+  }
+  if (item.delivery_type === 'SCHEDULE') {
+    if (getDifInMinutes(Date.now(), stringToDate(item.appointment)) > SCHEDULE_TIME) {
+      return false;
+    }
+  }
+  console.log(item);
+  return true;
+}
+
+export function isWaiting(item) {
+  return onTimeToDeliver(item) && !isOut(item);
+}
+
 export function isLate(dateTime) {
-  return getDifInMinutes(dateTime, Date.now()) >= LATE_TIME;
+  return getDifInMinutes(stringToDate(dateTime), Date.now()) >= LATE_TIME;
 }
 
 export function isWarn(dateTime) {
-  return getDifInMinutes(dateTime, Date.now()) >= WARN_TIME;
+  return getDifInMinutes(stringToDate(dateTime), Date.now()) >= WARN_TIME;
 }
 
 export function getOrderStatus(dateTime) {
@@ -109,4 +127,16 @@ export function printJSONRoute(data, headers) {
     type: 'json',
     properties: headers,
   });
+}
+
+export function getMapPopUpTitle(location, routeSize) {
+  let { index } = location;
+  if (index === 0) {
+    index = 'Partida/Chegada';
+  } else if (index === routeSize - 1) {
+    index = 'Última Parada';
+  } else {
+    index = `${index}ª Parada`;
+  }
+  return `${index} : ${location.name}`;
 }

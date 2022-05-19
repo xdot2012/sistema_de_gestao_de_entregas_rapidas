@@ -1,15 +1,19 @@
 from rest_framework.serializers import Serializer
 from rest_framework import serializers
-from .models import ClientAddress, Branch, get_format, get_nominatin
+from .models import ClientAddress, Branch, get_complete, get_format, get_nominatin
 
 
 class ClientAddressSerializer(serializers.ModelSerializer):
     format = serializers.SerializerMethodField(read_only=True)
     nominatin = serializers.SerializerMethodField(read_only=True)
+    complete = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ClientAddress
-        fields = ['pk', 'distance', 'format', 'nominatin', 'country_name', 'state_name', 'city_name', 'number', 'street', 'district', 'code', 'reference', 'created_on', 'client', 'latitude', 'longitude', 'altitude']
+        fields = ['pk', 'distance', 'complete', 'format', 'nominatin', 'country_name', 'state_name', 'city_name', 'number', 'street', 'district', 'code', 'reference', 'created_on', 'client', 'latitude', 'longitude', 'altitude']
+
+    def get_complete(self, obj):
+        return get_complete(obj)
 
     def get_format(self, obj):
         return get_format(obj)
@@ -21,11 +25,14 @@ class ClientAddressSerializer(serializers.ModelSerializer):
 class BranchSerializer(serializers.ModelSerializer):
     format = serializers.SerializerMethodField(read_only=True)
     nominatin = serializers.SerializerMethodField(read_only=True)
+    complete = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Branch
-        fields = ['pk', 'format', 'nominatin', 'country_name', 'state_name', 'city_name', 'number', 'street', 'district', 'code', 'reference', 'latitude', 'longitude', 'altitude']
+        fields = ['pk', 'complete', 'format', 'nominatin', 'country_name', 'state_name', 'city_name', 'number', 'street', 'district', 'code', 'reference', 'latitude', 'longitude', 'altitude']
 
+    def get_complete(self, obj):
+        return get_complete(obj)
 
     def get_format(self, obj):
         return get_format(obj)

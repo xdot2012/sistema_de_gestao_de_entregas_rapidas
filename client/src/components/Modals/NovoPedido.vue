@@ -129,7 +129,7 @@
 
             <div v-else-if="etapaPedido==2" class="d-flex">
               <!-- ENTREGA -->
-              <v-col cols="9">
+              <v-col cols="8">
                 <v-row>
                   <h2>Cliente:</h2>
                 </v-row>
@@ -143,7 +143,7 @@
                 </v-row>
 
                 <v-row>
-                  <h2>Endereço de Entrega:</h2>
+                  <h2>Endereço do Cliente:</h2>
                 </v-row>
                 <v-row>
                   <v-col cols="6">
@@ -163,29 +163,112 @@
                 </v-row>
 
                 <v-row>
-                    <h3>Método de Pagamento:</h3>
+                  <v-col cols="6">
+                    <h2>Método de Pagamento:</h2>
+                  </v-col>
+                  <v-col cols="6">
+                    <h2>Método de Entrega:</h2>
+                  </v-col>
                 </v-row>
                 <v-row>
-                      <v-radio-group row v-model="metodoPagamento">
-                        <v-radio label="Cartão Crédito" value="CREDIT_CARD"></v-radio>
-                        <v-radio label="Cartão Débito" value="DEBIT_CARD"></v-radio>
-                        <v-radio label="Dinheiro" value="CASH"></v-radio>
-                        <v-radio label="Pix" value="PIX"></v-radio>
-                      </v-radio-group>
-                </v-row>
-                <v-row>
-                    <h3>Método de Entrega:</h3>
-                </v-row>
-                <v-row>
-                    <v-radio-group row v-model="tipoEntrega">
-                      <v-radio label="Delivery" value="DEFAULT"></v-radio>
-                      <v-radio label="Agendar Horário" value="agendar_horario"></v-radio>
-                      <v-radio label="Retirada no Local" value="PICKUP"></v-radio>
+                  <v-col cols="6">
+                    <v-radio-group row v-model="metodoPagamento">
+                      <v-radio label="Cartão Crédito" value="CREDIT_CARD"></v-radio>
+                      <v-radio label="Cartão Débito" value="DEBIT_CARD"></v-radio>
+                      <v-radio label="Dinheiro" value="CASH"></v-radio>
+                      <v-radio label="Pix" value="PIX"></v-radio>
                     </v-radio-group>
+                  </v-col>
+
+                  <v-col cols="6">
+                      <v-radio-group row v-model="tipoEntrega">
+                        <v-radio label="Delivery" value="DEFAULT"></v-radio>
+                        <v-radio label="Retirada no Local" value="PICKUP"></v-radio>
+                        <v-radio label="Agendar Horário" value="SCHEDULE"></v-radio>
+                      </v-radio-group>
+                  </v-col>
+                </v-row>
+
+                <v-row>
+                  <v-col cols="6">
+                    <v-row>
+                      <h3>Pagamento:</h3>
+                    </v-row>
+                    <v-row>
+                      <v-checkbox v-model="hasBeenPaid" label="O Pedido já foi pago."></v-checkbox>
+                    </v-row>
+                    <v-row>
+                      <v-col cols="4">
+                        <v-row>
+                          <h3>Total do Pedido:</h3>
+                        </v-row>
+                        <v-row class="align-center">
+                          <v-col cols="4">
+                            <h3>R$</h3>
+                          </v-col>
+                          <v-col cols="8">
+                            <v-text-field
+                              type="number"
+                              :rules="regraMonetario"
+                              v-model="valorPedido">
+                            </v-text-field>
+                          </v-col>
+                        </v-row>
+                      </v-col>
+                      <v-col cols="4" v-if="metodoPagamento=='CASH' && !hasBeenPaid">
+                        <v-row>
+                          <h3>Valor a ser recebido:</h3>
+                        </v-row>
+                        <v-row class="align-center">
+                          <v-col cols="4">
+                            <h3>R$</h3>
+                          </v-col>
+                          <v-col cols="8">
+                            <v-text-field
+                              type="number"
+                              :rules="regraMonetario"
+                              v-model="valorTroco">
+                            </v-text-field>
+                          </v-col>
+                        </v-row>
+                      </v-col>
+                      <v-col cols="4" v-if="metodoPagamento=='CASH' && !hasBeenPaid">
+                        <v-row>
+                          <h3>Troco necessário:</h3>
+                        </v-row>
+                        <v-row class="align-center">
+                            <v-col cols="4">
+                              <h3>R$</h3>
+                            </v-col>
+                            <v-col cols="8">
+                              <v-text-field
+                                :rules="regraMonetario"
+                                type="number"
+                                v-model="totalTrocoNecessario">
+                                >
+                              </v-text-field>
+                            </v-col>
+                          </v-row>
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                  <v-col cols="6">
+                    <div v-if="tipoEntrega=='SCHEDULE'">
+                      <v-row>
+                        <h3>Horário de Agendamento</h3>
+                      </v-row>
+                      <v-row>
+                        <v-time-picker
+                          format="24hr"
+                          v-model="horaEntrega"
+                          landscape
+                        ></v-time-picker>
+                      </v-row>
+                    </div>
+                  </v-col>
                 </v-row>
               </v-col>
-
-              <v-col cols="3" >
+              <v-col cols="4" >
                 <v-simple-table class="tabela-pedidos">
                   <thead>
                     <tr>
@@ -201,10 +284,7 @@
                     </tr>
                   </tbody>
                 </v-simple-table>
-                <v-row class="justify-end mr-3">
-                  <v-checkbox v-model="hasBeenPaid" label="O Pedido já foi pago."></v-checkbox>
-                </v-row>
-              </v-col>
+               </v-col>
               <!-- /ENTREGA -->
             </div>
           </v-card-text>
@@ -237,7 +317,7 @@
                 x-large
                 color="accent"
                 @click="dialog.value = finalizarPedido()"
-                :disabled="!metodoPagamento || !tipoEntrega">
+                :disabled="!validateOrder()">
                 Finalizar Pedido</v-btn>
             </v-col>
           </v-card-actions>
@@ -255,6 +335,7 @@ import SelecaoClienteForm from '../Forms/SelecaoClienteForm.vue';
 import {
   regraTexto,
   regraNumero,
+  regraMonetario,
 } from '../../regras_input';
 
 export default {
@@ -268,6 +349,10 @@ export default {
   },
   name: 'NovoPedido',
   data: () => ({
+    horaEntrega: null,
+    valorPedido: 0,
+    valorTroco: 0,
+    totalTrocoNecessario: 0,
     getClientBy: 'selecionar_cliente',
     etapaPedido: 0,
     clientID: null,
@@ -275,6 +360,7 @@ export default {
     confirmaPedido: null,
     regraTexto,
     regraNumero,
+    regraMonetario,
     pedidoCliente: [],
     textoItem: null,
     quantidadeItem: 1,
@@ -299,6 +385,14 @@ export default {
     },
   }),
   methods: {
+    validateOrder() {
+      if (!this.metodoPagamento || !this.tipoEntrega || !this.valorPedido
+        || (this.tipoEntrega === 'SCHEDULE' && !this.horaEntrega)
+        || (this.metodoPagamento === 'CASH' && !this.hasBeenPaid && !this.valorTroco && !this.totalTrocoNecessario)) {
+        return false;
+      }
+      return true;
+    },
     clearMessages() {
       this.$store.dispatch('alertClear');
     },
@@ -319,8 +413,14 @@ export default {
       this.validaProdutos = false;
       this.validaCliente = false;
       this.hasBeenPaid = false;
+      this.valorPedido = 0;
+      this.valorTroco = 0;
+      this.totalTrocoNecessario = 0;
     },
     finalizarPedido() {
+      if (this.tipoEntrega !== 'SCHEDULE') {
+        this.horaEntrega = null;
+      }
       const order = {
         client: this.clientID,
         address: this.clientAddress.pk,
@@ -328,6 +428,10 @@ export default {
         payment_method: this.metodoPagamento,
         is_paid: this.hasBeenPaid,
         products: this.pedidoCliente,
+        total_pedido: parseFloat(this.valorPedido),
+        total_esperado: parseFloat(this.valorTroco),
+        valor_troco: parseFloat(this.totalTrocoNecessario),
+        appointment: this.horaEntrega,
       };
       this.$store.dispatch('createOrder', { order, callback: this.callback });
       return false;
@@ -384,6 +488,27 @@ export default {
     },
     setClientAddress(data) {
       this.clientAddress = data;
+    },
+    getTroco(totalValue, subValue) {
+      return (totalValue * 100 - subValue * 100) / 100;
+    },
+  },
+  watch: {
+    valorPedido: function onChange(val) {
+      const trocoNum = parseFloat(this.valorTroco);
+      const totalPedidoNum = parseFloat(val);
+      const trocoNecessario = this.getTroco(trocoNum, totalPedidoNum);
+      if (trocoNecessario >= 0) {
+        this.totalTrocoNecessario = trocoNecessario;
+      }
+    },
+    valorTroco: function onChange(val) {
+      const trocoNum = parseFloat(val);
+      const totalPedidoNum = parseFloat(this.valorPedido);
+      const trocoNecessario = this.getTroco(trocoNum, totalPedidoNum);
+      if (trocoNecessario >= 0) {
+        this.totalTrocoNecessario = trocoNecessario;
+      }
     },
   },
 };

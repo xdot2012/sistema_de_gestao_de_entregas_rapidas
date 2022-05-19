@@ -1,6 +1,7 @@
 const defaultTextRegex = (str) => /^[A-Za-zÀ-ÖØ-öø-ÿ ]+$/.test(str);
 const phoneNumberRegex = (str) => /^[0-9()-- ]+$/.test(str);
 const numbersRegex = (str) => /^[0-9]+$/.test(str);
+const floatNumbersRegex = (str) => /^[0-9.]+$/.test(str);
 const numbersHifexRegex = (str) => /^[0-9-]+$/.test(str);
 
 export const regraTelefone = [
@@ -18,6 +19,11 @@ export const regraNomeCliente = [
 export const regraNumero = [
   (value) => !!value || 'Required.',
   (value) => numbersRegex(value) || 'Caractere Inválido',
+];
+
+export const regraMonetario = [
+  (value) => !!value || 'Required.',
+  (value) => floatNumbersRegex(value) || 'Caractere Inválido',
 ];
 
 export const regraCEP = [

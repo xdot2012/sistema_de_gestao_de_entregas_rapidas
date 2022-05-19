@@ -1,4 +1,6 @@
 import datetime
+from decimal import Decimal
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -17,6 +19,14 @@ class OrderApiView(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         request.data['created_by'] = request.user.pk
+        if request.data['appointment']:
+            today = datetime.datetime.now()
+            appointment_time = datetime.datetime.strptime(request.data['appointment'], "%H:%M")
+            request.data['appointment'] = today.replace(
+                hour=appointment_time.hour,
+                minute=appointment_time.minute,
+                second=0)
+
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -24,8 +34,13 @@ class OrderApiView(viewsets.ModelViewSet):
             order_obj = Order.objects.create(client_id=request.data['client'],
                                              created_by=request.user,
                                              delivery_type=request.data['delivery_type'],
+                                             payment_method=request.data['payment_method'],
                                              address_id=request.data['address'],
-                                             is_paid=request.data['is_paid'])
+                                             is_paid=request.data['is_paid'],
+                                             total_value=Decimal(request.data['total_pedido']),
+                                             change=Decimal(request.data['valor_troco']),
+                                             payment=Decimal(request.data['total_esperado']),
+                                             appointment=request.data['appointment'])
 
             for item in request.data['products']:
                 OrderProduct.objects.create(order_id=order_obj.pk, name=item['name'], quantity=item['quantity'])
@@ -34,6 +49,7 @@ class OrderApiView(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = Order.objects.filter(finished_on=None, active=True)
+        queryset = sorted(queryset, key=lambda i: i.started_on)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

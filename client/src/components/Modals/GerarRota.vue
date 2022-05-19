@@ -123,20 +123,20 @@
                   <tr
                     v-for="item in ordersInPath" :key="item.index">
                     <!-- <td>{{ item.entregador }}</td> -->
-                    <td>{{ item.index }} </td>
-                    <td>{{ item.order.pk }}</td>
-                    <td>{{ item.order.client_name }}</td>
-                    <td>{{ item.order.address.format }}</td>
+                    <!-- <td>{{ item.index }} </td> -->
+                    <td>{{ item.pk }}</td>
+                    <td>{{ item.client_name }}</td>
+                    <td>{{ item.address.format }}</td>
                     <td>
                       <v-chip
                         dark
-                        v-for="product in item.order.products" :key="product.pk"
+                        v-for="product in item.products" :key="product.pk"
                       >
                         x{{product.quantity}} - {{ product.name }}
                       </v-chip>
                     </td>
                     <td>
-                      <v-icon color="success" v-if="item.order.is_paid"> mdi-check</v-icon>
+                      <v-icon color="success" v-if="item.is_paid"> mdi-check</v-icon>
                       <v-icon color="error" v-else>mdi-close</v-icon>
                     </td>
                     </tr>
@@ -146,10 +146,14 @@
               <l-map style="height: 350px" :zoom="zoom" :center="polylineData[0]">
                 <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
                 <l-marker
-                  v-for="order in ordersInPath"
-                  v-bind:key="order.index"
-                  :lat-lng="order.point">
-                <l-popup>{{order.index}}º - {{ order.name }}</l-popup>
+                  v-for="location in getPath"
+                  v-bind:key="location.index"
+                  :lat-lng="location.point">
+                <l-popup>
+                  <h3>{{getMapPopUpTitle(location, getPath.length)}}</h3>
+                  <div v-for="order in location.orders" v-bind:key="order.pk">
+                    (#{{ order.pk }}) {{ order.client_name }}, {{ order.address.format }}</div>
+                </l-popup>
                 </l-marker>
                 <l-polyline
                   v-for="leg in polylineLegData"
@@ -227,6 +231,7 @@ import {
   sortOrdersByTime,
   sortOrdersByDistance,
   printJSONRoute,
+  getMapPopUpTitle,
 } from '../../functions';
 
 export default {
@@ -252,6 +257,7 @@ export default {
     this.$store.dispatch('getCitys');
   },
   data: () => ({
+    getMapPopUpTitle,
     printJSONRoute,
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -307,7 +313,7 @@ export default {
     finalizarPedido() {
       this.etapaPedido = 0;
       this.confirmaPedido = true;
-      const orders = this.$store.getters.ordersInPath.map((item) => item.order.pk);
+      const orders = this.$store.getters.ordersInPath.map((item) => item.pk);
       this.$store.dispatch('deliverOrders', { orders, callback: this.onFinish });
       return false;
     },
@@ -335,13 +341,13 @@ export default {
       return 'Não';
     },
     imprimeRota() {
-      const jsonData = this.$store.getters.getPath.map((item) => ({
+      const jsonData = this.$store.getters.ordersInPath.map((item) => ({
         '#': item.index,
-        numero: item.order.pk,
-        cliente: item.order.client_name,
-        endereco: item.order.address.format,
-        produtos: item.order.products.map((product) => `x${product.quantity} - ${product.name}`),
-        paga: this.getOrderStatus(item.order),
+        numero: item.pk,
+        cliente: item.client_name,
+        endereco: item.address.format,
+        produtos: item.products.map((product) => `x${product.quantity} - ${product.name}`),
+        paga: this.getOrderStatus(item),
       }));
       const headers = ['#', 'numero', 'cliente', 'endereco', 'produtos', 'paga'];
       this.printJSONRoute(jsonData, headers);

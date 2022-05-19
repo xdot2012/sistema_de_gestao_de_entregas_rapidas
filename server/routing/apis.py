@@ -45,39 +45,75 @@ class PathFinderAPIView(APIView):
 
     def post(self, request):
         branch = Branch.objects.filter(active=True).first()
+        branch_index = f'{branch.longitude},{branch.latitude}'
         orders_pk = list(map(int, request.data['orders']))
         orders_pk.sort()
         orders = Order.objects.filter(pk__in=orders_pk).order_by('address__id')
-        points_to_visit = [
-            {'longitude': branch.longitude,
-             'latitude': branch.latitude,
-             'order': None
-             }
-        ]
-        for order in orders:
-            points_to_visit.append({
-                'longitude': order.address.longitude,
-                'latitude': order.address.latitude,
-                'order': order,
-            })
 
-        path = get_path(points_to_visit)
-        data = []
-
-        for i in range(0, len(points_to_visit)):
-            data.append({
-                'index': path['waypoints'][i]['waypoint_index'],
-                'distance': path['waypoints'][i]['distance'],
-                'name': path['waypoints'][i]['name'],
-                'longitude': path['waypoints'][i]['location'][0],
-                'latitude': path['waypoints'][i]['location'][1],
-                'order': OrderSerializer(points_to_visit[path['waypoints'][i]['waypoint_index']]['order']).data,
-                'point': [path['waypoints'][i]['location'][1], path['waypoints'][i]['location'][0]]
-            })
-
-        data = sorted(data, key=lambda k: k['index'])
-        response = {
-            'data': data,
-            'route': path['route']
+        waypoints = {}
+        waypoints[branch_index] = {
+            'latitude': branch.latitude,
+            'longitude': branch.longitude,
+            'orders': []
         }
+
+        for order in orders:
+            order_index = f'{order.address.longitude},{order.address.latitude}'
+            if order_index not in waypoints:
+                waypoints[order_index] = {
+                    'latitude': branch.latitude,
+                    'longitude': branch.longitude,
+                    'orders': [order]
+                }
+            else:
+                waypoints[order_index]['orders'].append(order)
+
+        data = []
+        if len(waypoints) > 1:
+            path = get_path(waypoints)
+            waypoint_array = list(waypoints.values())
+            i = 0
+
+            for item in path['waypoints']:
+                w_id = item['waypoint_index']
+                data.append({
+                    'index': w_id,
+                    'distance': item['distance'],
+                    'name': item['name'],
+                    'longitude': item['location'][0],
+                    'latitude': item['location'][1],
+                    'orders': OrderSerializer(waypoint_array[w_id]['orders'], many=True).data,
+                    'point': [item['location'][1], item['location'][0]]
+                })
+                i += 1
+
+            response = {
+                'data': data,
+                'route': path['route']
+            }
+
+        else:
+            data.append({
+                'index': 0,
+                'distance': 0,
+                'name': 'Sede',
+                'longitude': branch.longitude,
+                'latitude': branch.latitude,
+                'orders': OrderSerializer(orders, many=True).data,
+                'point': [branch.latitude, branch.longitude]
+            })
+            response = {
+                'data': data,
+                'route': {
+                    'full_path': [[branch.latitude, branch.longitude]],
+                    'legs': {
+                        'steps': [],
+                        'polyline': [],
+                        'key': 0,
+                    },
+                    'duration': 0,
+                    'distance': 0,
+                }
+            }
+
         return Response(response, status=status.HTTP_200_OK)

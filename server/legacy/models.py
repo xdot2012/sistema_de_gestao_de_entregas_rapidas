@@ -4,6 +4,7 @@ from meuapp.models import BaseModel
 DELIVERY_CHOICES = (
     ('DEFAULT', 'Entrega Imediata'),
     ('PICKUP', 'Retirada no Local'),
+    ('SCHEDULE', 'Agendar Horário')
 )
 
 VEHICLE_CHOICES = (
@@ -59,9 +60,21 @@ class Order(BaseModel):
     created_by = models.ForeignKey(verbose_name='Criado por', to='accounts.User', related_name='created_orders', on_delete=models.PROTECT)
     modified_by = models.ForeignKey(verbose_name='Modificado por', to='accounts.User', related_name='modified_orders', null=True, blank=True, on_delete=models.PROTECT)
     active = models.BooleanField(verbose_name='Ativa', default=True)
+    total_value = models.DecimalField(verbose_name='Total Pedido', max_digits=10, decimal_places=2, default=0)
+    payment = models.DecimalField(verbose_name='Pagamento Recebido', max_digits=10, decimal_places=2, default=0)
+    change = models.DecimalField(verbose_name='Troco Devolvido', max_digits=10, decimal_places=2, default=0)
+    appointment = models.DateTimeField(verbose_name='Horário de Entrega', null=True, blank=True)
 
     def __str__(self):
         return f'{self.client} - {self.created_on}'
+
+    @property
+    def started_on(self):
+        date = self.created_on
+        if self.delivery_type == 'SCHEDULE':
+            date = self.appointment
+
+        return date.strftime("%d/%m/%y %H:%M")
 
 
 class OrderProduct(BaseModel):
@@ -72,7 +85,3 @@ class OrderProduct(BaseModel):
     def __str__(self):
         return self.name
 
-
-class OrderAppointment(BaseModel):
-    order = models.ForeignKey(verbose_name='Ordem', to='Order', on_delete=models.CASCADE)
-    appointment = models.DateTimeField(verbose_name='Horário de Entrega')
