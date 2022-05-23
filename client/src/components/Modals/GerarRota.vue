@@ -107,23 +107,24 @@
 
             <div v-else-if="etapaPedido==2" >
               <h1 class="text-center">Rota Gerada com Sucesso!</h1>
-              <v-simple-table>
+              <v-simple-table class="mb-5">
                 <thead>
                   <tr>
-                    <th>#</th>
-                    <!-- <th>Entregador</th> -->
+                    <th>Ponto de Entrega</th>
                     <th>Número do Pedido</th>
                     <th>Cliente</th>
                     <th>Endereço</th>
                     <th>Produtos</th>
-                    <th>Foi Paga?</th>
+                    <th>Método de Pagamento</th>
+                    <th>Valor do Pedido</th>
+                    <th>Troco do Cliente</th>
+                    <th>Pago</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr
-                    v-for="item in ordersInPath" :key="item.index">
-                    <!-- <td>{{ item.entregador }}</td> -->
-                    <!-- <td>{{ item.index }} </td> -->
+                    v-for="item in ordersInPath" :key="item.pk">
+                    <td>{{ item.index +1}}º</td>
                     <td>{{ item.pk }}</td>
                     <td>{{ item.client_name }}</td>
                     <td>{{ item.address.format }}</td>
@@ -135,11 +136,15 @@
                         x{{product.quantity}} - {{ product.name }}
                       </v-chip>
                     </td>
+                    <td>{{item.payment_display}}</td>
+                    <td>R$ {{item.total_value}}</td>
+                    <td v-if="item.is_paid"> - </td>
+                    <td v-else>R$ {{item.change}}</td>
                     <td>
-                      <v-icon color="success" v-if="item.is_paid"> mdi-check</v-icon>
-                      <v-icon color="error" v-else>mdi-close</v-icon>
+                      <v-icon v-if="item.is_paid" color="success">mdi-check</v-icon>
+                      <v-icon v-else color="error">mdi-close</v-icon>
                     </td>
-                    </tr>
+                  </tr>
                 </tbody>
               </v-simple-table>
 
@@ -335,7 +340,7 @@ export default {
       this.etapaPedido -= 1;
     },
     getOrderStatus(order) {
-      if (order.ispaid) {
+      if (order.is_paid) {
         return 'Sim';
       }
       return 'Não';
@@ -347,9 +352,11 @@ export default {
         cliente: item.client_name,
         endereco: item.address.format,
         produtos: item.products.map((product) => `x${product.quantity} - ${product.name}`),
+        total: `R$ ${item.total_value}`,
+        troco: `R$ ${item.change}`,
         paga: this.getOrderStatus(item),
       }));
-      const headers = ['#', 'numero', 'cliente', 'endereco', 'produtos', 'paga'];
+      const headers = ['#', 'numero', 'cliente', 'endereco', 'produtos', 'total', 'troco_cliente', 'paga'];
       this.printJSONRoute(jsonData, headers);
       return false;
     },

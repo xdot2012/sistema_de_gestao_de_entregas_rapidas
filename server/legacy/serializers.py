@@ -1,12 +1,14 @@
 import datetime
 
 from rest_framework import serializers
-from .models import Client, DeliveryMan, Order, OrderProduct
+from .models import Client, DeliveryMan, Order, OrderProduct, PAYMENT_CHOICES
 from routing.serializers import ClientAddressSerializer
 
 
-class OrderProductSerializer(serializers.ModelSerializer):
+PAYMENT_DISPLAY = dct = dict((x, y) for x, y in PAYMENT_CHOICES)
 
+
+class OrderProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderProduct
         fields = ['pk', 'name', 'quantity']
@@ -17,12 +19,13 @@ class OrderSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source='client.name', read_only=True)
     products = OrderProductSerializer(read_only=True, many=True)
     key = serializers.SerializerMethodField()
+    payment_display = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = ['pk', 'address', 'client', 'delivery_type', 'created_on', 'modified_on', 'ready_on', 'finished_on',
                   'created_by', 'modified_by', 'products', 'is_paid', 'payment_method', 'client_name', 'key',
-                  'total_value', 'payment', 'change', 'appointment', 'started_on']
+                  'total_value', 'payment', 'change', 'appointment', 'started_on', 'payment_display']
 
     def get_key(self, obj):
         ready_on = '-'
@@ -30,6 +33,8 @@ class OrderSerializer(serializers.ModelSerializer):
             ready_on = obj.ready_on
         return f'{obj.pk}{obj.modified_on}{ready_on}'
 
+    def get_payment_display(self, obj):
+        return PAYMENT_DISPLAY[obj.payment_method]
 
 
 

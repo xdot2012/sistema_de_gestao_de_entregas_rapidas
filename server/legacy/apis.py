@@ -4,11 +4,13 @@ from decimal import Decimal
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+
+from routing.router import get_route
 from .serializers import ClientSerializer, DeliveryManSerializer, OrderSerializer
 from .models import Client, DeliveryMan, Order, OrderProduct
 from rest_framework.response import Response
 from django.db import transaction
-from routing.models import ClientAddress
+from routing.models import ClientAddress, Branch
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -48,14 +50,14 @@ class OrderApiView(viewsets.ModelViewSet):
         return Response(self.serializer_class(order_obj).data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
-        queryset = Order.objects.filter(finished_on=None, active=True)
+        queryset = Order.objects.filter(finished_on=None, active=True, created_by=request.user)
         queryset = sorted(queryset, key=lambda i: i.started_on)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['GET'], detail=False)
     def history(self, request, *args, **kwargs):
-        queryset = Order.objects.filter(active=True)
+        queryset = Order.objects.filter(active=True, created_by=request.user)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -98,6 +100,11 @@ class DeliveryManViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = None
 
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset(created_by=request.user)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
@@ -105,11 +112,15 @@ class ClientViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = None
 
+    def list(self, request, *args, **kwargs):
+        queryset = Client.objects.filter(created_by=request.user)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
     @action(methods=['POST'], detail=False)
     def filter(self, request, *args, **kwargs):
-        filters = request.data
-        client_list = Client.objects.filter(**filters)
-        serializer = self.get_serializer(client_list, many=True)
+        queryset = self.queryset(created_by=request.user, **request.data)
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
@@ -118,15 +129,25 @@ class ClientViewSet(viewsets.ModelViewSet):
         client_address = request.data['address']
 
         with transaction.atomic():
-            client = Client.objects.create(name=serializer.validated_data['name'], phone=serializer.validated_data['phone'])
-            ClientAddress.objects.create(**client_address, client=client)
+            client = Client.objects.create(
+                name=serializer.validated_data['name'],
+                phone=serializer.validated_data['phone'],
+                created_by=request.user
+            )
+            branch = Branch.objects.filter(active=True, created_by=request.user).first()
+            route = get_route(branch.longitude, branch.latitude, client_address['longitude'], client_address['latitude'])
+            if route:
+                distance = route['distance']
+            else:
+                distance = 0
+            ClientAddress.objects.create(**client_address, client=client, distance=distance)
 
         return Response(self.serializer_class(client).data, status=status.HTTP_201_CREATED)
 
     @action(methods=['PUT'], detail=True)
     def name_phone(self, request, *args, **kwargs):
         try:
-            client = Client.objects.get(pk=kwargs['pk'])
+            client = Client.objects.get(pk=kwargs['pk'], created_by=request.user)
         except ObjectDoesNotExist:
             return Response({'error': 'Cliente não encontrado'}, status=status.HTTP_400_BAD_REQUEST)
 

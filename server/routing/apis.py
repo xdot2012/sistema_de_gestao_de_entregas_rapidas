@@ -11,12 +11,12 @@ from rest_framework import viewsets, status
 
 
 class BranchApiView(APIView):
-    queryset = Branch.objects.all
+    queryset = Branch.objects.all()
     serializer_class = BranchSerializer
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        queryset = self.queryset()
+        queryset = Branch.objects.filter(created_by=request.user)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
@@ -26,6 +26,11 @@ class ClientAddressViewSet(viewsets.ModelViewSet):
     serializer_class = ClientAddressSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = None
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset(client__created_by=request.user)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
 
 
 class LocationAPIView(APIView):
@@ -44,7 +49,7 @@ class PathFinderAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        branch = Branch.objects.filter(active=True).first()
+        branch = Branch.objects.filter(active=True, user=request.user).first()
         branch_index = f'{branch.longitude},{branch.latitude}'
         orders_pk = list(map(int, request.data['orders']))
         orders_pk.sort()

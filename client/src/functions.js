@@ -42,7 +42,6 @@ export function onTimeToDeliver(item) {
       return false;
     }
   }
-  console.log(item);
   return true;
 }
 
@@ -139,4 +138,15 @@ export function getMapPopUpTitle(location, routeSize) {
     index = `${index}ª Parada`;
   }
   return `${index} : ${location.name}`;
+}
+
+export function getOrdersWithRouteData(routeData) {
+  const orders = routeData.map((item) => item.orders.map((order) => Object.assign(
+    order, {
+      distance: item.distance,
+      index: item.index,
+    },
+  )));
+
+  return [].concat(...orders);
 }

@@ -1,4 +1,5 @@
 import authRequest from '../../requests';
+import { getOrdersWithRouteData } from '../../functions';
 
 const routing = {
   state: () => ({
@@ -9,11 +10,11 @@ const routing = {
   getters: {
     getAllCitys: (state) => state.citys,
     getPath: (state) => state.currentPath.data,
-    getOrdersInPath: (state) => state.currentPath.data.map((item) => item.order),
+    getOrdersPathData: (state) => state.currentPath.data,
     polylineData: (state) => state.currentPath.route.full_path,
     polylineLegData: (state) => state.currentPath.route.legs,
     polylineStepData: (state) => state.currentPath.route.legs.steps,
-    ordersInPath: (state) => [].concat(...state.currentPath.data.map((item) => item.orders)),
+    ordersInPath: (state) => getOrdersWithRouteData(state.currentPath.data),
   },
 
   actions: {

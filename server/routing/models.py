@@ -28,6 +28,7 @@ class Branch(models.Model):
     longitude = models.CharField(max_length=20)
     altitude = models.CharField(max_length=20)
     active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(verbose_name='Criado por', to='accounts.User', on_delete=models.CASCADE)
 
     def __str__(self):
         return get_format(self)
@@ -63,11 +64,5 @@ class ClientAddress(BaseModel):
         return get_format(self)
 
     def save(self, *args, **kwargs):
-        if not self.distance:
-            branch = Branch.objects.filter(active=True).first()
-            route = get_route(branch.longitude, branch.latitude, self.longitude, self.latitude)
-            self.distance = route['distance']
-
-        with transaction.atomic():
-            ClientAddress.objects.filter(client=self.client.pk).update(active=False)
-            return super(ClientAddress, self).save(*args, **kwargs)
+        ClientAddress.objects.filter(client=self.client.pk).update(active=False)
+        return super(ClientAddress, self).save(*args, **kwargs)

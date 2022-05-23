@@ -34,11 +34,13 @@ class DeliveryMan(BaseModel):
     vehicle_type = models.CharField('Tipo do Veículo', max_length=15, choices=(VEHICLE_CHOICES))
     status = models.CharField('Situação', max_length=15, choices=STATUS_CHOICES, default="IDLE")
     capacity = models.PositiveIntegerField('Capacidade do Veículo (Nº de pedidos)', default=0)
+    created_by = models.ForeignKey(verbose_name='Criado por', to='accounts.User', on_delete=models.CASCADE)
 
 
 class Client(BaseModel):
     name = models.CharField('Nome', max_length=100)
     phone = models.CharField('Telefone', max_length=11, unique=True)
+    created_by = models.ForeignKey(verbose_name='Criado por', to='accounts.User', on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ['name', 'phone']
@@ -57,8 +59,8 @@ class Order(BaseModel):
     modified_on = models.DateTimeField(verbose_name='Modificado em', auto_now_add=True)
     ready_on = models.DateTimeField(verbose_name='Pronto para entrega em', null=True, blank=True)
     finished_on = models.DateTimeField(verbose_name='Concluída em', null=True, blank=True)
-    created_by = models.ForeignKey(verbose_name='Criado por', to='accounts.User', related_name='created_orders', on_delete=models.PROTECT)
-    modified_by = models.ForeignKey(verbose_name='Modificado por', to='accounts.User', related_name='modified_orders', null=True, blank=True, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(verbose_name='Criado por', to='accounts.User', related_name='created_orders', on_delete=models.CASCADE)
+    modified_by = models.ForeignKey(verbose_name='Modificado por', to='accounts.User', related_name='modified_orders', null=True, blank=True, on_delete=models.CASCADE)
     active = models.BooleanField(verbose_name='Ativa', default=True)
     total_value = models.DecimalField(verbose_name='Total Pedido', max_digits=10, decimal_places=2, default=0)
     payment = models.DecimalField(verbose_name='Pagamento Recebido', max_digits=10, decimal_places=2, default=0)

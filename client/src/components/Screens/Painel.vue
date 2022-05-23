@@ -41,8 +41,10 @@
                        Saiu para Entrega em {{ item.ready_on }}
                     </div>
                     <div v-else-if="item.delivery_type==='SCHEDULE'">
-                      <v-icon color="success">mdi-calendar-clock</v-icon>
-                       Entrega Agendada para {{ item.appointment }}
+                      <v-icon
+                        :color="appointmentStatus(item)">
+                        mdi-calendar-clock</v-icon>
+                        Entrega Agendada para {{ item.appointment }}
                     </div>
                     <div v-else-if="isLate(item.created_on)">
                       <v-icon color="error">mdi-clock</v-icon>
@@ -116,6 +118,7 @@ import {
   isOut,
   isLate,
   isWarn,
+  onTimeToDeliver,
 } from '../../functions';
 import AtualizarPedido from '../Modals/AtualizarPedido.vue';
 
@@ -138,10 +141,20 @@ export default {
       isOut,
       isLate,
       isWarn,
+      onTimeToDeliver,
       selectedOrders: [],
     };
   },
   methods: {
+    appointmentStatus(item) {
+      if (this.isLate(item.appointment)) {
+        return 'error';
+      }
+      if (this.isWarn(item.appointment)) {
+        return 'warning';
+      }
+      return 'success';
+    },
     openDialog() {
 
     },
