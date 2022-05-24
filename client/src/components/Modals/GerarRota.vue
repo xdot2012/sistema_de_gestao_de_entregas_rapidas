@@ -124,7 +124,7 @@
                 <tbody>
                   <tr
                     v-for="item in ordersInPath" :key="item.pk">
-                    <td>{{ item.index +1}}º</td>
+                    <td>{{ item.index }}º</td>
                     <td>{{ item.pk }}</td>
                     <td>{{ item.client_name }}</td>
                     <td>{{ item.address.format }}</td>
@@ -352,11 +352,11 @@ export default {
         cliente: item.client_name,
         endereco: item.address.format,
         produtos: item.products.map((product) => `x${product.quantity} - ${product.name}`),
-        total: `R$ ${item.total_value}`,
-        troco: `R$ ${item.change}`,
+        total: `R$ ${item.total_value ? item.total_value : 0}`,
+        troco: `R$ ${item.change ? item.change : 0}`,
         paga: this.getOrderStatus(item),
       }));
-      const headers = ['#', 'numero', 'cliente', 'endereco', 'produtos', 'total', 'troco_cliente', 'paga'];
+      const headers = ['#', 'numero', 'cliente', 'endereco', 'produtos', 'total', 'troco', 'paga'];
       this.printJSONRoute(jsonData, headers);
       return false;
     },

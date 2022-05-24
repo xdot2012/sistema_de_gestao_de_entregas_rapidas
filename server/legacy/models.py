@@ -39,11 +39,11 @@ class DeliveryMan(BaseModel):
 
 class Client(BaseModel):
     name = models.CharField('Nome', max_length=100)
-    phone = models.CharField('Telefone', max_length=11, unique=True)
+    phone = models.CharField('Telefone', max_length=11)
     created_by = models.ForeignKey(verbose_name='Criado por', to='accounts.User', on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ['name', 'phone']
+        unique_together = ['phone', 'created_by']
 
     def __str__(self):
         return self.name

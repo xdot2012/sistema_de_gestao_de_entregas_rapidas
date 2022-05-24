@@ -49,7 +49,7 @@ class PathFinderAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        branch = Branch.objects.filter(active=True, user=request.user).first()
+        branch = Branch.objects.filter(active=True, created_by=request.user).first()
         branch_index = f'{branch.longitude},{branch.latitude}'
         orders_pk = list(map(int, request.data['orders']))
         orders_pk.sort()
@@ -59,16 +59,27 @@ class PathFinderAPIView(APIView):
         waypoints[branch_index] = {
             'latitude': branch.latitude,
             'longitude': branch.longitude,
-            'orders': []
+            'orders': [],
+            'address': {
+                'city_name': branch.city_name,
+                'street': branch.street,
+                'district': branch.district,
+            }
+
         }
 
         for order in orders:
             order_index = f'{order.address.longitude},{order.address.latitude}'
             if order_index not in waypoints:
                 waypoints[order_index] = {
-                    'latitude': branch.latitude,
-                    'longitude': branch.longitude,
-                    'orders': [order]
+                    'latitude': order.address.latitude,
+                    'longitude': order.address.longitude,
+                    'orders': [order],
+                    'address': {
+                        'city_name': order.address.city_name,
+                        'street': order.address.street,
+                        'district': order.address.district,
+                    }
                 }
             else:
                 waypoints[order_index]['orders'].append(order)
@@ -84,13 +95,15 @@ class PathFinderAPIView(APIView):
                 data.append({
                     'index': w_id,
                     'distance': item['distance'],
-                    'name': item['name'],
-                    'longitude': item['location'][0],
-                    'latitude': item['location'][1],
-                    'orders': OrderSerializer(waypoint_array[w_id]['orders'], many=True).data,
-                    'point': [item['location'][1], item['location'][0]]
+                    'name': waypoint_array[i]['address']['street'],
+                    'longitude': waypoint_array[i]['longitude'],
+                    'latitude': waypoint_array[i]['latitude'],
+                    'orders': OrderSerializer(waypoint_array[i]['orders'], many=True).data,
+                    'point': [waypoint_array[i]['latitude'], waypoint_array[i]['longitude']]
                 })
                 i += 1
+
+            data = sorted(data, key=lambda i: i['index'])
 
             response = {
                 'data': data,

@@ -37,7 +37,7 @@ export function onTimeToDeliver(item) {
   if (item.delivery_type === 'PICKUP') {
     return false;
   }
-  if (item.delivery_type === 'SCHEDULE') {
+  if (item.delivery_type === 'SCHEDULE' && Date.now() < stringToDate(item.appointment)) {
     if (getDifInMinutes(Date.now(), stringToDate(item.appointment)) > SCHEDULE_TIME) {
       return false;
     }

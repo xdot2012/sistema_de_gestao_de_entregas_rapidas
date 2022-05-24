@@ -35,7 +35,8 @@ class Branch(models.Model):
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
-            Branch.objects.filter().update(active=False)
+            Branch.objects.filter(created_by=self.created_by).update(active=False)
+            self.active=True
             return super(Branch, self).save(*args, **kwargs)
 
 
