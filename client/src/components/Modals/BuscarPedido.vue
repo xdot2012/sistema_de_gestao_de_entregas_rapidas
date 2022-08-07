@@ -102,14 +102,14 @@
                       <thead>
                         <tr v-if="ordersFound.length>0">
                           <th>#</th>
-                          <th>Hora do Pedido</th>
+                          <th>Cliente</th>
                           <th>Produtos</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr v-for="item in ordersFound" :key=item.pk>
                           <td>{{item.pk}}</td>
-                          <td>{{item.date}}</td>
+                          <td>{{item.client_name}}</td>
                           <td>
                             <v-chip v-for="product in item.products" :key="product.pk">
                               x{{ product.quantity }} - {{ product.name }}

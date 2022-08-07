@@ -40,3 +40,6 @@ class TestApis(TestSetUp):
         self.assertEqual(register_res.data['username'], token_res.data['username'].upper())
         self.assertEqual(register_res.data['pk'], token_res.data['user_id'])
         self.assertIsNotNone(token_res.data['token'])
+
+        from accounts.models import Person
+        print(Person.objects.all())

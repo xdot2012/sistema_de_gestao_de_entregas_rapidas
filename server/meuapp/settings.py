@@ -39,10 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
-    'rest_framework_datatables',
     'rest_framework.authtoken',
+    'rest_framework_datatables',
     'django_rest_passwordreset',
-    'simple_history',
     'accounts',
     'legacy',
     'routing',
@@ -97,16 +96,40 @@ WSGI_APPLICATION = 'meuapp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'tcc_2022',
-        'USER': 'postgres',
-        'PASSWORD': 'root',
-        'HOST': 'localhost',
-        'PORT': '5432',
+import sys
+#Covers regular testing and django-coverage
+if 'test' in sys.argv or 'test_coverage' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR + '/database.db',  # <- The path
+        },
+        'legacy': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR + '/legacy_database.db',  # <- The path
+        },
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'tcc_2022',
+            'USER': 'postgres',
+            'PASSWORD': 'root',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        },
+        'legacy': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'legacy',
+            'USER': 'postgres',
+            'PASSWORD': 'root',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+
+    }
+
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
@@ -191,3 +214,4 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 CLIENT_BASE_URL = 'localhost:8080/'
 PASSWORD_RESET_URL = CLIENT_BASE_URL + 'redefinirSenha/'
+

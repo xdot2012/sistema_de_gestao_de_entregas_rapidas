@@ -113,7 +113,7 @@ export function formatAddress(obj) {
 }
 
 export function formatAddressNominatin(obj) {
-  return `Rua ${obj.street}, ${obj.city_name}, ${obj.state_name}, ${obj.code}`;
+  return `${obj.street}, ${obj.city_name}, ${obj.state_name}, ${obj.code}`;
 }
 
 export function formatPhone(phone) {
