@@ -29,7 +29,7 @@ L.Icon.Default.mergeOptions({
 });
 /* eslint-enable no-underscore-dangle */
 
-axios.defaults.baseURL = 'http://localhost:8000';
+axios.defaults.baseURL = 'http://localhost:80';
 
 new Vue({
   router,

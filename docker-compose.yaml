@@ -1,0 +1,79 @@
+version: "3.1"
+
+services:
+  django: &django
+    build: ./server/.
+    restart: always
+    container_name: django-server
+    environment:
+      - DJANGO_SETTINGS_MODULE=meuapp.settings
+    expose:
+      - 8000
+    volumes:
+      - ./server:/server
+    command: >
+      sh -c "python manage.py migrate &&
+      gunicorn meuapp.wsgi:application -w 3 -b :8000"
+    networks:
+      - web
+      - database
+    depends_on:
+      - postgres
+
+  nginx:
+    image: nginx
+    container_name: nginx-server
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./etc/nginx:/etc/nginx/conf.d/
+      - ./log/nginx:/var/log/nginx
+      - ./server/media:/var/www/media
+      - ./server/static_files:/var/www/static
+    networks:
+      - web
+    depends_on:
+      - django
+
+  postgres:
+    image: mdillon/postgis
+    container_name: postgres-server
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: senha
+      POSTGRES_DB: entregas_rapidas
+    expose:
+      - 5432
+    volumes:
+      - ./var/postgresql:/var/lib/postgresql/data
+    networks:
+      - web
+      - database
+
+  portainer:
+    image: portainer/portainer:latest
+    container_name: portainer-server
+    ports:
+      - "9000:9000"
+    command: -H unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+
+  adminer:
+    image: adminer:latest
+    container_name: adminer-server
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres
+    networks:
+      - database
+
+volumes:
+  portainer-data:
+
+networks:
+  web:
+  database:

@@ -31,7 +31,7 @@ const auth = {
     },
     logout({ commit }) {
       commit('REMOVE_USER');
-      window.location.replace('/auth');
+      window.location.replace('/');
     },
     passwordResetEmail({ commit, dispatch }, data) {
       axios.post('/api/accounts/password_reset/', data)

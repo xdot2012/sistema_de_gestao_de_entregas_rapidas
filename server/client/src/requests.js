@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const url = 'http://localhost:8000';
+const url = 'http://localhost:80';
 
 const authRequest = () => {
   const defaultOptions = {

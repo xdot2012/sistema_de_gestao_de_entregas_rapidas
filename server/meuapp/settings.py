@@ -61,9 +61,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8080',
-]
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'meuapp.urls'
 
@@ -113,21 +111,12 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
-            'NAME': 'tcc_2022',
+            'NAME': 'entregas_rapidas',
             'USER': 'postgres',
-            'PASSWORD': 'root',
-            'HOST': 'localhost',
+            'PASSWORD': 'senha',
+            'HOST': 'postgres',
             'PORT': '5432',
         },
-        'legacy': {
-            'ENGINE': 'django.contrib.gis.db.backends.postgis',
-            'NAME': 'legacy',
-            'USER': 'postgres',
-            'PASSWORD': 'root',
-            'HOST': 'localhost',
-            'PORT': '5432',
-        }
-
     }
 
 # Password validation
@@ -175,11 +164,11 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, './static_files'),
+    ['static']
 )
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_files/')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -212,6 +201,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-CLIENT_BASE_URL = 'localhost:8080/'
+CLIENT_BASE_URL = 'localhost/'
 PASSWORD_RESET_URL = CLIENT_BASE_URL + 'redefinirSenha/'
 

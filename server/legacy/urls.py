@@ -11,5 +11,6 @@ router.register(r'orders', OrderApiView)
 
 urlpatterns = [
     path('api/', include(router.urls)),
-    path('', views.HomeView.as_view(), name='home'),
+    path('home/', views.HomeView.as_view(), name='home'),
+    path('', views.vue_serve, name='vue'),
 ]
